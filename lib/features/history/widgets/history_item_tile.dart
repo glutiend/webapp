@@ -54,44 +54,7 @@ class _HistoryItemTileState extends State<HistoryItemTile> {
     GlutenSafetyStatus status, {
     bool isCompact = false,
   }) {
-    AppStatusPillVariant variant;
-    String label;
-    IconData icon;
-
-    switch (status) {
-      case GlutenSafetyStatus.adatto:
-        variant = AppStatusPillVariant.primary;
-        label = "history.item.status.safe".tr();
-        icon = Icons.check_circle_outline;
-        break;
-      case GlutenSafetyStatus.nonAdatto:
-        variant = AppStatusPillVariant.error;
-        label = "history.item.status.unsafe".tr();
-        icon = Icons.cancel_outlined;
-        break;
-      case GlutenSafetyStatus.incerto:
-        variant = AppStatusPillVariant.tertiary;
-        label = "history.item.status.uncertain".tr();
-        icon = Icons.warning_amber;
-        break;
-      case GlutenSafetyStatus.sconosciuto:
-        variant = AppStatusPillVariant.neutral;
-        label = "history.item.status.unknown".tr();
-        icon = Icons.help_outline;
-        break;
-    }
-
-    if (isCompact) {
-      if (label.contains(' - ')) {
-        label = label.split(' - ').first.trim();
-      } else if (label.contains(' – ')) {
-        label = label.split(' – ').first.trim();
-      } else if (label.contains(' — ')) {
-        label = label.split(' — ').first.trim();
-      }
-    }
-
-    return AppStatusPill.preset(variant: variant, label: label, icon: icon);
+    return AppStatusPill.fromStatus(status, isCompact: isCompact);
   }
 
   /// Colore dei placeholder skeleton: di default surfaceContainerHighest,

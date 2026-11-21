@@ -99,6 +99,34 @@ abstract final class AppButton {
     );
   }
 
+  /// Pulsante Testo piatto (solo icona e testo, senza bordi):
+  /// stile identico ad "Accedi come anonimo", per azioni inline discrete.
+  static Widget text({
+    Key? key,
+    required VoidCallback? onPressed,
+    String? label,
+    Widget? child,
+    IconData? icon,
+    Widget? iconWidget,
+    Color? foregroundColor,
+    EdgeInsetsGeometry? padding,
+    double? fontSize,
+    FontWeight? fontWeight,
+  }) {
+    return AppTextButton(
+      key: key,
+      onPressed: onPressed,
+      label: label,
+      icon: icon,
+      iconWidget: iconWidget,
+      foregroundColor: foregroundColor,
+      padding: padding,
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      child: child,
+    );
+  }
+
   /// Pulsante Primario Distruttivo (rosso pieno): azioni irreversibili di eliminazione.
   static Widget primaryDestructive({
     Key? key,
@@ -415,6 +443,68 @@ class AppTertiaryButton extends StatelessWidget {
       return SizedBox(width: double.infinity, child: button);
     }
     return button;
+  }
+}
+
+/// Pulsante Testo piatto (senza bordi, solo icona e testo)
+class AppTextButton extends StatelessWidget {
+  final VoidCallback? onPressed;
+  final String? label;
+  final Widget? child;
+  final IconData? icon;
+  final Widget? iconWidget;
+  final Color? foregroundColor;
+  final EdgeInsetsGeometry? padding;
+  final double? fontSize;
+  final FontWeight? fontWeight;
+
+  const AppTextButton({
+    super.key,
+    required this.onPressed,
+    this.label,
+    this.child,
+    this.icon,
+    this.iconWidget,
+    this.foregroundColor,
+    this.padding,
+    this.fontSize,
+    this.fontWeight,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = context.colorScheme;
+    final fg = foregroundColor ?? colorScheme.primary;
+
+    return TextButton(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        foregroundColor: fg,
+        padding: padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+      ).copyWith(
+        overlayColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.pressed)) {
+            return colorScheme.splashPrimary;
+          }
+          if (states.contains(WidgetState.hovered) ||
+              states.contains(WidgetState.focused)) {
+            return colorScheme.selectedItemBg;
+          }
+          return null;
+        }),
+      ),
+      child: _buildButtonContent(
+        fgColor: fg,
+        label: label,
+        child: child,
+        icon: icon,
+        iconWidget: iconWidget,
+        isLoading: false,
+        fontSize: fontSize ?? 14,
+        fontWeight: fontWeight ?? FontWeight.w600,
+      ),
+    );
   }
 }
 

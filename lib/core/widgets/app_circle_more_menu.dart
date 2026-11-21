@@ -26,37 +26,35 @@ class AppCircleMoreMenu<T> extends StatelessWidget {
     final colorScheme = context.colorScheme;
     final cardBg = context.cardBackground;
 
-    return ClipOval(
-      child: PopupMenuButton<T>(
-        tooltip: tooltip ?? "common.actions.moreOptions".tr(),
-        elevation: 6,
-        shadowColor: colorScheme.shadow,
-        offset: offset,
-        color: cardBg,
-        surfaceTintColor: Colors.transparent,
-        borderRadius: BorderRadius.circular(20),
-        clipBehavior: Clip.antiAlias,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(
-            color: colorScheme.cardPrimaryBorder,
-            width: 1,
-          ),
+    return Padding(
+      padding: const EdgeInsets.only(right: 4.0),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          splashColor: colorScheme.onSurface.withValues(alpha: 0.12),
+          highlightColor: colorScheme.onSurface.withValues(alpha: 0.08),
         ),
-        onSelected: onSelected,
-        itemBuilder: itemBuilder,
-        child: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
-            shape: BoxShape.circle,
+        child: PopupMenuButton<T>(
+          tooltip: tooltip ?? "common.actions.moreOptions".tr(),
+          elevation: 6,
+          shadowColor: colorScheme.shadow,
+          offset: offset,
+          color: cardBg,
+          surfaceTintColor: Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          clipBehavior: Clip.antiAlias,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(
+              color: colorScheme.cardPrimaryBorder,
+              width: 1,
+            ),
           ),
-          child: Icon(
+          icon: Icon(
             Icons.more_vert_rounded,
-            color: colorScheme.onSurfaceVariant,
-            size: 20,
+            color: colorScheme.onSurface,
           ),
+          onSelected: onSelected,
+          itemBuilder: itemBuilder,
         ),
       ),
     );

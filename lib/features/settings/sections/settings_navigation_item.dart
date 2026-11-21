@@ -60,21 +60,15 @@ class SettingsNavigationItem extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        child: Container(
+        splashColor: colorScheme.splashPrimary,
+        highlightColor: colorScheme.primary.withValues(alpha: 0.04),
+        hoverColor: colorScheme.primary.withValues(alpha: 0.03),
+        child: Padding(
           padding: EdgeInsets.only(
             left: 24,
             right: 24,
-            top: isFirst ? 24.0 : 16.0,
-            bottom: isLast ? 24.0 : 16.0,
-          ),
-          decoration: BoxDecoration(
-            border: isLast
-                ? null
-                : Border(
-                    bottom: BorderSide(
-                      color: colorScheme.outlineVariant.withValues(alpha: 0.2),
-                    ),
-                  ),
+            top: isFirst ? 22.0 : 13.0,
+            bottom: isLast ? 22.0 : 13.0,
           ),
           child: hasTrailingArrow
               ? Row(
@@ -93,7 +87,7 @@ class SettingsNavigationItem extends StatelessWidget {
                                   title,
                                   style: TextStyle(
                                     fontSize: 16,
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.w600,
                                     color: colorScheme.onSurface,
                                   ),
                                 ),
@@ -104,27 +98,29 @@ class SettingsNavigationItem extends StatelessWidget {
                               ],
                             ],
                           ),
-                          const SizedBox(height: 6),
-                          if (description != null)
+                          const SizedBox(height: 3.5),
+                          if (description != null) ...[
                             Text(
                               description!,
                               style: TextStyle(
                                 fontSize: 13,
                                 color: colorScheme.onSurfaceVariant,
-                                height: 1.3,
+                                height: 1.35,
                               ),
                             ),
+                            const SizedBox(height: 3.5),
+                          ],
                           subtitle,
                         ],
                       ),
                     ),
                     const SizedBox(width: 12),
                     Transform.translate(
-                      offset: const Offset(8, 0),
+                      offset: const Offset(4, 0),
                       child: Icon(
                         Icons.chevron_right_rounded,
-                        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.35),
-                        size: 26,
+                        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                        size: 24,
                       ),
                     ),
                   ],
@@ -143,7 +139,7 @@ class SettingsNavigationItem extends StatelessWidget {
                               title,
                               style: TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w600,
                                 color: colorScheme.onSurface,
                               ),
                             ),
@@ -154,16 +150,18 @@ class SettingsNavigationItem extends StatelessWidget {
                           ],
                         ],
                       ),
-                      const SizedBox(height: 6),
-                      if (description != null)
+                      const SizedBox(height: 3.5),
+                      if (description != null) ...[
                         Text(
                           description!,
                           style: TextStyle(
                             fontSize: 13,
                             color: colorScheme.onSurfaceVariant,
-                            height: 1.3,
+                            height: 1.35,
                           ),
                         ),
+                        const SizedBox(height: 3.5),
+                      ],
                       subtitle,
                     ],
                   ),

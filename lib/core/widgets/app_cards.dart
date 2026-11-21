@@ -21,7 +21,7 @@ abstract final class AppCard {
     Color? bgColor,
     Color? borderColor,
     bool hasBorder = true,
-    double borderWidth = 1.5,
+    double borderWidth = 1.0,
     double borderRadius = 24.0,
     bool hasShadow = true,
     Clip clipBehavior = Clip.antiAlias,
@@ -146,7 +146,7 @@ class AppPrimaryCard extends StatelessWidget {
     this.bgColor,
     this.borderColor,
     this.hasBorder = true,
-    this.borderWidth = 1.5,
+    this.borderWidth = 1.0,
     this.borderRadius = 24.0,
     this.hasShadow = true,
     this.clipBehavior = Clip.antiAlias,
@@ -184,14 +184,8 @@ class AppPrimaryCard extends StatelessWidget {
         border: hasBorder
             ? Border.all(color: resolvedBorderColor, width: borderWidth)
             : null,
-        boxShadow: hasShadow
-            ? [
-                BoxShadow(
-                  color: colorScheme.cardPrimaryShadow,
-                  blurRadius: 4,
-                  offset: const Offset(0, 1),
-                ),
-              ]
+        boxShadow: hasShadow && colorScheme.cardPrimaryShadows.isNotEmpty
+            ? colorScheme.cardPrimaryShadows
             : null,
       ),
       clipBehavior: clipBehavior,
@@ -265,13 +259,7 @@ class AppSecondaryCard extends StatelessWidget {
                 width: borderWidth,
               )
             : null,
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.cardSecondaryShadow,
-            blurRadius: 3,
-            offset: const Offset(0, 1),
-          ),
-        ],
+        boxShadow: null,
       ),
       clipBehavior: clipBehavior,
       child: Material(

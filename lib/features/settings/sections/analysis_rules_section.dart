@@ -65,21 +65,12 @@ class AnalysisRulesSection extends StatelessWidget {
     bool isLast = false,
   }) {
     final colorScheme = context.colorScheme;
-    return Container(
+    return Padding(
       padding: EdgeInsets.only(
         left: 24,
         right: 24,
-        top: isFirst ? 24.0 : 16.0,
-        bottom: isLast ? 24.0 : 16.0,
-      ),
-      decoration: BoxDecoration(
-        border: isLast
-            ? null
-            : Border(
-                bottom: BorderSide(
-                  color: colorScheme.outlineVariant,
-                ),
-              ),
+        top: isFirst ? 22.0 : 13.0,
+        bottom: isLast ? 22.0 : 13.0,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -92,17 +83,17 @@ class AnalysisRulesSection extends StatelessWidget {
                   title,
                   style: TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                     color: colorScheme.onSurface,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 3.5),
                 Text(
                   subtitle,
                   style: TextStyle(
                     fontSize: 13,
                     color: colorScheme.onSurfaceVariant,
-                    height: 1.3,
+                    height: 1.35,
                   ),
                 ),
               ],

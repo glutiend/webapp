@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2026 Emanuele Ciotola. All Rights Reserved.
+// Copyright (c) 2026 Emanuele Ciotola. All Rights Reserved.
 // PROJECT: GlutiEnd — See LICENSE file in root for terms.
 
 import 'package:flutter/material.dart';
@@ -264,8 +264,8 @@ class AccountSection extends StatelessWidget {
               ),
               const SizedBox(height: 10),
 
-              // Azione 2: Annulla
-              AppTertiaryButton(
+              // Azione 2: Annulla (Outlined Rosso per dialog distruttivo)
+              AppTertiaryDestructiveButton(
                 onPressed: () => Navigator.pop(ctx, false),
                 label: "common.actions.cancel".tr(),
               ),

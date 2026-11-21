@@ -136,13 +136,10 @@ class ReportItemCard extends StatelessWidget {
             ),
           ),
 
-          // Bordo separatore solido
-          Container(height: 1.5, color: colorScheme.cardPrimaryBorder),
-
           // PARTE INFERIORE: Call To Action
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-            color: colorScheme.statusTertiaryBg,
+            color: colorScheme.statusUncertainAlpha,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -151,7 +148,7 @@ class ReportItemCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: colorScheme.statusTertiaryText,
+                    color: colorScheme.statusUncertainSolid,
                   ),
                 ),
                 Transform.translate(
@@ -159,7 +156,7 @@ class ReportItemCard extends StatelessWidget {
                   child: Icon(
                     Icons.chevron_right_rounded,
                     size: 18,
-                    color: colorScheme.statusTertiaryText,
+                    color: colorScheme.statusUncertainSolid,
                   ),
                 ),
               ],

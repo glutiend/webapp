@@ -229,8 +229,8 @@ Future<void> showDeleteAccountFlow({
                 ),
                 const SizedBox(height: 10),
 
-                // Pulsante 2: Annulla
-                AppTertiaryButton(
+                // Pulsante 2: Annulla (Outlined Rosso per dialog distruttivo)
+                AppTertiaryDestructiveButton(
                   onPressed: isDeletingAccount
                       ? null
                       : () => Navigator.pop(dialogCtx),

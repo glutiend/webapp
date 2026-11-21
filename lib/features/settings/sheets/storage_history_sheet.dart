@@ -38,7 +38,6 @@ void showStorageHistorySheet({
     ),
     builder: (ctx) {
       final colorScheme = ctx.colorScheme;
-      final cardBg = ctx.cardBackground;
 
       return StatefulBuilder(
         builder: (BuildContext sheetContext, StateSetter setModalState) {
@@ -152,17 +151,9 @@ void showStorageHistorySheet({
                       },
                     );
 
-                    return Container(
+                    return AppCard.primary(
                       padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: cardBg,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(
-                          color: colorScheme.outlineVariant.withValues(
-                            alpha: 0.3,
-                          ),
-                        ),
-                      ),
+                      borderRadius: 24,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -249,17 +240,9 @@ void showStorageHistorySheet({
                       },
                     );
 
-                    return Container(
+                    return AppCard.primary(
                       padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: cardBg,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(
-                          color: colorScheme.outlineVariant.withValues(
-                            alpha: 0.3,
-                          ),
-                        ),
-                      ),
+                      borderRadius: 24,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [

@@ -417,7 +417,7 @@ class _OfflineDatabaseSheetContentState
                 label: "settings.offlineDb.uninstallPackage".tr(),
               ),
               const SizedBox(height: 10),
-              AppTertiaryButton(
+              AppTertiaryDestructiveButton(
                 onPressed: () => Navigator.pop(ctx, false),
                 label: "common.actions.cancel".tr(),
               ),
@@ -716,21 +716,12 @@ class _OfflineDatabaseSheetContentState
     bool isLast = false,
   }) {
     final colorScheme = context.colorScheme;
-    return Container(
+    return Padding(
       padding: EdgeInsets.only(
         left: 24,
         right: 24,
-        top: isFirst ? 24.0 : 16.0,
-        bottom: isLast ? 24.0 : 16.0,
-      ),
-      decoration: BoxDecoration(
-        border: isLast
-            ? null
-            : Border(
-                bottom: BorderSide(
-                  color: colorScheme.outlineVariant.withValues(alpha: 0.2),
-                ),
-              ),
+        top: isFirst ? 22.0 : 13.0,
+        bottom: isLast ? 22.0 : 13.0,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -743,17 +734,17 @@ class _OfflineDatabaseSheetContentState
                   title,
                   style: TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                     color: colorScheme.onSurface,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 3.5),
                 Text(
                   subtitle,
                   style: TextStyle(
                     fontSize: 13,
                     color: colorScheme.onSurfaceVariant,
-                    height: 1.3,
+                    height: 1.35,
                   ),
                 ),
               ],
@@ -781,54 +772,64 @@ class _OfflineDatabaseSheetContentState
     final title = "settings.offlineDb.packages.$key.title".tr();
     final dl = "settings.offlineDb.packages.$key.downloadSize".tr();
     final colorScheme = Theme.of(context).colorScheme;
-    final cardBg = context.cardBackground;
 
-    return InkWell(
-      onTap: () {
-        setState(() => _previewPack = key);
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-        decoration: BoxDecoration(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+      decoration: BoxDecoration(
+        color: isSelected
+            ? colorScheme.selectedItemBg
+            : colorScheme.unselectedItemBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
           color: isSelected
-              ? colorScheme.selectedItemBg
-              : cardBg,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected
-                ? colorScheme.primary
-                : colorScheme.outlineVariant.withValues(alpha: 0.3),
-            width: isSelected ? 1.5 : 1.0,
-          ),
+              ? colorScheme.selectedItemBorder
+              : Colors.transparent,
+          width: 1.0,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: isSelected ? colorScheme.primary : colorScheme.onSurface,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () {
+            setState(() => _previewPack = key);
+          },
+          borderRadius: BorderRadius.circular(16),
+          splashColor: colorScheme.splashPrimary,
+          highlightColor: colorScheme.selectedItemBg,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                    color: isSelected ? colorScheme.primary : colorScheme.onSurface,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  dl,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-            const SizedBox(height: 4),
-            Text(
-              dl,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12.5,
-                color: colorScheme.onSurfaceVariant,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -837,7 +838,6 @@ class _OfflineDatabaseSheetContentState
   @override
   Widget build(BuildContext context) {
     final colorScheme = context.colorScheme;
-    final cardBg = context.cardBackground;
     final isSyncing = _syncProgress.isInProgress;
 
     final displayTier = (isSyncing && _downloadingTier != null)
@@ -890,19 +890,13 @@ class _OfflineDatabaseSheetContentState
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // 3. Hero Status Card (Centrata, Pura e Simmetrica)
-                Container(
+                AppCard.primary(
+                  borderRadius: 28,
                   padding: const EdgeInsets.only(
                     top: 22,
                     bottom: 18,
                     left: 20,
                     right: 20,
-                  ),
-                  decoration: BoxDecoration(
-                    color: cardBg,
-                    borderRadius: BorderRadius.circular(28),
-                    border: Border.all(
-                      color: colorScheme.outlineVariant.withValues(alpha: 0.3),
-                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -1216,15 +1210,8 @@ class _OfflineDatabaseSheetContentState
                 ),
                 const SizedBox(height: 16),
 
-                Material(
-                  color: cardBg,
-                  clipBehavior: Clip.antiAlias,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(28),
-                    side: BorderSide(
-                      color: colorScheme.outlineVariant.withValues(alpha: 0.3),
-                    ),
-                  ),
+                AppCard.primary(
+                  borderRadius: 28,
                   child: Column(
                     children: [
                       _buildToggleRow(

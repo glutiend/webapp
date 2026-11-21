@@ -58,10 +58,8 @@ class SafetyStatusCard extends StatelessWidget {
         break;
     }
 
-    return AppCard.highEmphasis(
-      bgColor: heroBgColor,
-      borderRadius: 24,
-      padding: const EdgeInsets.all(32),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
       child: Column(
         children: [
           Container(
@@ -166,8 +164,7 @@ class GlutenEvaluationCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
             decoration: BoxDecoration(
-              color: colorScheme.ctaBarBg,
-              border: Border(top: BorderSide(color: colorScheme.ctaBarBorder)),
+              color: colorScheme.statusUncertainAlpha,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -177,7 +174,7 @@ class GlutenEvaluationCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: colorScheme.ctaBarFg,
+                    color: colorScheme.statusUncertainSolid,
                   ),
                 ),
                 Transform.translate(
@@ -185,7 +182,7 @@ class GlutenEvaluationCard extends StatelessWidget {
                   child: Icon(
                     Icons.chevron_right_rounded,
                     size: 18,
-                    color: colorScheme.ctaBarFg,
+                    color: colorScheme.statusUncertainSolid,
                   ),
                 ),
               ],

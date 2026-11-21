@@ -141,7 +141,10 @@ class _AccountManagementSheetContentState
     );
     _fadeInAnimation = _animation;
     _fadeOutAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(_animation);
-    _collapseAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(_animation);
+    _collapseAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.0,
+    ).animate(_animation);
   }
 
   @override
@@ -243,7 +246,7 @@ class _AccountManagementSheetContentState
           ),
         ),
         const SizedBox(height: 12),
-        AppTertiaryButton(
+        AppTextButton(
           onPressed: _startEditing,
           icon: Icons.edit_outlined,
           label: "settings.account.editName".tr(),
@@ -323,7 +326,10 @@ class _AccountManagementSheetContentState
               Flexible(
                 child: AppTertiaryButton(
                   onPressed: _cancelEditing,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
                   label: "common.actions.cancel".tr(),
                 ),
               ),
@@ -334,8 +340,13 @@ class _AccountManagementSheetContentState
                   builder: (context, value, child) {
                     final bool isValid = value.text.trim().isNotEmpty;
                     return AppPrimaryButton(
-                      onPressed: isValid ? () => _handleSaveName(value.text.trim()) : null,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      onPressed: isValid
+                          ? () => _handleSaveName(value.text.trim())
+                          : null,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
                       label: "common.actions.save".tr(),
                     );
                   },
@@ -440,7 +451,6 @@ class _AccountManagementSheetContentState
   @override
   Widget build(BuildContext context) {
     final colorScheme = context.colorScheme;
-    final cardBg = context.cardBackground;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -469,15 +479,9 @@ class _AccountManagementSheetContentState
             const SizedBox(height: 32),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Container(
+              child: AppCard.primary(
+                borderRadius: 28,
                 padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: cardBg,
-                  borderRadius: BorderRadius.circular(28),
-                  border: Border.all(
-                    color: colorScheme.cardPrimaryBorder,
-                  ),
-                ),
                 child: Column(
                   children: [
                     Row(
@@ -487,7 +491,8 @@ class _AccountManagementSheetContentState
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            color: (widget.providerName == "Google" ||
+                            color:
+                                (widget.providerName == "Google" ||
                                     widget.providerName == "Facebook")
                                 ? Colors.transparent
                                 : colorScheme.surfaceContainerHigh,

@@ -89,10 +89,16 @@ Future<void> showAppConfirmDialog({
                   label: confirmLabel,
                 ),
               const SizedBox(height: 10),
-              AppTertiaryButton(
-                onPressed: () => Navigator.pop(ctx),
-                label: cancelLabel ?? "common.actions.cancel".tr(),
-              ),
+              if (isDestructive)
+                AppTertiaryDestructiveButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  label: cancelLabel ?? "common.actions.cancel".tr(),
+                )
+              else
+                AppTertiaryButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  label: cancelLabel ?? "common.actions.cancel".tr(),
+                ),
             ],
           ),
         ],

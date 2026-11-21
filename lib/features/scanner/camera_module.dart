@@ -9,6 +9,7 @@ import 'package:easy_localization/easy_localization.dart';
 
 import '../../core/theme/theme.dart';
 import '../../core/utils/utils.dart';
+import '../../core/widgets/app_cards.dart';
 import 'widgets/widgets.dart';
 
 export 'widgets/widgets.dart';
@@ -318,85 +319,67 @@ class _CameraModuleState extends State<CameraModule>
 
   Widget _buildIntegratedCard() {
     final colorScheme = context.colorScheme;
-    final cardBg = context.cardBackground;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(36),
-        border: Border.all(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.25),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.onSurface.withValues(alpha: 0.04),
-            blurRadius: 28,
-            spreadRadius: 0,
-            offset: const Offset(0, 12),
+    return AppCard.primary(
+      borderRadius: 36,
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const ScannerHeader(),
+          const SizedBox(height: 32),
+          ScannerViewport(
+            controller: _controller,
+            cameraError: _cameraError,
+            onDetect: _onDetect,
+            onStartCamera: _startCamera,
+          ),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0,
+              vertical: 24.0,
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Divider(
+                    color: colorScheme.onSurface.withValues(alpha: 0.12),
+                    thickness: 1.0,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
+                    "common.actions.or".tr(),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: colorScheme.onSurfaceVariant.withValues(
+                        alpha: 0.6,
+                      ),
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Divider(
+                    color: colorScheme.onSurface.withValues(alpha: 0.12),
+                    thickness: 1.0,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          ManualBarcodeField(
+            controller: _manualCodeController,
+            focusNode: _manualFocusNode,
+            isFocused: _isManualFocused,
+            scanningProgress: widget.scanningProgress,
+            onSearch: _handleManualSearch,
           ),
         ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const ScannerHeader(),
-            const SizedBox(height: 32),
-            ScannerViewport(
-              controller: _controller,
-              cameraError: _cameraError,
-              onDetect: _onDetect,
-              onStartCamera: _startCamera,
-            ),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8.0,
-                vertical: 24.0,
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Divider(
-                      color: colorScheme.onSurface.withValues(alpha: 0.12),
-                      thickness: 1.0,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      "common.actions.or".tr(),
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: colorScheme.onSurfaceVariant.withValues(
-                          alpha: 0.6,
-                        ),
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Divider(
-                      color: colorScheme.onSurface.withValues(alpha: 0.12),
-                      thickness: 1.0,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            ManualBarcodeField(
-              controller: _manualCodeController,
-              focusNode: _manualFocusNode,
-              isFocused: _isManualFocused,
-              scanningProgress: widget.scanningProgress,
-              onSearch: _handleManualSearch,
-            ),
-          ],
-        ),
       ),
     );
   }

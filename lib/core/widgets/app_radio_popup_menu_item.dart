@@ -68,7 +68,7 @@ class AppRadioPopupMenuItem<T> extends AppPopupMenuItem<T> {
                    border: isSelected
                        ? null
                        : Border.all(
-                           color: colorScheme.outlineVariant,
+                           color: colorScheme.radioUnselectedBorder,
                            width: 1.5,
                          ),
                  ),

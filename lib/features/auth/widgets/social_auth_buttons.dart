@@ -89,28 +89,10 @@ class SocialAuthButtons extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 24),
-        TextButton.icon(
+        AppTextButton(
           onPressed: onAnonymousSignIn,
-          icon: const Icon(Icons.person_off, size: 18),
-          label: Text(
-            "auth.social.enterAnonymously".tr(),
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-          ),
-          style: TextButton.styleFrom(
-            foregroundColor: context.colorScheme.anonymousEntryFg,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          ).copyWith(
-            overlayColor: WidgetStateProperty.resolveWith((states) {
-              if (states.contains(WidgetState.pressed)) {
-                return context.colorScheme.splashPrimary;
-              }
-              if (states.contains(WidgetState.hovered) ||
-                  states.contains(WidgetState.focused)) {
-                return context.colorScheme.selectedItemBg;
-              }
-              return null;
-            }),
-          ),
+          icon: Icons.person_off,
+          label: "auth.social.enterAnonymously".tr(),
         ),
         const SizedBox(height: 4),
         Text(

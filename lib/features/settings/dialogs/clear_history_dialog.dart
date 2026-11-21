@@ -61,8 +61,8 @@ Future<bool?> showClearHistoryDialog(BuildContext context) {
             ),
             const SizedBox(height: 10),
 
-            // Azione Neutra: Annulla
-            AppTertiaryButton(
+            // Azione Secondaria Annulla (Outlined Rosso per dialog distruttivo)
+            AppTertiaryDestructiveButton(
               onPressed: () => Navigator.pop(ctx, false),
               label: "common.actions.cancel".tr(),
             ),

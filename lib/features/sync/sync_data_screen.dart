@@ -111,7 +111,7 @@ class _SyncDataScreenState extends State<SyncDataScreen> {
                 label: "sync.localDataFound.discardConfirmAction".tr(),
               ),
               const SizedBox(height: 10),
-              AppTertiaryButton(
+              AppTertiaryDestructiveButton(
                 onPressed: () => Navigator.pop(ctx, false),
                 label: "common.actions.cancel".tr(),
               ),

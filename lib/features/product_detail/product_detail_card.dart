@@ -374,27 +374,31 @@ class _ProductDetailCardState extends State<ProductDetailCard> {
         !widget.isInHistoryNotifier!.value &&
         _effectiveUserReportId == null;
 
+    final colors = colorScheme.statusColorsFor(effectiveStatus);
+    final heroBgColor = colors.alpha;
+    final scaffoldBgColor = Theme.of(context).scaffoldBackgroundColor;
+
     // Utilizziamo uno Scaffold interno per gestire la sua AppBar personale
     final scaffold = Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: scaffoldBgColor,
+      extendBodyBehindAppBar: false,
       appBar: AppBar(
-        backgroundColor: cardBg,
+        backgroundColor: heroBgColor,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new, color: colorScheme.onSurface),
           onPressed: widget.onBack,
         ),
-        title: Center(
-          child: Text(
-            "product.appBar.title".tr(),
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-              color: colorScheme.onSurface,
-            ),
+        title: Text(
+          "product.appBar.title".tr(),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
+            color: colorScheme.onSurface,
           ),
         ),
+        centerTitle: true,
         actions: [
           ProductDetailAppBarActions(
             showActionsSkeleton: showActionsSkeleton,
@@ -414,21 +418,37 @@ class _ProductDetailCardState extends State<ProductDetailCard> {
         enabled: showSkeleton,
         child: SingleChildScrollView(
           controller: _scrollController,
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // ── Hero Section (Stato Globale) ──────────────────────────
-              SafetyStatusCard(
-                effectiveStatus: effectiveStatus,
-                productName: productName,
-                productBrand: productBrand,
-                barcode: currentProduct.barcode,
-                showScanDate: widget.showScanDate,
-                scannedAt: widget.scannedAt,
-                lastUpdated: currentProduct.lastUpdated,
+              // ── Header con sfumatura dedicata (dall'AppBar solida verso scaffoldBg) ──
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      heroBgColor,
+                      scaffoldBgColor,
+                    ],
+                  ),
+                ),
+                padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 16.0),
+                child: SafetyStatusCard(
+                  effectiveStatus: effectiveStatus,
+                  productName: productName,
+                  productBrand: productBrand,
+                  barcode: currentProduct.barcode,
+                  showScanDate: widget.showScanDate,
+                  scannedAt: widget.scannedAt,
+                  lastUpdated: currentProduct.lastUpdated,
+                ),
               ),
-              const SizedBox(height: 24),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
 
               // ── Avviso Copia Offline / Prodotto Non Trovato Offline ─────
               // Viene mostrato come prima cosa in assoluto subito sotto l'header stato globale.
@@ -550,8 +570,11 @@ class _ProductDetailCardState extends State<ProductDetailCard> {
             ],
           ),
         ),
-      ),
-    );
+      ],
+    ),
+  ),
+),
+);
 
     if (widget.useResponsiveWrapper) {
       return ResponsiveMaxCardWidth(child: scaffold);

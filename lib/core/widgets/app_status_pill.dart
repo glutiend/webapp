@@ -2,6 +2,7 @@
 // PROJECT: GlutiEnd - See LICENSE file in root for terms.
 
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../models/models.dart';
 import '../theme/app_theme.dart';
 
@@ -130,7 +131,7 @@ class AppStatusPill extends StatelessWidget {
   ) {
     switch (variant) {
       case AppStatusPillVariant.primary:
-        return colorScheme.statusSafeAlpha; //todo o iconCirclePrimaryBg
+        return colorScheme.iconCircleSafeBg;
       case AppStatusPillVariant.error:
         return colorScheme.iconCircleErrorBg;
       case AppStatusPillVariant.tertiary:
@@ -145,6 +146,54 @@ class AppStatusPill extends StatelessWidget {
   // ---------------------------------------------------------------------------
   // Costruttore con variante predefinita
   // ---------------------------------------------------------------------------
+
+  /// Costruttore rapido da [GlutenSafetyStatus] — usa etichetta, icona e colori
+  /// standard condivisi tra Cronologia, Dettagli e Segnalazioni.
+  static Widget fromStatus(
+    GlutenSafetyStatus status, {
+    Key? key,
+    bool isCompact = false,
+  }) {
+    final variant = variantForStatus(status);
+    String label;
+    IconData icon;
+
+    switch (status) {
+      case GlutenSafetyStatus.adatto:
+        label = "history.item.status.safe".tr();
+        icon = Icons.check_circle_outline;
+        break;
+      case GlutenSafetyStatus.nonAdatto:
+        label = "history.item.status.unsafe".tr();
+        icon = Icons.cancel_outlined;
+        break;
+      case GlutenSafetyStatus.incerto:
+        label = "history.item.status.uncertain".tr();
+        icon = Icons.warning_amber;
+        break;
+      case GlutenSafetyStatus.sconosciuto:
+        label = "history.item.status.unknown".tr();
+        icon = Icons.help_outline;
+        break;
+    }
+
+    if (isCompact) {
+      if (label.contains(' - ')) {
+        label = label.split(' - ').first.trim();
+      } else if (label.contains(' – ')) {
+        label = label.split(' – ').first.trim();
+      } else if (label.contains(' — ')) {
+        label = label.split(' — ').first.trim();
+      }
+    }
+
+    return preset(
+      key: key,
+      variant: variant,
+      label: label,
+      icon: icon,
+    );
+  }
 
   /// Costruttore con variante predefinita — risolve i colori dal [ColorScheme].
   static Widget preset({

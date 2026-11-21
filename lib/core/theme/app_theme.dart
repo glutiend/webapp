@@ -321,18 +321,14 @@ extension AppColorTokens on ColorScheme {
   Color get buttonPrimaryDestructiveDisabledFg =>
       onError.withValues(alpha: 0.6);
 
-  // Pulsante Terziario Distruttivo (cancellazione, outline con leggerissimo riempimento)
-  Color get buttonTertiaryDestructiveBg => brightness == Brightness.dark
-      ? darkStatusUnsafeBg.withValues(alpha: 0.5)
-      : lightStatusUnsafeBg.withValues(alpha: 0.5);
-  Color get buttonTertiaryDestructiveBorder => brightness == Brightness.dark
-      ? darkStatusUnsafeDestructiveBorder
-      : lightStatusUnsafeDestructiveBorder;
+  // Pulsante Terziario Distruttivo (cancellazione, outline rosso senza sfondo)
+  Color get buttonTertiaryDestructiveBg => colorTransparent;
+  Color get buttonTertiaryDestructiveBorder =>
+      error.withValues(alpha: 0.38);
   Color get buttonTertiaryDestructiveFg => error;
-  Color get buttonTertiaryDestructiveDisabledBg =>
-      buttonTertiaryDestructiveBg.withValues(alpha: 0.2);
+  Color get buttonTertiaryDestructiveDisabledBg => colorTransparent;
   Color get buttonTertiaryDestructiveDisabledBorder =>
-      buttonTertiaryDestructiveBorder.withValues(alpha: 0.2);
+      error.withValues(alpha: 0.2);
   Color get buttonTertiaryDestructiveDisabledFg =>
       error.withValues(alpha: 0.38);
 
@@ -344,37 +340,51 @@ extension AppColorTokens on ColorScheme {
   // ── 3. CARD (SCHEDE) ──────────────────────────────────────────────────────
   // Token cromatici dedicati per le tre tipologie di card.
 
-  // Card Principale (sfondo tema chiaro/scuro con bordo sottile)
+  // Card Principale (sfondo #FFFFFF / #161920 con bordo quasi invisibile e micro-ombra in light)
   Color get cardPrimaryBg =>
       brightness == Brightness.dark ? darkCardBackground : lightCardBackground;
   Color get cardPrimaryBorder => brightness == Brightness.dark
-      ? darkCardPrimaryBorder
-      : lightCardPrimaryBorder;
-  Color get cardPrimaryShadow => shadow;
+      ? Colors.white.withValues(alpha: 0.05)
+      : const Color(0xFF142850).withValues(alpha: 0.045);
+  List<BoxShadow> get cardPrimaryShadows => brightness == Brightness.dark
+      ? const []
+      : const [
+          BoxShadow(
+            color: Color(0x0A0F2346),
+            blurRadius: 2,
+            offset: Offset(0, 1),
+          ),
+          BoxShadow(
+            color: Color(0x060F2346),
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
+        ];
+  Color get cardPrimaryShadow => brightness == Brightness.dark
+      ? colorTransparent
+      : const Color(0x0A0F2346);
   Color get cardPrimaryHover => surfaceContainerHighest;
   Color get cardPrimaryHighlight => brightness == Brightness.dark
       ? darkSurfaceContainerLow
       : lightSurfaceContainerLow;
 
-  // Card Secondaria (sfondo uniforme grigio neutro con bordo sottile neutro)
+  // Card Secondaria (sfondo #EAEEF4 / #12141A, ZERO bordo, ZERO ombra)
   Color get cardSecondaryBg => brightness == Brightness.dark
       ? darkCardSecondaryBg
       : lightCardSecondaryBg;
-  Color get cardSecondaryBorder => brightness == Brightness.dark
-      ? darkCardSecondaryBorder
-      : lightCardSecondaryBorder;
+  Color get cardSecondaryBorder => colorTransparent;
   Color get cardSecondaryFg => onSurface;
-  Color get cardSecondaryShadow => brightness == Brightness.dark
-      ? shadow.withValues(alpha: 0.3)
-      : shadow.withValues(alpha: 0.08);
+  Color get cardSecondaryShadow => colorTransparent;
+  List<BoxShadow> get cardSecondaryShadows => const [];
 
   // Card ad Alta Evidenziazione (High Emphasis)
   Color get cardHighEmphasisBg => cardPrimaryBg;
   Color get cardHighEmphasisBorder => cardPrimaryBorder;
-  Color get cardHighEmphasisShadow => shadow;
+  Color get cardHighEmphasisShadow => cardPrimaryShadow;
 
   // ── 4. CERCHI ICONA (ICON CIRCLES) ────────────────────────────────────────
   // Cerchio brand usa primaryContainer pieno; i cerchi stato usano gli sfondi pieni.
+  Color get iconCircleSafeBg => statusSafeAlpha;
   Color get iconCirclePrimaryBg => primaryContainer;
   Color get iconCircleErrorBg => statusUnsafeAlpha;
   Color get iconCircleTertiaryBg => statusUncertainAlpha;
@@ -393,6 +403,9 @@ extension AppColorTokens on ColorScheme {
   Color get selectedErrorItemBg => statusUnsafeAlpha;
   Color get selectedErrorItemBorder => error.withValues(alpha: 0.35);
   Color get unselectedItemBg => surfaceContainerHighest;
+  Color get radioUnselectedBorder => brightness == Brightness.dark
+      ? darkRadioUnselectedBorder
+      : lightRadioUnselectedBorder;
 
   // ── 7. SELETTORI POPUP / PILL ─────────────────────────────────────────────
   Color get dropdownPillBg => surfaceContainerHighest;

@@ -83,7 +83,7 @@ void main() {
       expect(darkTheme.brightness, Brightness.dark);
       expect(darkTheme.colorScheme.primary, darkPrimary);
       expect(darkTheme.scaffoldBackgroundColor, darkSurface);
-      expect(darkTheme.cardColor, const Color(0xFF16191F));
+      expect(darkTheme.cardColor, darkCardBackground);
     });
 
     test('red backgrounds match statusUnsafeBg tokens in light and dark theme', () {
@@ -127,8 +127,8 @@ void main() {
       );
 
       expect(capturedContext.isDarkMode, isFalse);
-      expect(capturedContext.cardBackground, const Color(0xFFFFFFFF));
-      expect(capturedContext.surfaceContainerLow, const Color(0xFFECEFF4));
+      expect(capturedContext.cardBackground, lightCardBackground);
+      expect(capturedContext.surfaceContainerLow, lightSurfaceContainerLow);
       expect(capturedContext.colorScheme.primary, lightPrimary);
     });
 
@@ -149,8 +149,8 @@ void main() {
       );
 
       expect(capturedContext.isDarkMode, isTrue);
-      expect(capturedContext.cardBackground, const Color(0xFF16191F));
-      expect(capturedContext.surfaceContainerLow, const Color(0xFF121419));
+      expect(capturedContext.cardBackground, darkCardBackground);
+      expect(capturedContext.surfaceContainerLow, darkSurfaceContainerLow);
       expect(capturedContext.colorScheme.primary, darkPrimary);
     });
   });

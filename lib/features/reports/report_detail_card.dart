@@ -196,60 +196,23 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
     }
   }
 
-  // Helper per ottenere colori/icone in base allo stato
-  ({Color bg, Color text, IconData icon, String label}) _getStatusData(
-    GlutenSafetyStatus status,
-    ColorScheme colorScheme,
-  ) {
-    final colors = AppStatusPill.colorsForVariant(
-      AppStatusPill.variantForStatus(status),
-      colorScheme,
-    );
-    String label;
-    IconData icon;
-    switch (status) {
-      case GlutenSafetyStatus.adatto:
-        label = "product.status.safe".tr().toUpperCase();
-        icon = Icons.check_circle;
-        break;
-      case GlutenSafetyStatus.nonAdatto:
-        label = "product.status.unsafe".tr().toUpperCase();
-        icon = Icons.cancel;
-        break;
-      case GlutenSafetyStatus.incerto:
-        label = "product.status.uncertain".tr().toUpperCase();
-        icon = Icons.warning;
-        break;
-      case GlutenSafetyStatus.sconosciuto:
-        label = "product.status.unknown".tr().toUpperCase();
-        icon = Icons.help;
-        break;
-    }
-    return (bg: colors.bg, text: colors.text, icon: icon, label: label);
-  }
-
   @override
   Widget build(BuildContext context) {
-    final colorScheme = context.colorScheme;
-    // Ora usa l'originalStatus passato via parametro e non il current status (che sarebbe in revisione/giallo)
-    final oldStatusData = _getStatusData(widget.originalStatus, colorScheme);
-
     return widget.useResponsiveWrapper
-        ? ResponsiveMaxCardWidth(child: _buildContent(context, oldStatusData))
-        : _buildContent(context, oldStatusData);
+        ? ResponsiveMaxCardWidth(child: _buildContent(context))
+        : _buildContent(context);
   }
 
-  Widget _buildContent(
-    BuildContext context,
-    ({Color bg, Color text, IconData icon, String label}) oldStatusData,
-  ) {
+  Widget _buildContent(BuildContext context) {
     final colorScheme = context.colorScheme;
-    final cardBg = context.cardBackground;
+    final scaffoldBgColor = Theme.of(context).scaffoldBackgroundColor;
+    final heroBgColor = colorScheme.statusUncertainAlpha;
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: scaffoldBgColor,
+      extendBodyBehindAppBar: false,
       appBar: AppBar(
-        backgroundColor: cardBg,
+        backgroundColor: heroBgColor,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
@@ -295,17 +258,22 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ── Hero Section ──────────────────────────────────────────
+            // ── Header con sfumatura dedicata (dall'AppBar solida verso scaffoldBg) ──
             Container(
-              padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
-                color: colorScheme.statusTertiaryBg,
-                borderRadius: BorderRadius.circular(24),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    heroBgColor,
+                    scaffoldBgColor,
+                  ],
+                ),
               ),
+              padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
               child: Column(
                 children: [
                   Container(
@@ -373,7 +341,7 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
                     ),
                   ),
 
-                  // DATA AGGIUNTA DA RICHIESTA
+                  // Data Scansione / Report
                   Builder(
                     builder: (context) {
                       final String rawReportDate =
@@ -405,6 +373,11 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
                 ],
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
             const SizedBox(height: 24),
 
             // ── BOTTONE NEUTRO: Scheda Prodotto (anti-loop) ────────────
@@ -494,143 +467,99 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
               ),
             if (widget.showProductLink) const SizedBox(height: 24),
 
-            // ── Vecchio Stato del Prodotto ────────────────────────────
-            _buildSectionCard(
-              colorScheme: colorScheme,
-              cardBg: cardBg,
-              title: "report.detail.previousStatus".tr(),
+            // ── Card 1: Stato Precedente ──────────────────────────
+            SectionCard(
+              title: "report.detail.previousStatus".tr().toUpperCase(),
               icon: Icons.history,
               child: Row(
                 children: [
-                  Icon(
-                    oldStatusData.icon,
-                    color: oldStatusData.text,
-                    size: 28,
+                  AppStatusPill.fromStatus(
+                    widget.originalStatus,
+                    isCompact: true,
                   ),
                   const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        oldStatusData.label,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: oldStatusData.text,
-                        ),
+                  Expanded(
+                    child: Text(
+                      "report.detail.resultFromOnOff".tr(),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: colorScheme.onSurfaceVariant,
+                        height: 1.3,
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        "report.detail.resultFromOnOff".tr(),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: colorScheme.onSurfaceVariant.withValues(
-                            alpha: 0.7,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
 
-            // ── Dettagli Segnalazione Utente (NUOVO DESIGN) ───────────
-            _buildSectionCard(
-              colorScheme: colorScheme,
-              cardBg: cardBg,
-              title: "report.detail.reportDetails".tr(),
-              icon: Icons.chat_bubble_outline,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Informazioni compatte: Motivo
-                  Row(
+            // ── Card 2: Dettagli Segnalazione ─────────────────────
+            Builder(
+              builder: (context) {
+                final String effectiveComment = (_activeReport != null
+                        ? _activeReport!.comments
+                        : widget.reportComment)
+                    .trim();
+                final bool hasComment = effectiveComment.isNotEmpty &&
+                    effectiveComment != "Nessun commento";
+
+                return SectionCard(
+                  title: "report.detail.reportDetails".tr().toUpperCase(),
+                  icon: Icons.chat_bubble_outline,
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: RichText(
-                          text: TextSpan(
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: colorScheme.onSurface,
-                              height: 1.3,
-                            ),
-                            children: [
-                              TextSpan(
-                                text: "${"report.detail.reasonLabel".tr()} ",
-                                style: TextStyle(
-                                  color: colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                              TextSpan(
-                                text: _translateReason(
-                                  _activeReport?.type ?? widget.reportReasonKey,
-                                ),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
+                      // Blocco 1 — Motivo della segnalazione
+                      Text(
+                        "report.detail.reasonLabel".tr(),
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurfaceVariant,
+                          letterSpacing: 0.2,
                         ),
                       ),
+                      const SizedBox(height: 4),
+                      Text(
+                        _translateReason(
+                          _activeReport?.type ?? widget.reportReasonKey,
+                        ),
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.onSurface,
+                          height: 1.35,
+                        ),
+                      ),
+                      if (hasComment) ...[
+                        // 3. Separazione tra i due blocchi (niente Divider)
+                        const SizedBox(height: 20),
+
+                        // 4. Blocco 2 — Informazioni aggiuntive
+                        Text(
+                          "report.detail.userComment".tr(),
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.onSurfaceVariant,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          effectiveComment,
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.normal,
+                            color: colorScheme.onSurface,
+                            height: 1.45,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
-
-                  const SizedBox(height: 12),
-
-                  // Commento dell'utente stile "Blockquote"
-                  Text(
-                    "report.detail.userComment".tr(),
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: colorScheme.textTertiary,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.only(left: 14, top: 2, bottom: 2),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        left: BorderSide(
-                          color: colorScheme.outline,
-                          width: 4,
-                        ),
-                      ),
-                    ),
-                    child: Builder(
-                      builder: (context) {
-                        // Usa il commento da _activeReport se disponibile,
-                        // altrimenti quello passato dal padre (già noto subito).
-                        final String effectiveComment = _activeReport != null
-                            ? _activeReport!.comments
-                            : widget.reportComment;
-                        final bool isEmpty =
-                            effectiveComment.trim().isEmpty ||
-                            effectiveComment == "Nessun commento";
-                        return Text(
-                          isEmpty
-                              ? "report.detail.noAdditionalComment".tr()
-                              : '"$effectiveComment"',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontStyle: isEmpty
-                                ? FontStyle.normal
-                                : FontStyle.italic,
-                            color: colorScheme.onSurface,
-                            height: 1.4,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
+                );
+              },
             ),
             const SizedBox(height: 24),
 
@@ -646,44 +575,9 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildSectionCard({
-    required ColorScheme colorScheme,
-    required Color cardBg,
-    required String title,
-    IconData? icon,
-    required Widget child,
-  }) {
-    return AppCard.primary(
-      padding: const EdgeInsets.all(24),
-      borderRadius: 24,
-      bgColor: cardBg,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              if (icon != null) ...[
-                Icon(icon, size: 18, color: colorScheme.onSurfaceVariant),
-                const SizedBox(width: 8),
-              ],
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.5,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          child,
-        ],
-      ),
-    );
+    ],
+  ),
+),
+);
   }
 }
