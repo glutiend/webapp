@@ -62,7 +62,6 @@ class ReportsFilterHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = context.colorScheme;
-    final cardBg = context.cardBackground;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -90,22 +89,9 @@ class ReportsFilterHeader extends StatelessWidget {
         // ── Card "In attesa" (Separata e indipendente) ──────────────
         Skeletonizer(
           enabled: showSkeleton,
-          child: Container(
+          child: AppCard.secondary(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              color: cardBg,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: colorScheme.outlineVariant.withValues(alpha: 0.3),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: colorScheme.onSurface.withValues(alpha: 0.02),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
+            borderRadius: 16,
             child: Row(
               children: [
                 Builder(

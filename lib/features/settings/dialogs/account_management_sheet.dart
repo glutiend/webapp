@@ -245,11 +245,11 @@ class _AccountManagementSheetContentState
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        const SizedBox(height: 12),
         AppTextButton(
           onPressed: _startEditing,
           icon: Icons.edit_outlined,
           label: "settings.account.editName".tr(),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         ),
       ],
     );
@@ -360,11 +360,12 @@ class _AccountManagementSheetContentState
   }
 
   Widget _buildNameSection(ColorScheme colorScheme) {
-    return Container(
-      constraints: const BoxConstraints(minHeight: 100),
-      alignment: Alignment.center,
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 260),
+      curve: Curves.easeInOutCubic,
+      alignment: Alignment.topCenter,
       child: Stack(
-        alignment: Alignment.center,
+        alignment: Alignment.topCenter,
         children: [
           Offstage(
             offstage: _isEditingName && _animController.isCompleted,
@@ -476,7 +477,7 @@ class _AccountManagementSheetContentState
             widget.buildAvatar(context, false, size: 80),
             const SizedBox(height: 16),
             _buildNameSection(colorScheme),
-            const SizedBox(height: 32),
+            const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: AppCard.primary(
