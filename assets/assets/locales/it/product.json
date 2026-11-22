@@ -89,9 +89,8 @@
       "alreadyReported": "Prodotto già segnalato dalla community"
     },
     "reportSheet": {
-      "communityCallout": "Aiuta la community segnalando eventuali informazioni errate o inesatte riportate per questo prodotto.",
+      "communityCallout": "Aiuta la community segnalando eventuali errori.",
       "reasonLabel": "Motivo della segnalazione",
-      "reasonTooltip": "Seleziona il motivo della segnalazione",
       "detailsLabel": "Dettagli (Opzionale)",
       "detailsHint": "Es: La confezione dice \"Senza Glutine\", ma l'app segnala il prodotto come Vietato.",
       "submit": "Invia segnalazione",
