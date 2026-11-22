@@ -57,7 +57,7 @@ class _SubmitReportSheetContent extends StatefulWidget {
 }
 
 class _SubmitReportSheetContentState extends State<_SubmitReportSheetContent> {
-  String _reportType = "label_unclear";
+  String _reportType = "incorrect_status";
   late final TextEditingController _commentsController;
   int _remainingSeconds = 0;
   Timer? _countdownTimer;
@@ -104,16 +104,95 @@ class _SubmitReportSheetContentState extends State<_SubmitReportSheetContent> {
 
   String _getReportTypeLabel(String type) {
     switch (type) {
-      case "label_unclear":
-        return "common.reportReasons.unclear".tr();
-      case "outdated":
-        return "common.reportReasons.outdated".tr();
       case "incorrect_status":
-        return "common.reportReasons.wrongStatus".tr();
+        return "common.reportReasons.incorrectStatus".tr();
+      case "label_unclear":
+        return "common.reportReasons.incorrectProductData".tr();
       case "other":
+        return "common.reportReasons.missingInformation".tr();
+      case "outdated":
       default:
-        return "common.reportReasons.other".tr();
+        return "common.reportReasons.outdatedProductData".tr();
     }
+  }
+
+  Widget _buildReasonGrid(ColorScheme colorScheme) {
+    const options = ["incorrect_status", "label_unclear", "other", "outdated"];
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          children: [
+            Expanded(child: _buildReasonTile(options[0], colorScheme)),
+            const SizedBox(width: 10),
+            Expanded(child: _buildReasonTile(options[1], colorScheme)),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(child: _buildReasonTile(options[2], colorScheme)),
+            const SizedBox(width: 10),
+            Expanded(child: _buildReasonTile(options[3], colorScheme)),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReasonTile(String type, ColorScheme colorScheme) {
+    final bool isSelected = _reportType == type;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+      decoration: BoxDecoration(
+        color: isSelected
+            ? colorScheme.selectedItemBg
+            : colorScheme.unselectedItemBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isSelected
+              ? colorScheme.selectedItemBorder
+              : Colors.transparent,
+          width: 1.0,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () {
+            setState(() {
+              _reportType = type;
+            });
+          },
+          borderRadius: BorderRadius.circular(16),
+          splashColor: colorScheme.splashPrimary,
+          highlightColor: colorScheme.selectedItemBg,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+            child: Center(
+              child: Text(
+                _getReportTypeLabel(type),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                  color: isSelected
+                      ? colorScheme.primary
+                      : colorScheme.onSurface,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -166,17 +245,19 @@ class _SubmitReportSheetContentState extends State<_SubmitReportSheetContent> {
             const SizedBox(height: 8),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Text(
-                "product.reportSheet.communityCallout".tr(),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: colorScheme.onSurfaceVariant,
-                  height: 1.4,
+              child: Center(
+                child: Text(
+                  "product.reportSheet.communityCallout".tr(),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: colorScheme.onSurfaceVariant,
+                    height: 1.4,
+                  ),
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
 
             // --- Contenuto Scrollabile ---
             Flexible(
@@ -187,111 +268,37 @@ class _SubmitReportSheetContentState extends State<_SubmitReportSheetContent> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // --- Selettore Motivo (Stile Pillola GlutiEnd) ---
-                    Text(
-                      "product.reportSheet.reasonLabel".tr(),
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: colorScheme.onSurface,
+                    // --- Selettore Motivo (Griglia 2x2 Simmetrica) ---
+                    Center(
+                      child: Text(
+                        "product.reportSheet.reasonLabel".tr(),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 10),
 
-                    LayoutBuilder(
-                      builder: (layoutCtx, constraints) {
-                        return ClipRRect(
-                          borderRadius: BorderRadius.circular(999),
-                          child: PopupMenuButton<String>(
-                            constraints: BoxConstraints.tightFor(
-                              width: constraints.maxWidth,
-                            ),
-                            tooltip: "product.reportSheet.reasonTooltip".tr(),
-                            elevation: 6,
-                            shadowColor: colorScheme.shadow,
-                            offset: const Offset(0, 60),
-                            color: context.cardBackground,
-                            surfaceTintColor: Colors.transparent,
-                            borderRadius: BorderRadius.circular(999),
-                            clipBehavior: Clip.antiAlias,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              side: BorderSide(
-                                color: colorScheme.cardPrimaryBorder,
-                              ),
-                            ),
-                            itemBuilder: (popCtx) {
-                              final options = [
-                                "label_unclear",
-                                "outdated",
-                                "incorrect_status",
-                                "other",
-                              ];
+                    _buildReasonGrid(colorScheme),
 
-                              return options.map((type) {
-                                return AppRadioPopupMenuItem<String>(
-                                  value: type,
-                                  label: _getReportTypeLabel(type),
-                                  isSelected: _reportType == type,
-                                  colorScheme: colorScheme,
-                                  onTap: () {
-                                    setState(() {
-                                      _reportType = type;
-                                    });
-                                  },
-                                );
-                              }).toList();
-                            },
-                            child: Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 18,
-                                vertical: 14,
-                              ),
-                              decoration: BoxDecoration(
-                                color: colorScheme.dropdownPillBg,
-                                borderRadius: BorderRadius.circular(999),
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Flexible(
-                                    child: Text(
-                                      _getReportTypeLabel(_reportType),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: colorScheme.onSurface,
-                                      ),
-                                    ),
-                                  ),
-                                  Icon(
-                                    Icons.arrow_drop_down_rounded,
-                                    size: 24,
-                                    color: colorScheme.onSurfaceVariant,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 32),
 
-                    // --- TextField M3 ---
-                    Text(
-                      "product.reportSheet.detailsLabel".tr(),
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: colorScheme.onSurface,
+                    // --- Sezione Dettagli ---
+                    Center(
+                      child: Text(
+                        "product.reportSheet.detailsLabel".tr(),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 10),
                     TextField(
                       controller: _commentsController,
                       maxLines: 3,
@@ -301,16 +308,14 @@ class _SubmitReportSheetContentState extends State<_SubmitReportSheetContent> {
                       ),
                       decoration: InputDecoration(
                         hintText: "product.reportSheet.detailsHint".tr(),
-                        hintStyle: TextStyle(
-                          color: colorScheme.textTertiary,
-                        ),
+                        hintStyle: TextStyle(color: colorScheme.textTertiary),
                         filled: true,
                         fillColor: colorScheme.surfaceContainerHighest,
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: BorderRadius.circular(16),
                           borderSide: BorderSide.none,
                         ),
-                        contentPadding: const EdgeInsets.all(18),
+                        contentPadding: const EdgeInsets.all(16),
                       ),
                     ),
 
@@ -334,91 +339,88 @@ class _SubmitReportSheetContentState extends State<_SubmitReportSheetContent> {
 
                     const SizedBox(height: 32),
 
-                    // --- Azioni M3 (Pill Buttons) ---
+                    // --- Azioni Centrate e Compatte ---
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Flexible(
-                          child: SizedBox(
-                            height: 48,
-                            child: AppTertiaryButton(
-                              onPressed: () => Navigator.pop(context),
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              label: "common.actions.cancel".tr(),
-                            ),
+                        SizedBox(
+                          height: 44,
+                          child: AppTertiaryButton(
+                            onPressed: () => Navigator.pop(context),
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            label: "common.actions.cancel".tr(),
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        Flexible(
-                          flex: 2,
-                          child: SizedBox(
-                            height: 48,
-                            child: AppPrimaryButton(
-                              onPressed: isBlocked
-                                  ? null
-                                  : () {
-                                      // 1. Registra sottomissione per il rate limiting
-                                      ReportRateLimiter.recordSubmission();
+                        const SizedBox(width: 14),
+                        SizedBox(
+                          height: 44,
+                          child: AppPrimaryButton(
+                            onPressed: isBlocked
+                                ? null
+                                : () {
+                                    // 1. Registra sottomissione per il rate limiting
+                                    ReportRateLimiter.recordSubmission();
 
-                                      final currentLang =
-                                          widget.userSettings.preferredLanguage;
-                                      final origAnalysis =
-                                          AnalyzerService.analyzeGlutenSafety(
-                                            name: widget.currentProduct.getName(
-                                              currentLang,
-                                            ),
-                                            brand: widget.currentProduct
-                                                .getBrand(currentLang),
-                                            ingredients: widget.currentProduct
-                                                .getIngredients(currentLang),
-                                            allergensList: widget.currentProduct
-                                                .getAllergens(currentLang),
-                                            reportCount: 0,
-                                            categoriesTags: widget.currentProduct.categoriesTags,
-                                            offTags: widget.currentProduct.toOffTags(),
-                                            strictMode:
-                                                widget.userSettings.strictMode,
-                                            warnAdditives: widget
-                                                .userSettings
-                                                .warnAdditives,
-                                            alertLactose: widget
-                                                .userSettings
-                                                .alertLactose,
-                                            preferredLanguage: currentLang,
-                                            ignoreReports: true,
-                                          );
+                                    final currentLang =
+                                        widget.userSettings.preferredLanguage;
+                                    final origAnalysis =
+                                        AnalyzerService.analyzeGlutenSafety(
+                                          name: widget.currentProduct.getName(
+                                            currentLang,
+                                          ),
+                                          brand: widget.currentProduct.getBrand(
+                                            currentLang,
+                                          ),
+                                          ingredients: widget.currentProduct
+                                              .getIngredients(currentLang),
+                                          allergensList: widget.currentProduct
+                                              .getAllergens(currentLang),
+                                          reportCount: 0,
+                                          categoriesTags: widget
+                                              .currentProduct
+                                              .categoriesTags,
+                                          offTags: widget.currentProduct
+                                              .toOffTags(),
+                                          strictMode:
+                                              widget.userSettings.strictMode,
+                                          warnAdditives:
+                                              widget.userSettings.warnAdditives,
+                                          alertLactose:
+                                              widget.userSettings.alertLactose,
+                                          preferredLanguage: currentLang,
+                                          ignoreReports: true,
+                                        );
 
-                                      final reportData = {
-                                        "type": _reportType,
-                                        "comments": _commentsController.text,
-                                        "originalStatus":
-                                            origAnalysis.status.name,
-                                      };
+                                    final reportData = {
+                                      "type": _reportType,
+                                      "comments": _commentsController.text,
+                                      "originalStatus":
+                                          origAnalysis.status.name,
+                                    };
 
-                                      // 2. Chiudi immediatamente il bottom sheet (0 ms)
-                                      Navigator.pop(context);
+                                    // 2. Chiudi immediatamente il bottom sheet (0 ms)
+                                    Navigator.pop(context);
 
-                                      // 3. Notifica ottimistica alla vista sottostante
-                                      widget.onSubmitted();
+                                    // 3. Notifica ottimistica alla vista sottostante
+                                    widget.onSubmitted();
 
-                                      // 4. Lancia persistenza e sync in background
-                                      widget.onReportSubmit(
-                                        widget.currentProduct.barcode,
-                                        reportData,
-                                      );
+                                    // 4. Lancia persistenza e sync in background
+                                    widget.onReportSubmit(
+                                      widget.currentProduct.barcode,
+                                      reportData,
+                                    );
+                                  },
+                            padding: const EdgeInsets.symmetric(horizontal: 22),
+                            label: isBlocked
+                                ? "product.reportSheet.waitCountdown".tr(
+                                    namedArgs: {
+                                      'time':
+                                          ReportRateLimiter.formatRemainingTime(
+                                            _remainingSeconds,
+                                          ),
                                     },
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              label: isBlocked
-                                  ? "product.reportSheet.waitCountdown".tr(
-                                      namedArgs: {
-                                        'time':
-                                            ReportRateLimiter.formatRemainingTime(
-                                              _remainingSeconds,
-                                            ),
-                                      },
-                                    )
-                                  : "product.reportSheet.submit".tr(),
-                            ),
+                                  )
+                                : "product.reportSheet.submit".tr(),
                           ),
                         ),
                       ],

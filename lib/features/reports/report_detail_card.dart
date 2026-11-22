@@ -184,13 +184,13 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
   String _translateReason(String key) {
     switch (key) {
       case "label_unclear":
-        return "common.reportReasons.unclear".tr();
+        return "common.reportReasons.incorrectProductData".tr();
       case "outdated":
-        return "common.reportReasons.outdated".tr();
+        return "common.reportReasons.outdatedProductData".tr();
       case "incorrect_status":
-        return "common.reportReasons.wrongStatus".tr();
+        return "common.reportReasons.incorrectStatus".tr();
       case "other":
-        return "common.reportReasons.other".tr();
+        return "common.reportReasons.missingInformation".tr();
       default:
         return "report.detail.generic".tr();
     }

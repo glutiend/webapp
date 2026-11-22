@@ -321,7 +321,7 @@ void main() {
         reportReasonKey: 'label_unclear',
       );
       expect(
-        findRichTextContaining('common.reportReasons.unclear'),
+        findRichTextContaining('common.reportReasons.incorrectProductData'),
         findsAtLeastNWidgets(1),
       );
     });
@@ -335,7 +335,7 @@ void main() {
         reportReasonKey: 'outdated',
       );
       expect(
-        findRichTextContaining('common.reportReasons.outdated'),
+        findRichTextContaining('common.reportReasons.outdatedProductData'),
         findsAtLeastNWidgets(1),
       );
     });
@@ -351,7 +351,7 @@ void main() {
         reportReasonKey: 'incorrect_status',
       );
       expect(
-        findRichTextContaining('common.reportReasons.wrongStatus'),
+        findRichTextContaining('common.reportReasons.incorrectStatus'),
         findsAtLeastNWidgets(1),
       );
     });
@@ -365,7 +365,7 @@ void main() {
         reportReasonKey: 'other',
       );
       expect(
-        findRichTextContaining('common.reportReasons.other'),
+        findRichTextContaining('common.reportReasons.missingInformation'),
         findsAtLeastNWidgets(1),
       );
     });
@@ -1194,7 +1194,7 @@ void main() {
 
       // Il motivo è in un RichText (TextSpan), non in un semplice Text
       expect(
-        findRichTextContaining('common.reportReasons.wrongStatus'),
+        findRichTextContaining('common.reportReasons.incorrectStatus'),
         findsAtLeastNWidgets(1),
       );
     });

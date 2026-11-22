@@ -16,10 +16,10 @@
       "settings": "Impostazioni"
     },
     "reportReasons": {
-      "unclear": "Etichetta poco chiara o ambigua",
-      "outdated": "Informazioni obsolete",
-      "wrongStatus": "Stato glutine errato",
-      "other": "Altro"
+      "incorrectStatus": "Valutazione sbagliata",
+      "incorrectProductData": "Dati prodotto errati",
+      "missingInformation": "Informazioni mancanti",
+      "outdatedProductData": "Dati prodotto obsoleti"
     },
     "actions": {
       "cancel": "Annulla",
