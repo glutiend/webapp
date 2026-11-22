@@ -195,18 +195,51 @@ String themeModeToString(ThemeMode mode) {
 // due getter distinti per consentire variazioni future indipendenti.
 //
 extension AppColorTokens on ColorScheme {
+  // ── Helper di Miscelazione Tonale Semantica ─────────────────────────────
+  Color _blendHeroBadge(Color solid, Color alpha) => Color.alphaBlend(
+        solid.withValues(
+          alpha: brightness == Brightness.dark
+              ? statusHeroBadgeBlendDark
+              : statusHeroBadgeBlendLight,
+        ),
+        alpha,
+      );
+
+  Color _blendBarcodeChip(Color solid) => Color.alphaBlend(
+        solid.withValues(
+          alpha: brightness == Brightness.dark
+              ? statusBarcodeChipBlendDark
+              : statusBarcodeChipBlendLight,
+        ),
+        surface,
+      );
+
   // ── 1. STATI DEL CIBO (4 STATI GLUTINE + LATTOSIO) ────────────────────────
-  // Ciascuno stato possiede ESATTAMENTE una coppia:
-  // - un colore solido (per testi, icone, elementi grafici primari)
-  // - un colore con alpha / sfondo (per sfondi, pillole, container, hero card - già pastello al 100%)
+  // Ciascuno stato possiede i token:
+  // - solid: per testi, icone, elementi grafici primari
+  // - alpha: per sfondi, gradienti header, container, hero card (già pastello 100%)
+  // - heroBadgeBg: badge circolare dietro icona esito, più scuro/intenso rispetto al gradiente
+  // - barcodeChipBg: pillola codice a barre, tenue e discreta rispetto a surface
 
   // STATO SICURO (Safe / Adatto) - Scollegato da primary / primaryContainer
   Color get statusSafeSolid =>
       brightness == Brightness.dark ? darkStatusSafeText : lightStatusSafeText;
   Color get statusSafeAlpha =>
       brightness == Brightness.dark ? darkStatusSafeBg : lightStatusSafeBg;
-  ({Color solid, Color alpha}) get statusSafeColors =>
-      (solid: statusSafeSolid, alpha: statusSafeAlpha);
+  Color get statusSafeHeroBadgeBg =>
+      _blendHeroBadge(statusSafeSolid, statusSafeAlpha);
+  Color get statusSafeBarcodeChipBg => _blendBarcodeChip(statusSafeSolid);
+  ({
+    Color solid,
+    Color alpha,
+    Color heroBadgeBg,
+    Color barcodeChipBg,
+  }) get statusSafeColors => (
+        solid: statusSafeSolid,
+        alpha: statusSafeAlpha,
+        heroBadgeBg: statusSafeHeroBadgeBg,
+        barcodeChipBg: statusSafeBarcodeChipBg,
+      );
 
   // STATO VIETATO (Unsafe / Non adatto)
   Color get statusUnsafeSolid => brightness == Brightness.dark
@@ -214,8 +247,20 @@ extension AppColorTokens on ColorScheme {
       : lightStatusUnsafeText;
   Color get statusUnsafeAlpha =>
       brightness == Brightness.dark ? darkStatusUnsafeBg : lightStatusUnsafeBg;
-  ({Color solid, Color alpha}) get statusUnsafeColors =>
-      (solid: statusUnsafeSolid, alpha: statusUnsafeAlpha);
+  Color get statusUnsafeHeroBadgeBg =>
+      _blendHeroBadge(statusUnsafeSolid, statusUnsafeAlpha);
+  Color get statusUnsafeBarcodeChipBg => _blendBarcodeChip(statusUnsafeSolid);
+  ({
+    Color solid,
+    Color alpha,
+    Color heroBadgeBg,
+    Color barcodeChipBg,
+  }) get statusUnsafeColors => (
+        solid: statusUnsafeSolid,
+        alpha: statusUnsafeAlpha,
+        heroBadgeBg: statusUnsafeHeroBadgeBg,
+        barcodeChipBg: statusUnsafeBarcodeChipBg,
+      );
 
   // STATO INCERTO (Uncertain / Warning / Segnalazione)
   Color get statusUncertainSolid => brightness == Brightness.dark
@@ -224,8 +269,21 @@ extension AppColorTokens on ColorScheme {
   Color get statusUncertainAlpha => brightness == Brightness.dark
       ? darkStatusUncertainBg
       : lightStatusUncertainBg;
-  ({Color solid, Color alpha}) get statusUncertainColors =>
-      (solid: statusUncertainSolid, alpha: statusUncertainAlpha);
+  Color get statusUncertainHeroBadgeBg =>
+      _blendHeroBadge(statusUncertainSolid, statusUncertainAlpha);
+  Color get statusUncertainBarcodeChipBg =>
+      _blendBarcodeChip(statusUncertainSolid);
+  ({
+    Color solid,
+    Color alpha,
+    Color heroBadgeBg,
+    Color barcodeChipBg,
+  }) get statusUncertainColors => (
+        solid: statusUncertainSolid,
+        alpha: statusUncertainAlpha,
+        heroBadgeBg: statusUncertainHeroBadgeBg,
+        barcodeChipBg: statusUncertainBarcodeChipBg,
+      );
 
   // STATO IGNOTO (Unknown / Sconosciuto / Neutro)
   Color get statusUnknownSolid => brightness == Brightness.dark
@@ -234,19 +292,49 @@ extension AppColorTokens on ColorScheme {
   Color get statusUnknownAlpha => brightness == Brightness.dark
       ? darkStatusUnknownBg
       : lightStatusUnknownBg;
-  ({Color solid, Color alpha}) get statusUnknownColors =>
-      (solid: statusUnknownSolid, alpha: statusUnknownAlpha);
+  Color get statusUnknownHeroBadgeBg =>
+      _blendHeroBadge(statusUnknownSolid, statusUnknownAlpha);
+  Color get statusUnknownBarcodeChipBg => _blendBarcodeChip(statusUnknownSolid);
+  ({
+    Color solid,
+    Color alpha,
+    Color heroBadgeBg,
+    Color barcodeChipBg,
+  }) get statusUnknownColors => (
+        solid: statusUnknownSolid,
+        alpha: statusUnknownAlpha,
+        heroBadgeBg: statusUnknownHeroBadgeBg,
+        barcodeChipBg: statusUnknownBarcodeChipBg,
+      );
 
   // STATO LATTOSIO (Lactose Alert / Intolleranza) - Scollegato da secondaryContainer / navSelected
   Color get statusLactoseSolid =>
       brightness == Brightness.dark ? darkLactoseText : lightLactoseText;
   Color get statusLactoseAlpha =>
       brightness == Brightness.dark ? darkLactoseBg : lightLactoseBg;
-  ({Color solid, Color alpha}) get statusLactoseColors =>
-      (solid: statusLactoseSolid, alpha: statusLactoseAlpha);
+  Color get statusLactoseHeroBadgeBg =>
+      _blendHeroBadge(statusLactoseSolid, statusLactoseAlpha);
+  Color get statusLactoseBarcodeChipBg => _blendBarcodeChip(statusLactoseSolid);
+  ({
+    Color solid,
+    Color alpha,
+    Color heroBadgeBg,
+    Color barcodeChipBg,
+  }) get statusLactoseColors => (
+        solid: statusLactoseSolid,
+        alpha: statusLactoseAlpha,
+        heroBadgeBg: statusLactoseHeroBadgeBg,
+        barcodeChipBg: statusLactoseBarcodeChipBg,
+      );
 
-  /// Helper unificato per ottenere la coppia ({solid, alpha}) per qualsiasi [GlutenSafetyStatus].
-  ({Color solid, Color alpha}) statusColorsFor(GlutenSafetyStatus status) {
+  /// Helper unificato per ottenere il set semantico ({solid, alpha, heroBadgeBg, barcodeChipBg})
+  /// per qualsiasi [GlutenSafetyStatus].
+  ({
+    Color solid,
+    Color alpha,
+    Color heroBadgeBg,
+    Color barcodeChipBg,
+  }) statusColorsFor(GlutenSafetyStatus status) {
     switch (status) {
       case GlutenSafetyStatus.adatto:
         return statusSafeColors;
@@ -285,6 +373,8 @@ extension AppColorTokens on ColorScheme {
   Color get statusSecondaryText => statusLactoseSolid;
   Color get lactoseBg => statusLactoseAlpha;
   Color get lactoseText => statusLactoseSolid;
+  Color get statusTertiaryHeroBadgeBg => statusUncertainHeroBadgeBg;
+  Color get statusTertiaryBarcodeChipBg => statusUncertainBarcodeChipBg;
 
   // ── 2. PULSANTI (BUTTONS) ─────────────────────────────────────────────────
   // Token cromatici dedicati per la gerarchia dei pulsanti dell'app.
@@ -344,25 +434,25 @@ extension AppColorTokens on ColorScheme {
   Color get cardPrimaryBg =>
       brightness == Brightness.dark ? darkCardBackground : lightCardBackground;
   Color get cardPrimaryBorder => brightness == Brightness.dark
-      ? Colors.white.withValues(alpha: 0.05)
-      : const Color(0xFF142850).withValues(alpha: 0.045);
+      ? darkCardPrimaryBorder
+      : lightCardPrimaryBorder;
   List<BoxShadow> get cardPrimaryShadows => brightness == Brightness.dark
       ? const []
       : const [
           BoxShadow(
-            color: Color(0x0A0F2346),
+            color: lightCardShadowAmbient,
             blurRadius: 2,
             offset: Offset(0, 1),
           ),
           BoxShadow(
-            color: Color(0x060F2346),
+            color: lightCardShadowElevation,
             blurRadius: 12,
             offset: Offset(0, 4),
           ),
         ];
   Color get cardPrimaryShadow => brightness == Brightness.dark
       ? colorTransparent
-      : const Color(0x0A0F2346);
+      : lightCardShadowAmbient;
   Color get cardPrimaryHover => surfaceContainerHighest;
   Color get cardPrimaryHighlight => brightness == Brightness.dark
       ? darkSurfaceContainerLow

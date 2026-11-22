@@ -206,7 +206,8 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
   Widget _buildContent(BuildContext context) {
     final colorScheme = context.colorScheme;
     final scaffoldBgColor = Theme.of(context).scaffoldBackgroundColor;
-    final heroBgColor = colorScheme.statusUncertainAlpha;
+    final statusColors = colorScheme.statusUncertainColors;
+    final heroBgColor = statusColors.alpha;
 
     return Scaffold(
       backgroundColor: scaffoldBgColor,
@@ -280,12 +281,12 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: colorScheme.iconCircleTertiaryBg,
+                      color: statusColors.heroBadgeBg,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       Icons.warning,
-                      color: colorScheme.statusTertiaryText,
+                      color: statusColors.solid,
                       size: 48,
                     ),
                   ),
@@ -317,7 +318,7 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: colorScheme.statusTertiaryBg,
+                      color: statusColors.barcodeChipBg,
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: Row(
@@ -326,7 +327,7 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
                         Icon(
                           Icons.qr_code,
                           size: 16,
-                          color: colorScheme.statusTertiaryText,
+                          color: statusColors.solid,
                         ),
                         const SizedBox(width: 8),
                         SelectableText(
@@ -334,7 +335,7 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: colorScheme.statusTertiaryText,
+                            color: statusColors.solid,
                           ),
                         ),
                       ],

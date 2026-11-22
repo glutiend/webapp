@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:glutiend/core/theme/theme.dart';
+import 'package:glutiend/models/gluten_safety_status.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -152,6 +153,39 @@ void main() {
       expect(capturedContext.cardBackground, darkCardBackground);
       expect(capturedContext.surfaceContainerLow, darkSurfaceContainerLow);
       expect(capturedContext.colorScheme.primary, darkPrimary);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // GROUP 5 – AppColorTokens heroBadgeBg & barcodeChipBg Derivation
+  // ═══════════════════════════════════════════════════════════════════════════
+  group('GROUP 5 – AppColorTokens heroBadgeBg & barcodeChipBg Derivation', () {
+    test('statusColorsFor provides heroBadgeBg and barcodeChipBg for all statuses in light theme', () {
+      for (final status in GlutenSafetyStatus.values) {
+        final colors = lightTheme.colorScheme.statusColorsFor(status);
+        expect(colors.solid, isNotNull);
+        expect(colors.alpha, isNotNull);
+        expect(colors.heroBadgeBg, isNotNull);
+        expect(colors.barcodeChipBg, isNotNull);
+
+        // heroBadgeBg deve essere tonificato rispetto al semplice alpha
+        expect(colors.heroBadgeBg, isNot(equals(colors.alpha)));
+        // barcodeChipBg deve essere tonificato rispetto al semplice alpha (più tenue)
+        expect(colors.barcodeChipBg, isNot(equals(colors.alpha)));
+      }
+    });
+
+    test('statusColorsFor provides heroBadgeBg and barcodeChipBg for all statuses in dark theme', () {
+      for (final status in GlutenSafetyStatus.values) {
+        final colors = darkTheme.colorScheme.statusColorsFor(status);
+        expect(colors.solid, isNotNull);
+        expect(colors.alpha, isNotNull);
+        expect(colors.heroBadgeBg, isNotNull);
+        expect(colors.barcodeChipBg, isNotNull);
+
+        expect(colors.heroBadgeBg, isNot(equals(colors.alpha)));
+        expect(colors.barcodeChipBg, isNot(equals(colors.alpha)));
+      }
     });
   });
 }

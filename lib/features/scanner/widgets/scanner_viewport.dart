@@ -100,7 +100,8 @@ class _ScannerViewportState extends State<ScannerViewport> {
 
         // Su mobile: di default presente all'avvio, rimosso solo se running con torchState == unavailable.
         // Su web: disabilitato completamente per evitare incompatibilità e blocchi dei browser/SO.
-        final bool hasTorch = _isMobile &&
+        final bool hasTorch =
+            _isMobile &&
             (!state.isRunning || state.torchState != TorchState.unavailable);
 
         // Il pulsante torcia è visibile solo se supportato (mobile) e la fotocamera NON ha errori.
@@ -123,8 +124,18 @@ class _ScannerViewportState extends State<ScannerViewport> {
                     builder: (context, constraints) {
                       final w = constraints.maxWidth;
                       final h = constraints.maxHeight;
-                      final double frameW = w * 0.85;
-                      final double frameH = h * 0.65;
+                      // Padding identico e fisso su tutti e 4 i lati (20dp), garantendo
+                      // che la distanza tra i bordi del riquadro fotocamera (16:10) e il
+                      // mirino sia perfettamente uguale e uniforme (sopra, sotto, destra e sinistra).
+                      const double framePadding = 20.0;
+                      final double frameW = (w - (2 * framePadding)).clamp(
+                        0.0,
+                        w,
+                      );
+                      final double frameH = (h - (2 * framePadding)).clamp(
+                        0.0,
+                        h,
+                      );
 
                       return Stack(
                         fit: StackFit.expand,
@@ -192,8 +203,7 @@ class _ScannerViewportState extends State<ScannerViewport> {
               ValueListenableBuilder<MobileScannerState>(
                 valueListenable: widget.controller,
                 builder: (context, controllerState, _) {
-                  final isTorchOn =
-                      controllerState.torchState == TorchState.on;
+                  final isTorchOn = controllerState.torchState == TorchState.on;
                   return Positioned(
                     bottom: 0,
                     left: 0,
@@ -281,7 +291,8 @@ class _ScannerViewportState extends State<ScannerViewport> {
               ),
               textAlign: TextAlign.center,
             ),
-            if (!kIsWeb && category == CameraErrorCategory.permissionDenied) ...[
+            if (!kIsWeb &&
+                category == CameraErrorCategory.permissionDenied) ...[
               const SizedBox(height: 20),
               AppPrimaryButton(
                 onPressed: () async {

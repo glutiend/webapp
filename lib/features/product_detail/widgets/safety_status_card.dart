@@ -33,7 +33,6 @@ class SafetyStatusCard extends StatelessWidget {
     final colorScheme = context.colorScheme;
 
     final colors = colorScheme.statusColorsFor(effectiveStatus);
-    final heroBgColor = colors.alpha;
     final heroTextColor = colors.solid;
 
     String statusBigText;
@@ -66,7 +65,7 @@ class SafetyStatusCard extends StatelessWidget {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: heroBgColor,
+              color: colors.heroBadgeBg,
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -96,7 +95,7 @@ class SafetyStatusCard extends StatelessWidget {
             showScanDate: showScanDate,
             scannedAt: scannedAt,
             lastUpdated: lastUpdated,
-            pillBgColor: heroBgColor,
+            pillBgColor: colors.barcodeChipBg,
             pillTextColor: heroTextColor,
           ),
         ],
