@@ -90,7 +90,6 @@ class _ScannerViewportState extends State<ScannerViewport> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = context.colorScheme;
-    final cardBg = context.cardBackground;
 
     return ValueListenableBuilder<MobileScannerState>(
       valueListenable: widget.controller,
@@ -204,35 +203,42 @@ class _ScannerViewportState extends State<ScannerViewport> {
                 valueListenable: widget.controller,
                 builder: (context, controllerState, _) {
                   final isTorchOn = controllerState.torchState == TorchState.on;
+                  final buttonBg = isTorchOn
+                      ? colorScheme.selectedItemBg
+                      : colorScheme.surfaceContainerHighest;
+                  final buttonFg = isTorchOn
+                      ? colorScheme.primary
+                      : colorScheme.textTertiary;
+
                   return Positioned(
                     bottom: 0,
                     left: 0,
                     right: 0,
                     child: Center(
-                      child: Material(
-                        color: isTorchOn
-                            ? colorScheme.primaryContainer
-                            : cardBg,
-                        elevation: 4,
-                        shadowColor: colorScheme.shadow.withValues(alpha: 0.4),
-                        shape: const CircleBorder(),
-                        clipBehavior: Clip.antiAlias,
-                        child: InkWell(
-                          customBorder: const CircleBorder(),
-                          canRequestFocus: false,
-                          onTap: _handleToggleTorch,
-                          child: SizedBox(
-                            width: 56,
-                            height: 56,
-                            child: Center(
-                              child: Icon(
-                                isTorchOn
-                                    ? Icons.flashlight_on
-                                    : Icons.flashlight_off,
-                                size: 24,
-                                color: isTorchOn
-                                    ? colorScheme.onPrimaryContainer
-                                    : colorScheme.onSurface,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: colorScheme.cardPrimaryShadows,
+                        ),
+                        child: Material(
+                          color: buttonBg,
+                          shape: const CircleBorder(),
+                          clipBehavior: Clip.antiAlias,
+                          child: InkWell(
+                            customBorder: const CircleBorder(),
+                            canRequestFocus: false,
+                            onTap: _handleToggleTorch,
+                            child: SizedBox(
+                              width: 56,
+                              height: 56,
+                              child: Center(
+                                child: Icon(
+                                  isTorchOn
+                                      ? Icons.flashlight_on
+                                      : Icons.flashlight_off,
+                                  size: 24,
+                                  color: buttonFg,
+                                ),
                               ),
                             ),
                           ),

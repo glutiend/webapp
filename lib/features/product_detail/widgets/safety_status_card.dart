@@ -162,9 +162,7 @@ class GlutenEvaluationCard extends StatelessWidget {
         if (hasActiveReport) ...[
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-            decoration: BoxDecoration(
-              color: colorScheme.statusUncertainAlpha,
-            ),
+            decoration: BoxDecoration(color: colorScheme.statusUncertainAlpha),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

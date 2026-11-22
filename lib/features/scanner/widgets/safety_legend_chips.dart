@@ -138,14 +138,21 @@ class _SafetyLegendChipsState extends State<SafetyLegendChips> {
   ) {
     final isSelected = _selectedIndex == index;
     final colorScheme = context.colorScheme;
-    final circleBg = AppStatusPill.iconCircleBgForVariant(item.variant, colorScheme);
-    final iconColor = AppStatusPill.colorsForVariant(item.variant, colorScheme).text;
+    final circleBg = AppStatusPill.iconCircleBgForVariant(
+      item.variant,
+      colorScheme,
+    );
+    final iconColor = AppStatusPill.colorsForVariant(
+      item.variant,
+      colorScheme,
+    ).text;
 
     // Geometria precisa della tile per centrare il cerchio perfettamente sull'icona
     const double circleSize = 44.0;
     const double iconTop = 9.0;
     const double tileHeight = 86.0;
-    const double circleBottomUnselected = tileHeight - (iconTop + circleSize); // 33.0
+    const double circleBottomUnselected =
+        tileHeight - (iconTop + circleSize); // 33.0
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -194,7 +201,10 @@ class _SafetyLegendChipsState extends State<SafetyLegendChips> {
                         ),
                         // Contenuto con icona allineata esattamente all'area 44x44
                         Padding(
-                          padding: const EdgeInsets.only(top: iconTop, bottom: 8),
+                          padding: const EdgeInsets.only(
+                            top: iconTop,
+                            bottom: 8,
+                          ),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -202,7 +212,11 @@ class _SafetyLegendChipsState extends State<SafetyLegendChips> {
                                 width: tileWidth,
                                 height: circleSize,
                                 child: Center(
-                                  child: Icon(item.icon, color: iconColor, size: 26),
+                                  child: Icon(
+                                    item.icon,
+                                    color: iconColor,
+                                    size: 26,
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 7),

@@ -204,12 +204,12 @@ const Color darkStatusPrimaryText =
     darkStatusSafeText; // Alias retrocompatibile
 
 // Stati Cibo — Incerto / Warning
-const Color darkStatusUncertainText = Color(0xFFEBA85E);
+const Color darkStatusUncertainText = Color(0xFFE3C58F);
 const Color darkStatusUncertainBg = Color(
-  0xFF22170D,
-); // Sfondo pastello ambra/marrone scuro attenuato
-const Color darkTertiaryContainer = Color(0xFF22170D);
-const Color darkOnTertiaryContainer = Color(0xFFEBA85E);
+  0xFF262119,
+); // Sfondo pastello caldo sabbia tenue e riposante
+const Color darkTertiaryContainer = Color(0xFF262119);
+const Color darkOnTertiaryContainer = Color(0xFFE3C58F);
 
 // Stati Cibo — Vietato / Errore
 const Color darkError = Color(0xFFEB827D);
