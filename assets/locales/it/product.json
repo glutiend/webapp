@@ -59,15 +59,15 @@
     "analysis": {
       "notSuitable": "Rilevati ingredienti contententi glutine.",
       "safe": "Certificazione o dicitura \"Senza Glutine\" rilevata.",
-      "claimDiscrepancy": "Prodotto con dicitura \"Senza Glutine\" potenzialmente errata. Leggi l'etichetta.",
+      "claimDiscrepancy": "Prodotto con dicitura \"Senza Glutine\" potenzialmente errata. Leggi l'etichetta fisica.",
       "claimDiscrepancyReason": "Discrepanza tra etichetta e ingredienti con glutine rilevati.",
       "naturallySafe": "Prodotto di base naturalmente privo di glutine.",
-      "uncertainNoLabel": "Prodotto lavorato senza dicitura \"Senza glutine\". Leggi l'etichetta.",
-      "uncertainTraces": "Trovate diciture di contaminazione. Leggi l'etichetta.",
+      "uncertainNoLabel": "Prodotto lavorato senza dicitura \"Senza glutine\". Leggi l'etichetta fisica.",
+      "uncertainTraces": "Trovate diciture di contaminazione. Leggi l'etichetta fisica.",
       "unknown": "Informazioni insufficienti. Leggi l'etichetta fisica.",
       "strictFilterBlocked": "Rilevate possibili tracce di contaminazione crociata dal Filtro Rigido Contaminazioni.",
       "glutenSource": "Fonte diretta di glutine.",
-      "glutenFreeIngredient": "Etichetta Senza Glutine",
+      "glutenFreeIngredient": "Certificazione Senza Glutine",
       "glutenFreeReason": "Prodotto certificato o dichiarato senza glutine.",
       "naturalSafeIngredient": "Naturalmente Sicuro",
       "naturalSafeReason": "Prodotto di base a bassissimo rischio (es. olio, acqua).",
@@ -82,7 +82,12 @@
       "maltIngredient": "Malto",
       "maltReason": "Possibile malto d'orzo. Origine non specificata.",
       "contaminationBlocked": "Vietato dal Filtro Rigido Contaminazioni.",
-      "lactoseDetected": "Vietato dal Filtro Intolleranza al Lattosio."
+      "lactoseDetected": "Vietato dal Filtro Intolleranza al Lattosio.",
+      "oatsIngredient": "Avena",
+      "oatsReason": "Avena non certificata senza glutine. Elevato rischio di contaminazione crociata.",
+      "bollinoMissingIngredientsReason": "Certificazione senza glutine presente, ma non ci sono dati sugli ingredienti. Verifica l'etichetta fisica.",
+      "textClaimMissingIngredients": "Dicitura \"Senza Glutine\" presente, ma ingredienti assenti. Verifica l'etichetta fisica.",
+      "textClaimMissingIngredientsReason": "Certificazione presente, ma impossibile verificare la composizione senza lista ingredienti."
     },
     "actions": {
       "reportError": "Segnala Dati Errati",

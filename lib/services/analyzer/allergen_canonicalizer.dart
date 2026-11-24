@@ -405,6 +405,7 @@ class AllergenCanonicalizer {
   /// Restituisce `true` se il testo o tag è una dichiarazione di sicurezza/assenza di glutine
   static bool isSafeGlutenClaim(String text) {
     if (text.trim().isEmpty) return false;
+    if (GlutenRules.hasNegatedGlutenClaim(text)) return false;
     final lowerA = text.trim().toLowerCase();
     final withoutPrefix =
         lowerA.contains(':') ? lowerA.split(':').last.trim() : lowerA;

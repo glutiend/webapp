@@ -7,11 +7,7 @@ class AdditivesChecker {
   static List<String> findDoubtfulAdditives(String lowerIngredients) {
     final List<String> found = [];
     for (final d in GlutenRules.doubtfulAdditives) {
-      final isAgglutinative = GlutenRules.agglutinativeRoots.contains(d);
-      final regex = isAgglutinative
-          ? RegExp(RegExp.escape(d), caseSensitive: false)
-          : RegExp(r'\b' + RegExp.escape(d) + r'\b', caseSensitive: false);
-      if (regex.hasMatch(lowerIngredients)) {
+      if (GlutenRules.containsKeyword(lowerIngredients, d)) {
         found.add(d);
       }
     }

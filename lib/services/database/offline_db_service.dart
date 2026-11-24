@@ -197,7 +197,7 @@ class OfflineDbService {
     final tracesTags = row['traces_tags']?.toString() ?? '';
     final categoriesTags = row['categories_tags']?.toString() ?? '';
 
-    // Creazione liste allergeni e tracce
+    // Creazione lista allergeni (separata dalle tracce per parità con OffProductParser)
     final allergensList = <String>[];
     if (allergensTags.isNotEmpty) {
       allergensList.addAll(
@@ -205,11 +205,6 @@ class OfflineDbService {
             .split(',')
             .map((e) => e.trim())
             .where((e) => e.isNotEmpty),
-      );
-    }
-    if (tracesTags.isNotEmpty) {
-      allergensList.addAll(
-        tracesTags.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty),
       );
     }
 

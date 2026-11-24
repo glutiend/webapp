@@ -870,7 +870,7 @@ void main() {
       expect(AnalyzerService.checkLactose('vollmilchpulver', []), isTrue);
     });
 
-    test('buckwheat flour (grano saraceno) is NOT flagged as wheat (Safe / adatto)', () {
+    test('buckwheat flour (grano saraceno) is NOT flagged as wheat (incerto, not danger)', () {
       final res = AnalyzerService.analyzeGlutenSafety(
         name: 'Buckwheat Flour',
         brand: 'Healthy Grain',
@@ -880,9 +880,41 @@ void main() {
         categoriesTags: [],
       );
 
-      expect(res.status, GlutenSafetyStatus.adatto);
+      expect(res.status, GlutenSafetyStatus.incerto);
       expect(
         res.ingredientsAnalyzed.any((i) => i.dangerLevel == 'danger'),
+        isFalse,
+      );
+    });
+
+    test('French blé noir (buckwheat) is NOT flagged as blé (wheat)', () {
+      final certified = AnalyzerService.analyzeGlutenSafety(
+        name: 'Galettes de blé noir sans gluten',
+        brand: 'Bretagne',
+        ingredients: 'Farine de blé noir, eau, sel',
+        allergensList: [],
+        reportCount: 0,
+        categoriesTags: [],
+        offTags: OffTags(
+          allergensTags: [],
+          tracesTags: [],
+          labelsTags: ['en:sans-gluten'],
+          ingredientsAnalysisTags: [],
+        ),
+      );
+      expect(certified.status, GlutenSafetyStatus.adatto);
+
+      final uncertified = AnalyzerService.analyzeGlutenSafety(
+        name: 'Farine de ble noir',
+        brand: 'Moulin',
+        ingredients: 'Farine de ble noir',
+        allergensList: [],
+        reportCount: 0,
+        categoriesTags: [],
+      );
+      expect(uncertified.status, GlutenSafetyStatus.incerto);
+      expect(
+        uncertified.ingredientsAnalyzed.any((i) => i.dangerLevel == 'danger'),
         isFalse,
       );
     });
@@ -1539,6 +1571,418 @@ void main() {
       );
 
       expect(res.status, GlutenSafetyStatus.incerto);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // GROUP 19 – Block 1 Hardening: Negations, Brand Exclusion, Mono-Ingredient & Oats
+  // ═══════════════════════════════════════════════════════════════════════════
+  group('GROUP 19 – Block 1 Hardening', () {
+    test('negated gluten-free claims do NOT grant adatto status', () {
+      final cases = [
+        'Prodotto non adatto a una dieta senza glutine',
+        'Questo prodotto NON è senza glutine',
+        'Senza glutine: NO',
+        'Not suitable for a gluten free diet',
+        'This product is not gluten-free',
+      ];
+      for (final note in cases) {
+        final res = AnalyzerService.analyzeGlutenSafety(
+          name: 'Snack Generico',
+          brand: 'Brand',
+          ingredients: 'Mais, olio di girasole, sale. $note',
+          allergensList: [],
+          reportCount: 0,
+          categoriesTags: [],
+        );
+        expect(res.status, GlutenSafetyStatus.incerto, reason: 'Failed for: $note');
+      }
+    });
+
+    test('brand name containing "Senza Glutine" does NOT trigger text claim', () {
+      final res = AnalyzerService.analyzeGlutenSafety(
+        name: 'Biscotti al cacao',
+        brand: 'Il Mondo Senza Glutine Srl',
+        ingredients: 'Amido di mais, zucchero, olio vegetale, cacao',
+        allergensList: [],
+        reportCount: 0,
+        categoriesTags: [],
+      );
+      expect(res.status, GlutenSafetyStatus.incerto);
+    });
+
+    test('high-risk mono-ingredients (flours, starches, legumes) are incerto, never adatto', () {
+      final riskySingles = [
+        'Farina di riso',
+        'Amido di mais',
+        'Fecola di patate',
+        'Lenticchie rosse',
+        'Fiocchi di mais',
+      ];
+      for (final ing in riskySingles) {
+        final res = AnalyzerService.analyzeGlutenSafety(
+          name: ing,
+          brand: 'Mulino',
+          ingredients: ing,
+          allergensList: [],
+          reportCount: 0,
+          categoriesTags: [],
+        );
+        expect(res.status, GlutenSafetyStatus.incerto, reason: 'Failed for: $ing');
+      }
+    });
+
+    test('multi-ingredient list separated by semicolon is NOT treated as mono-ingredient', () {
+      final res = AnalyzerService.analyzeGlutenSafety(
+        name: 'Preparato',
+        brand: 'Brand',
+        ingredients: 'Riso; sale; olio di girasole',
+        allergensList: [],
+        reportCount: 0,
+        categoriesTags: [],
+      );
+      expect(res.status, GlutenSafetyStatus.incerto);
+    });
+
+    test('uncertified oats are incerto with warning badge, never adatto', () {
+      final res = AnalyzerService.analyzeGlutenSafety(
+        name: 'Fiocchi di avena',
+        brand: 'Bio',
+        ingredients: 'Fiocchi di avena 100%',
+        allergensList: [],
+        reportCount: 0,
+        categoriesTags: [],
+      );
+      expect(res.status, GlutenSafetyStatus.incerto);
+      expect(
+        res.ingredientsAnalyzed.any(
+          (i) => i.dangerLevel == 'warning' && i.ingredient == 'product.analysis.oatsIngredient'.tr(),
+        ),
+        isTrue,
+      );
+    });
+
+    test('certified gluten-free product with oats remains adatto', () {
+      final res = AnalyzerService.analyzeGlutenSafety(
+        name: 'Biscotti all\'avena senza glutine',
+        brand: 'Bio',
+        ingredients: 'Fiocchi di avena senza glutine, zucchero, olio di girasole',
+        allergensList: [],
+        reportCount: 0,
+        categoriesTags: [],
+        offTags: OffTags(
+          allergensTags: [],
+          tracesTags: [],
+          labelsTags: ['en:gluten-free'],
+          ingredientsAnalysisTags: [],
+        ),
+      );
+      expect(res.status, GlutenSafetyStatus.adatto);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // GROUP 20 – Block 2 Hardening: Missing Ingredients (Caso 1 / 1-bis) & OCR
+  // ═══════════════════════════════════════════════════════════════════════════
+  group('GROUP 20 – Block 2 Hardening', () {
+    test('Caso 1: official gluten-free tag with empty ingredients stays adatto with warning badge', () {
+      final res = AnalyzerService.analyzeGlutenSafety(
+        name: 'Crackers Certificati',
+        brand: 'Bio',
+        ingredients: '',
+        allergensList: [],
+        reportCount: 0,
+        categoriesTags: [],
+        offTags: OffTags(
+          allergensTags: [],
+          tracesTags: [],
+          labelsTags: ['en:gluten-free'],
+          ingredientsAnalysisTags: [],
+        ),
+      );
+
+      expect(res.status, GlutenSafetyStatus.adatto);
+      expect(
+        res.ingredientsAnalyzed.any(
+          (i) =>
+              i.dangerLevel == 'warning' &&
+              i.ingredient == 'product.analysis.missingDataIngredient'.tr() &&
+              i.reason == 'product.analysis.bollinoMissingIngredientsReason'.tr(),
+        ),
+        isTrue,
+      );
+    });
+
+    test('Caso 1-bis: text-only gluten-free claim with empty ingredients returns incerto (never adatto)', () {
+      final res = AnalyzerService.analyzeGlutenSafety(
+        name: 'Biscotti Senza Glutine',
+        brand: 'Brand',
+        ingredients: '',
+        allergensList: [],
+        reportCount: 0,
+        categoriesTags: [],
+      );
+
+      expect(res.status, GlutenSafetyStatus.incerto);
+      expect(res.reason, 'product.analysis.textClaimMissingIngredients'.tr());
+      expect(
+        res.ingredientsAnalyzed.any((i) => i.dangerLevel == 'warning'),
+        isTrue,
+      );
+    });
+
+    test('OCR normalization detects danger keywords split by soft-hyphen, zero-width space, or hyphenation', () {
+      final ocrVariants = [
+        'Farina di fru\u00ADmento, acqua, sale',
+        'Malto di or\u200Bzo, zucchero',
+        'Farina di fru-mento, acqua',
+        'Farina di fru-\nmento, acqua',
+      ];
+      for (final ing in ocrVariants) {
+        final res = AnalyzerService.analyzeGlutenSafety(
+          name: 'Prodotto OCR',
+          brand: 'Brand',
+          ingredients: ing,
+          allergensList: [],
+          reportCount: 0,
+          categoriesTags: [],
+        );
+        expect(res.status, GlutenSafetyStatus.nonAdatto, reason: 'Failed for: $ing');
+      }
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // GROUP 21 – Block 3 Hardening: toOffTags Fallback & Multilingual isGlutenTag
+  // ═══════════════════════════════════════════════════════════════════════════
+  group('GROUP 21 – Block 3 Hardening', () {
+    test('Product.toOffTags falls back to non-empty locale when en list is empty', () {
+      final product = Product(
+        barcode: '123456',
+        nameMap: {'it': 'Biscotti'},
+        brandMap: {'it': 'Brand'},
+        ingredientsMap: {'it': 'Ingredienti vari'},
+        allergensMap: {
+          'en': [],
+          'it': ['Frumento'],
+        },
+        lastUpdated: '2026-01-01T00:00:00.000Z',
+      );
+
+      final tags = product.toOffTags();
+      expect(tags.allergensTags, ['Frumento']);
+
+      final res = AnalyzerService.analyzeGlutenSafety(
+        name: product.getName('it'),
+        brand: product.getBrand('it'),
+        ingredients: product.getIngredients('it'),
+        allergensList: product.getAllergens('it'),
+        reportCount: 0,
+        categoriesTags: product.categoriesTags,
+        offTags: tags,
+      );
+      expect(res.status, GlutenSafetyStatus.nonAdatto);
+    });
+
+    test('isGlutenTag recognizes localized and non-English gluten allergen tags', () {
+      final localizedTags = ['Frumento', 'Segale', 'Orzo', 'Farro', 'fr:blé', 'de:weizen', 'en:triticale'];
+      for (final tag in localizedTags) {
+        final res = AnalyzerService.analyzeGlutenSafety(
+          name: 'Prodotto',
+          brand: 'Brand',
+          ingredients: 'Ingredienti non specificati',
+          allergensList: [],
+          reportCount: 0,
+          categoriesTags: [],
+          offTags: OffTags(
+            allergensTags: [tag],
+            tracesTags: [],
+            labelsTags: [],
+            ingredientsAnalysisTags: [],
+          ),
+        );
+        expect(res.status, GlutenSafetyStatus.nonAdatto, reason: 'Failed for tag: $tag');
+      }
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // GROUP 22 – Block 4 Hardening: Grano Saraceno, Step 4 Boundary & Additives
+  // ═══════════════════════════════════════════════════════════════════════════
+  group('GROUP 22 – Block 4 Hardening', () {
+    test('certified grano saraceno (buckwheat) pasta is adatto, never claimDiscrepancy', () {
+      final res = AnalyzerService.analyzeGlutenSafety(
+        name: 'Fusilli di Grano Saraceno Senza Glutine',
+        brand: 'Bio',
+        ingredients: 'Farina di grano saraceno 100%',
+        allergensList: [],
+        reportCount: 0,
+        categoriesTags: [],
+        offTags: OffTags(
+          allergensTags: [],
+          tracesTags: [],
+          labelsTags: ['en:gluten-free'],
+          ingredientsAnalysisTags: [],
+        ),
+      );
+
+      expect(res.status, GlutenSafetyStatus.adatto);
+      expect(
+        res.ingredientsAnalyzed.any((i) => i.dangerLevel == 'danger'),
+        isFalse,
+      );
+    });
+
+    test('uncertified farina di grano saraceno is incerto (not nonAdatto/Rosso)', () {
+      final res = AnalyzerService.analyzeGlutenSafety(
+        name: 'Farina di grano saraceno',
+        brand: 'Mulino',
+        ingredients: 'Farina di grano saraceno',
+        allergensList: [],
+        reportCount: 0,
+        categoriesTags: [],
+      );
+
+      expect(res.status, GlutenSafetyStatus.incerto);
+      expect(
+        res.ingredientsAnalyzed.any((i) => i.dangerLevel == 'danger'),
+        isFalse,
+      );
+    });
+
+    test('French blé noir (buckwheat) is NOT flagged as blé (wheat)', () {
+      final certified = AnalyzerService.analyzeGlutenSafety(
+        name: 'Galettes de blé noir sans gluten',
+        brand: 'Bretagne',
+        ingredients: 'Farine de blé noir, eau, sel',
+        allergensList: [],
+        reportCount: 0,
+        categoriesTags: [],
+        offTags: OffTags(
+          allergensTags: [],
+          tracesTags: [],
+          labelsTags: ['en:sans-gluten'],
+          ingredientsAnalysisTags: [],
+        ),
+      );
+      expect(certified.status, GlutenSafetyStatus.adatto);
+
+      final uncertified = AnalyzerService.analyzeGlutenSafety(
+        name: 'Farine de ble noir',
+        brand: 'Moulin',
+        ingredients: 'Farine de ble noir',
+        allergensList: [],
+        reportCount: 0,
+        categoriesTags: [],
+      );
+      expect(uncertified.status, GlutenSafetyStatus.incerto);
+      expect(
+        uncertified.ingredientsAnalyzed.any((i) => i.dangerLevel == 'danger'),
+        isFalse,
+      );
+    });
+
+    test('Step 4 allergensList uses word boundaries (melograno does NOT trigger grano trace)', () {
+      final res = AnalyzerService.analyzeGlutenSafety(
+        name: 'Succo di Frutta',
+        brand: 'Bio',
+        ingredients: 'Acqua, succo di mela, estratto di melograno',
+        allergensList: ['melograno'],
+        reportCount: 0,
+        categoriesTags: ['en:fresh-fruits'],
+        strictMode: true,
+      );
+
+      expect(res.status, GlutenSafetyStatus.adatto);
+    });
+
+    test('multilingual doubtful additives (FR, ES, DE) are flagged in ingredientsAnalyzed', () {
+      final cases = [
+        'Maïs, amidon modifié, sel',
+        'Maíz, almidón modificado, sal',
+        'Mais, modifizierte stärke, salz',
+      ];
+      for (final ing in cases) {
+        final res = AnalyzerService.analyzeGlutenSafety(
+          name: 'Snack',
+          brand: 'Brand',
+          ingredients: ing,
+          allergensList: [],
+          reportCount: 0,
+          categoriesTags: [],
+          warnAdditives: true,
+        );
+        expect(res.status, GlutenSafetyStatus.incerto);
+        expect(
+          res.ingredientsAnalyzed.any((i) => i.dangerLevel == 'warning'),
+          isTrue,
+          reason: 'Failed to flag additive for: $ing',
+        );
+      }
+    });
+
+    test('8009550007349 discrepancy (en:no-gluten + en:gluten allergen) does NOT emit phantom trace or wrong strictMode message', () {
+      final resStrict = AnalyzerService.analyzeGlutenSafety(
+        name: 'Farina di riso',
+        brand: 'Il Molino Chiavazza',
+        ingredients: 'Farina di riso.',
+        allergensList: ['Glutine'],
+        reportCount: 0,
+        categoriesTags: ['en:rice-flours'],
+        offTags: OffTags(
+          allergensTags: ['Gluten'],
+          tracesTags: ['en:mustard', 'en:soybeans'],
+          labelsTags: ['en:no-gluten', 'en:crossed-grain-trademark'],
+          ingredientsAnalysisTags: [],
+        ),
+        strictMode: true,
+      );
+
+      expect(resStrict.status, GlutenSafetyStatus.incerto);
+      expect(
+        resStrict.ingredientsAnalyzed.any(
+          (i) => i.reason == 'product.analysis.traceWarningReason'.tr(),
+        ),
+        isFalse,
+      );
+      expect(
+        resStrict.ingredientsAnalyzed.any(
+          (i) => i.ingredient == 'product.analysis.traceIngredient'.tr(),
+        ),
+        isFalse,
+      );
+    });
+
+    test('discrepancy with real traces and strictMode=true uses contaminationBlocked, never traceWarningReason', () {
+      final res = AnalyzerService.analyzeGlutenSafety(
+        name: 'Biscotti',
+        brand: 'Brand',
+        ingredients: 'Farina di frumento, zucchero. Può contenere tracce di orzo.',
+        allergensList: [],
+        reportCount: 0,
+        categoriesTags: [],
+        offTags: OffTags(
+          allergensTags: [],
+          tracesTags: [],
+          labelsTags: ['en:gluten-free'],
+          ingredientsAnalysisTags: [],
+        ),
+        strictMode: true,
+      );
+
+      expect(res.status, GlutenSafetyStatus.incerto);
+      expect(
+        res.ingredientsAnalyzed.any(
+          (i) => i.reason == 'product.analysis.contaminationBlocked'.tr(),
+        ),
+        isTrue,
+      );
+      expect(
+        res.ingredientsAnalyzed.any(
+          (i) => i.reason == 'product.analysis.traceWarningReason'.tr(),
+        ),
+        isFalse,
+      );
     });
   });
 }

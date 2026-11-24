@@ -26,6 +26,7 @@ class Product {
   final List<String> labelsTags;
   final List<String> categoriesTags;
   final List<String> tracesTags;
+  final List<String> ingredientsAnalysisTags;
 
   Product({
     required this.barcode,
@@ -43,6 +44,7 @@ class Product {
     this.labelsTags = const [],
     this.categoriesTags = const [],
     this.tracesTags = const [],
+    this.ingredientsAnalysisTags = const [],
   });
 
   // Helper getters per estrarre la lingua corrente con fallback intelligente
@@ -203,11 +205,18 @@ class Product {
 
   /// Restituisce un'istanza [OffTags] pronta per l'analisi gluten safety.
   OffTags toOffTags() {
+    final enAllergens = allergensMap['en'];
+    final resolvedAllergens = (enAllergens != null && enAllergens.isNotEmpty)
+        ? enAllergens
+        : allergensMap.values.firstWhere(
+            (v) => v.isNotEmpty,
+            orElse: () => const <String>[],
+          );
     return OffTags(
-      allergensTags: allergensMap['en'] ?? (allergensMap.isNotEmpty ? allergensMap.values.first : const []),
+      allergensTags: resolvedAllergens,
       tracesTags: tracesTags,
       labelsTags: labelsTags,
-      ingredientsAnalysisTags: const [],
+      ingredientsAnalysisTags: ingredientsAnalysisTags,
     );
   }
 
@@ -282,6 +291,10 @@ class Product {
               ?.map((e) => e.toString())
               .toList() ??
           const [],
+      ingredientsAnalysisTags: (json['ingredients_analysis_tags'] as List?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const [],
     );
   }
 
@@ -302,6 +315,7 @@ class Product {
       'labels_tags': labelsTags,
       'categories_tags': categoriesTags,
       'traces_tags': tracesTags,
+      'ingredients_analysis_tags': ingredientsAnalysisTags,
     };
   }
 
@@ -321,6 +335,7 @@ class Product {
     List<String>? labelsTags,
     List<String>? categoriesTags,
     List<String>? tracesTags,
+    List<String>? ingredientsAnalysisTags,
   }) {
     return Product(
       barcode: barcode ?? this.barcode,
@@ -338,6 +353,8 @@ class Product {
       labelsTags: labelsTags ?? this.labelsTags,
       categoriesTags: categoriesTags ?? this.categoriesTags,
       tracesTags: tracesTags ?? this.tracesTags,
+      ingredientsAnalysisTags:
+          ingredientsAnalysisTags ?? this.ingredientsAnalysisTags,
     );
   }
 }

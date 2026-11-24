@@ -116,6 +116,17 @@ class OffProductParser {
       );
     }
 
+    // 7-bis. Estrazione Ingredients Analysis Tags
+    final List<String> ingredientsAnalysisTags = [];
+    if (pData['ingredients_analysis_tags'] is List &&
+        (pData['ingredients_analysis_tags'] as List).isNotEmpty) {
+      ingredientsAnalysisTags.addAll(
+        (pData['ingredients_analysis_tags'] as List)
+            .map((e) => e.toString().trim())
+            .where((e) => e.isNotEmpty),
+      );
+    }
+
     // 8. Estrazione Traces Tags
     final List<String> tracesTags = [];
     if (pData['traces_tags'] is List && (pData['traces_tags'] as List).isNotEmpty) {
@@ -214,6 +225,7 @@ class OffProductParser {
       labelsTags: labelsTags,
       categoriesTags: categoriesTags,
       tracesTags: tracesTags,
+      ingredientsAnalysisTags: ingredientsAnalysisTags,
     );
   }
 

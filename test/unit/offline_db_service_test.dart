@@ -210,9 +210,52 @@ void main() {
       expect(product!.labelsTags, containsAll(['en:no-gluten', 'en:gfco-gluten-free']));
       expect(product.tracesTags, containsAll(['en:milk', 'en:mustard']));
       expect(product.categoriesTags, containsAll(['en:snacks', 'en:salty-snacks']));
-      // Allergeni puliti: non devono contenere le labels
+      // Allergeni puliti: non devono contenere le labels né le tracce
       expect(product.getAllergens('it'), isNot(contains('en:no-gluten')));
       expect(product.getAllergens('it'), isNot(contains('en:gfco-gluten-free')));
+      expect(product.getAllergens('it'), isNot(contains('en:milk')));
+      expect(product.getAllergens('it'), isNot(contains('en:mustard')));
+    });
+
+    test('searchProduct keeps traces_tags out of allergensMap so traces stay traces (Online/Offline parity)', () async {
+      final db = await openDatabase(
+        dbPath,
+        version: 1,
+        onCreate: (db, v) async {
+          await db.execute('''
+            CREATE TABLE products (
+              code TEXT PRIMARY KEY,
+              product_name TEXT,
+              brands TEXT,
+              ingredients_text TEXT,
+              allergens_tags TEXT,
+              labels_tags TEXT,
+              traces_tags TEXT,
+              categories_tags TEXT,
+              last_modified_t INTEGER
+            );
+          ''');
+        },
+      );
+
+      await db.insert('products', {
+        'code': '8009999999999',
+        'product_name': 'Patatine al mais',
+        'brands': 'Brand',
+        'ingredients_text': 'Mais, olio di girasole, sale',
+        'allergens_tags': '',
+        'labels_tags': '',
+        'traces_tags': 'en:wheat',
+        'categories_tags': '',
+        'last_modified_t': 1773000000,
+      });
+      await db.close();
+
+      final product = await OfflineDbService.searchProduct('8009999999999');
+      expect(product, isNotNull);
+      expect(product!.allergensMap['en'], isEmpty);
+      expect(product.toOffTags().allergensTags, isEmpty);
+      expect(product.toOffTags().tracesTags, contains('en:wheat'));
     });
   });
 }

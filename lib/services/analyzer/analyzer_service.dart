@@ -46,16 +46,15 @@ class AnalyzerService {
     String preferredLanguage = 'it',
     bool ignoreReports = false,
   }) {
-    String safeIngredients = ingredients.trim();
+    String safeIngredients = GlutenRules.normalizeOcrText(ingredients);
     if (safeIngredients.toLowerCase() == "non disponibile") {
       safeIngredients = "";
     }
 
     final String lowerIng = safeIngredients.toLowerCase();
-    final String lowerName = name.toLowerCase();
-    final String lowerBrand = brand.toLowerCase();
+    final String lowerName = GlutenRules.normalizeOcrText(name).toLowerCase();
     final String allergensRaw = allergensList.join(' ').toLowerCase();
-    final String combinedRaw = "$lowerIng $lowerName $lowerBrand $allergensRaw";
+    final String combinedClaimText = "$lowerIng $lowerName $allergensRaw";
 
     // SANITIZZAZIONE (Risolve il bug "Pasta Senza Glutine")
     final String safeIng = GlutenRules.sanitizeForGluten(lowerIng);
@@ -63,12 +62,12 @@ class AnalyzerService {
 
     // ─── STEP 1: Controlla certificazione Gluten-Free ────────────────────────
     bool hasGlutenFreeBollino = false;
-    bool hasGlutenFreeTextClaim = GlutenRules.safeTextKeywords.any(
-      (s) => combinedRaw.contains(s),
-    );
+    bool hasGlutenFreeTextClaim =
+        GlutenRules.hasSafeGlutenTextClaim(combinedClaimText);
 
     if (offTags != null) {
       bool isSafeTag(String t) {
+        if (GlutenRules.hasNegatedGlutenClaim(t)) return false;
         final lt = t.toLowerCase();
         return lt.contains('gluten-free') ||
             lt.contains('senza-glutine') ||
@@ -96,11 +95,8 @@ class AnalyzerService {
     // ─── STEP 2: Controlla ingredienti PERICOLOSI (usando il testo pulito) ───
     List<String> foundDanger = [];
     for (String k in GlutenRules.dangerKeywords) {
-      final isAgglutinative = GlutenRules.agglutinativeRoots.contains(k);
-      final regex = isAgglutinative
-          ? RegExp(RegExp.escape(k), caseSensitive: false)
-          : RegExp(r'\b' + RegExp.escape(k) + r'\b', caseSensitive: false);
-      if (regex.hasMatch(safeIng) || regex.hasMatch(safeName)) {
+      if (GlutenRules.containsKeyword(safeIng, k) ||
+          GlutenRules.containsKeyword(safeName, k)) {
         foundDanger.add(k);
       }
     }
@@ -162,22 +158,66 @@ class AnalyzerService {
 
     if (offTags != null) {
       bool isGlutenTag(String t) {
-        final lowerT = t.toLowerCase();
-        // Ignora tag come "en:gluten-free" o "it:senza-glutine"
-        if (GlutenRules.safeTextKeywords.any(
-              (safe) =>
-                  lowerT.contains(safe.replaceAll(' ', '-')) ||
-                  lowerT.contains(safe),
-            ) ||
-            isSafeGlutenClaim(t)) {
+        final lowerT = t.toLowerCase().trim();
+        // Ignora tag come "en:gluten-free" o "it:senza-glutine" (non negati)
+        if (!GlutenRules.hasNegatedGlutenClaim(lowerT) &&
+            (GlutenRules.safeTextKeywords.any(
+                  (safe) =>
+                      lowerT.contains(safe.replaceAll(' ', '-')) ||
+                      lowerT.contains(safe),
+                ) ||
+                isSafeGlutenClaim(t))) {
           return false;
         }
-        return lowerT.contains('gluten') ||
-            lowerT.contains('wheat') ||
-            lowerT.contains('barley') ||
-            lowerT.contains('rye') ||
-            lowerT.contains('spelt') ||
-            lowerT.contains('kamut');
+        final clean = lowerT.contains(':') ? lowerT.split(':').last.trim() : lowerT;
+        final canonical = AllergenCanonicalizer.allergenCanonical[clean];
+        if (canonical == 'gluten' ||
+            canonical == 'wheat' ||
+            canonical == 'barley' ||
+            canonical == 'rye' ||
+            canonical == 'spelt') {
+          return true;
+        }
+        if (clean.contains('grano saraceno') ||
+            clean.contains('blé noir') ||
+            clean.contains('ble noir')) {
+          return false;
+        }
+        const tagTerms = [
+          'gluten',
+          'glutine',
+          'wheat',
+          'frumento',
+          'grano',
+          'blé',
+          'trigo',
+          'weizen',
+          'tarwe',
+          'barley',
+          'orzo',
+          'orge',
+          'cebada',
+          'gerste',
+          'gerst',
+          'rye',
+          'segale',
+          'seigle',
+          'centeno',
+          'roggen',
+          'rogge',
+          'spelt',
+          'farro',
+          'épeautre',
+          'espelta',
+          'dinkel',
+          'kamut',
+          'triticale',
+          'semolina',
+          'couscous',
+          'bulgur',
+          'seitan',
+        ];
+        return tagTerms.any((term) => clean.contains(term));
       }
 
       if (!hasCertifiedSafeBarleyMalt) {
@@ -216,40 +256,69 @@ class AnalyzerService {
               lowerA == 'barley')) {
         continue;
       }
-      // Se abbiamo già identificato un pericolo reale negli ingredienti,
+      // Se abbiamo già identificato un pericolo reale negli ingredienti o negli allergeni OFF,
       // l'allergene primario non è una traccia di contaminazione.
-      if (foundDanger.isNotEmpty) {
+      if (foundDanger.isNotEmpty || hasOffGlutenAllergen) {
         continue;
       }
-      if (GlutenRules.dangerKeywords.any((k) => lowerA.contains(k))) {
+      final safeAllergen = GlutenRules.sanitizeForGluten(lowerA);
+      if (GlutenRules.dangerKeywords.any(
+        (k) => GlutenRules.containsKeyword(safeAllergen, k),
+      )) {
         foundTraces.add(lowerA);
       }
     }
 
     bool hasAnyTrace = hasOffGlutenTrace || foundTraces.isNotEmpty;
 
-    // ─── STEP 5: Filtro Additivi ────────────────────────────────────────────
+    // ─── STEP 5: Filtro Additivi & Avena ────────────────────────────────────
     List<String> foundDoubtful = [];
     if (warnAdditives) {
       foundDoubtful = AdditivesChecker.findDoubtfulAdditives("$lowerIng $lowerName");
     }
+
+    final bool hasOats = GlutenRules.oatKeywords.any((oat) {
+          final isAgglutinative = GlutenRules.agglutinativeRoots.contains(oat);
+          final regex = isAgglutinative
+              ? RegExp(RegExp.escape(oat), caseSensitive: false)
+              : RegExp(r'\b' + RegExp.escape(oat) + r'\b', caseSensitive: false);
+          return regex.hasMatch(safeIng) || regex.hasMatch(safeName);
+        }) ||
+        allergensList.any((a) {
+          final lowerA = a.toLowerCase();
+          return GlutenRules.oatKeywords.any(
+            (oat) => RegExp(r'\b' + RegExp.escape(oat) + r'\b', caseSensitive: false)
+                .hasMatch(lowerA),
+          );
+        });
 
     // ─── STEP 6: Naturalmente Sicuro ─────────────────────────────────────────
     bool isInSafeCategory = categoriesTags.any(
       (cat) => GlutenRules.naturallySafeCategories.contains(cat.toLowerCase()),
     );
     List<String> ingredientList = lowerIng
-        .split(',')
-        .where((s) => s.trim().isNotEmpty)
+        .split(RegExp(r'[,;\n·•]'))
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
         .toList();
-    bool isMonoIngredient =
-        ingredientList.length == 1 && ingredientList[0].length > 3;
+    final bool hasHighRiskMonoIngredient = ingredientList.length == 1 &&
+        GlutenRules.highRiskMonoIngredientKeywords.any((k) {
+          final isAgglutinative = GlutenRules.agglutinativeRoots.contains(k);
+          final regex = isAgglutinative
+              ? RegExp(RegExp.escape(k), caseSensitive: false)
+              : RegExp(r'\b' + RegExp.escape(k) + r'\b', caseSensitive: false);
+          return regex.hasMatch(ingredientList[0]);
+        });
+    bool isMonoIngredient = ingredientList.length == 1 &&
+        ingredientList[0].length > 3 &&
+        !hasHighRiskMonoIngredient;
     bool isNaturallySafe =
         (isInSafeCategory || isMonoIngredient) &&
         foundDanger.isEmpty &&
         !hasOffGlutenAllergen &&
         !hasAnyTrace &&
         !hasMalto &&
+        !hasOats &&
         foundDoubtful.isEmpty;
 
     // ─── STEP 7: Informazioni sufficienti? ──────────────────────────────────
@@ -306,8 +375,10 @@ class AnalyzerService {
           ingredientsAnalyzed.add(
             IngredientAnalyzed(
               ingredient: "product.analysis.traceIngredient".tr(),
-              dangerLevel: "warning",
-              reason: "product.analysis.traceWarningReason".tr(),
+              dangerLevel: strictMode ? "danger" : "warning",
+              reason: strictMode
+                  ? "product.analysis.contaminationBlocked".tr()
+                  : "product.analysis.traceWarningReason".tr(),
             ),
           );
         }
@@ -330,6 +401,16 @@ class AnalyzerService {
               ingredient: "product.analysis.safeTraceIngredient".tr(),
               dangerLevel: "warning",
               reason: "product.analysis.safeTraceReason".tr(),
+            ),
+          );
+        }
+
+        if (lowerIng.length < 5) {
+          ingredientsAnalyzed.add(
+            IngredientAnalyzed(
+              ingredient: "product.analysis.missingDataIngredient".tr(),
+              dangerLevel: "warning",
+              reason: "product.analysis.bollinoMissingIngredientsReason".tr(),
             ),
           );
         }
@@ -375,11 +456,31 @@ class AnalyzerService {
           ingredientsAnalyzed.add(
             IngredientAnalyzed(
               ingredient: "product.analysis.traceIngredient".tr(),
-              dangerLevel: "warning",
-              reason: "product.analysis.traceWarningReason".tr(),
+              dangerLevel: strictMode ? "danger" : "warning",
+              reason: strictMode
+                  ? "product.analysis.contaminationBlocked".tr()
+                  : "product.analysis.traceWarningReason".tr(),
             ),
           );
         }
+      } else if (lowerIng.length < 5) {
+        // Claim solo testuale senza lista ingredienti verificabile -> incerto (Giallo)
+        status = GlutenSafetyStatus.incerto;
+        reason = "product.analysis.textClaimMissingIngredients".tr();
+        ingredientsAnalyzed.add(
+          IngredientAnalyzed(
+            ingredient: "product.analysis.glutenFreeIngredient".tr(),
+            dangerLevel: "warning",
+            reason: "product.analysis.textClaimMissingIngredientsReason".tr(),
+          ),
+        );
+        ingredientsAnalyzed.add(
+          IngredientAnalyzed(
+            ingredient: "product.analysis.missingDataIngredient".tr(),
+            dangerLevel: "warning",
+            reason: "product.analysis.missingDataReason".tr(),
+          ),
+        );
       } else {
         // Nessun cereale vietato rilevato: claim testuale valido
         status = GlutenSafetyStatus.adatto;
@@ -400,6 +501,16 @@ class AnalyzerService {
               ingredient: "product.analysis.safeTraceIngredient".tr(),
               dangerLevel: "warning",
               reason: "product.analysis.safeTraceReason".tr(),
+            ),
+          );
+        }
+
+        if (lowerIng.length < 5) {
+          ingredientsAnalyzed.add(
+            IngredientAnalyzed(
+              ingredient: "product.analysis.missingDataIngredient".tr(),
+              dangerLevel: "warning",
+              reason: "product.analysis.bollinoMissingIngredientsReason".tr(),
             ),
           );
         }
@@ -479,6 +590,15 @@ class AnalyzerService {
             ingredient: "product.analysis.maltIngredient".tr(),
             dangerLevel: "warning",
             reason: "product.analysis.maltReason".tr(),
+          ),
+        );
+      }
+      if (hasOats) {
+        ingredientsAnalyzed.add(
+          IngredientAnalyzed(
+            ingredient: "product.analysis.oatsIngredient".tr(),
+            dangerLevel: "warning",
+            reason: "product.analysis.oatsReason".tr(),
           ),
         );
       }

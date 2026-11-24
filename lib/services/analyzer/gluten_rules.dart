@@ -299,15 +299,95 @@ class GlutenRules {
     "グルテンフリー",
   ];
 
+  static const List<String> oatKeywords = [
+    "avena",
+    "oat",
+    "oats",
+    "oatmeal",
+    "avoine",
+    "hafer",
+    "haver",
+    "havre",
+    "owies",
+    "yulaf",
+  ];
+
+  /// Ingredienti mono-ingrediente ad alto rischio di contaminazione crociata industriale
+  /// (farine, amidi, fiocchi, semole, legumi secchi, pseudocereali macinati).
+  static const List<String> highRiskMonoIngredientKeywords = [
+    // Italiano
+    "farina", "farine", "amido", "amidi", "fecola", "semola", "semolino",
+    "fiocchi", "crusca", "polenta", "tapioca", "manioca", "lenticchie",
+    "ceci", "fagioli", "piselli", "soia", "miglio", "sorgo", "quinoa",
+    "amaranto", "teff", "grano saraceno", "avena", "popcorn", "tofu", "tempeh",
+    // Inglese
+    "flour", "starch", "semolina", "flakes", "bran", "cornmeal", "lentils",
+    "chickpeas", "beans", "peas", "soy", "millet", "sorghum", "amaranth",
+    "buckwheat", "oat", "oats", "oatmeal",
+    // Francese
+    "amidon", "fécule", "semoule", "flocons", "son", "lentilles",
+    "pois chiches", "haricots", "soja", "avoine", "sarrasin",
+    "blé noir", "ble noir",
+    // Spagnolo
+    "harina", "almidón", "sémola", "copos", "salvado", "lentejas",
+    "garbanzos", "alubias", "trigo sarraceno",
+    // Tedesco
+    "mehl", "stärke", "grieß", "flocken", "kleie", "linsen",
+    "kichererbsen", "bohnen", "hafer", "buchweizen",
+  ];
+
+  static final RegExp _negatedSafeClaimRegex = RegExp(
+    r'\b('
+    r'non\s+adatto\s+(?:ai\s+celiaci|per\s+celiaci)\b'
+    r'|(?:non\s+adatto\s+(?:a\s+(?:una\s+)?dieta\s+)|non\s+(?:è|e|sono)\s+|not\s+|is\s+not\s+|isn\x27t\s+|not\s+suitable\s+for\s+(?:a\s+)?|no\s+es\s+|no\s+apto\s+para\s+|n\x27est\s+pas\s+|ne\s+convient\s+pas\s+(?:à|aux)\s+|nicht\s+(?:für\s+)?|kein\s+)(?:un\s+prodotto\s+)?(?:senza\s+glutine|gluten[\s\-]free|sans\s+gluten|sin\s+gluten|libre\s+de\s+gluten|glutenfrei|glutenvrij|sem\s+glúten|adatto\s+ai\s+celiaci|suitable\s+for\s+celiacs)'
+    r'|(?:senza\s+glutine|gluten[\s\-]free|sans\s+gluten|sin\s+gluten|glutenfrei)\s*[:\-]\s*(?:no|non|not|nein|false)\b'
+    r')',
+    caseSensitive: false,
+  );
+
+  /// Restituisce `true` se il testo contiene una negazione esplicita di un claim senza glutine.
+  static bool hasNegatedGlutenClaim(String text) {
+    if (text.trim().isEmpty) return false;
+    final normalized = text.toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+    return _negatedSafeClaimRegex.hasMatch(normalized);
+  }
+
+  /// Restituisce `true` se il testo contiene un claim testuale "senza glutine" NON negato.
+  static bool hasSafeGlutenTextClaim(String text) {
+    if (text.trim().isEmpty) return false;
+    final normalized = text.toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+    final stripped = normalized.replaceAll(_negatedSafeClaimRegex, ' ');
+    return safeTextKeywords.any((s) => stripped.contains(s));
+  }
+
   static const List<String> doubtfulAdditives = [
+    // Italiano
     "amido modificato",
     "lievito",
     "aromi",
     "fibra vegetale",
+    // Inglese
     "modified starch",
     "yeast",
     "flavorings",
+    "flavourings",
     "vegetable fiber",
+    "vegetable fibre",
+    // Francese
+    "amidon modifié",
+    "levure",
+    "arômes",
+    "fibre végétale",
+    // Spagnolo
+    "almidón modificado",
+    "levadura",
+    "aromas",
+    "fibra vegetal",
+    // Tedesco
+    "modifizierte stärke",
+    "hefe",
+    "aromen",
+    "pflanzenfaser",
   ];
 
   static const Set<String> agglutinativeRoots = {
@@ -322,8 +402,21 @@ class GlutenRules {
     'laktose',
     'malz',
     'hafer',
-    'avoine',
   };
+
+  /// Verifica se [text] contiene [keyword] rispettando i confini di parola Unicode,
+  /// fatta eccezione per le radici di lingue agglutinanti (tedesco/olandese).
+  static bool containsKeyword(String text, String keyword) {
+    final isAgglutinative = agglutinativeRoots.contains(keyword.toLowerCase());
+    final regex = isAgglutinative
+        ? RegExp(RegExp.escape(keyword), caseSensitive: false)
+        : RegExp(
+            r'(?<!\p{L})' + RegExp.escape(keyword) + r'(?!\p{L})',
+            caseSensitive: false,
+            unicode: true,
+          );
+    return regex.hasMatch(text);
+  }
 
   static const List<String> naturallySafeCategories = [
     'en:waters',
@@ -345,9 +438,22 @@ class GlutenRules {
     'en:teas',
   ];
 
+  /// Normalizza il testo grezzo (OCR / impaginazione): rimuove caratteri invisibili,
+  /// uniforma apostrofi e trattini tipografici e ricongiunge sillabazioni a fine riga.
+  static String normalizeOcrText(String input) {
+    if (input.isEmpty) return input;
+    return input
+        .replaceAll(RegExp(r'[\u00AD\u200B\u200C\u200D\uFEFF]'), '')
+        .replaceAll(RegExp(r'[’‘`]'), "'")
+        .replaceAll(RegExp(r'[–—−]'), '-')
+        .replaceAll(RegExp(r'-\s*[\r\n]+\s*'), '')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+  }
+
   // Nasconde le frasi sicure per non far scattare l'allarme sulla parola "glutine"
   static String sanitizeForGluten(String input) {
-    String text = input.toLowerCase();
+    String text = normalizeOcrText(input).toLowerCase();
     final safePhrases = [
       "amido di frumento deglutinato",
       "amido di grano deglutinato",
@@ -356,7 +462,13 @@ class GlutenRules {
       "amidon de blé déglutiné",
       "almidón de trigo deglutenizado",
       "glutenfreie weizenstärke",
+      "grano saraceno",
+      "grano-saraceno",
+      "blé noir",
+      "ble noir",
+      "blé-noir",
       "senza glutine",
+      "senza-glutine",
       "privo di glutine",
       "gluten free",
       "gluten-free",
@@ -381,6 +493,11 @@ class GlutenRules {
     for (var phrase in traceKeywords) {
       text = text.replaceAll(phrase, " ");
     }
+    // Ricongiunge sillabazioni OCR residue tra lettere (es. "fru-mento" -> "frumento")
+    text = text.replaceAllMapped(
+      RegExp(r'([a-zA-ZÀ-ÿ])-([a-zA-ZÀ-ÿ])'),
+      (m) => '${m[1]}${m[2]}',
+    );
     return text;
   }
 

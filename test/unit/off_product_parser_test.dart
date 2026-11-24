@@ -304,5 +304,28 @@ void main() {
       expect(offTags.labelsTags, contains('en:no-gluten'));
       expect(offTags.labelsTags, contains('en:gfco-gluten-free'));
     });
+
+    test('does NOT promote negated gluten-free claim in allergens_tags to labelsTags', () {
+      final payload = {
+        'product_name': 'Prodotto',
+        'ingredients_text_it': 'Mais, sale',
+        'allergens_tags': ['Non adatto a una dieta senza glutine'],
+      };
+
+      final product = OffProductParser.parseProduct('9999', payload, testSettings);
+      expect(product.labelsTags, isEmpty);
+    });
+
+    test('extracts ingredients_analysis_tags and passes them via toOffTags()', () {
+      final payload = {
+        'product_name': 'Snack',
+        'ingredients_text_it': 'Mais, sale',
+        'ingredients_analysis_tags': ['en:may-contain-gluten'],
+      };
+
+      final product = OffProductParser.parseProduct('1010', payload, testSettings);
+      expect(product.ingredientsAnalysisTags, ['en:may-contain-gluten']);
+      expect(product.toOffTags().ingredientsAnalysisTags, ['en:may-contain-gluten']);
+    });
   });
 }
