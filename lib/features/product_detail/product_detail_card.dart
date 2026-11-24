@@ -224,6 +224,7 @@ class _ProductDetailCardState extends State<ProductDetailCard> {
     if (widget.reportIdNotifier?.value == null) {
       _hasDeletedReport = true;
       _hasJustReported = false;
+      _remoteActiveReport = null;
     } else {
       _hasDeletedReport = false;
     }
@@ -321,8 +322,12 @@ class _ProductDetailCardState extends State<ProductDetailCard> {
     // hasAllergenData = false → allergensMap è completamente assente = Ghost Product / dati non acquisiti
     final bool hasAllergenData = currentProduct.hasAllergenData;
 
+    final bool hasPendingReports =
+        (_hasDeletedReport && widget.productNotifier == null)
+        ? false
+        : (currentProduct.pendingReportsCount > 0);
     final bool isReported =
-        (currentProduct.pendingReportsCount > 0) || _hasUserReported || (_remoteActiveReport != null);
+        hasPendingReports || _hasUserReported || (_remoteActiveReport != null);
 
     final analysis = AnalyzerService.analyzeGlutenSafety(
       name: productName,
@@ -369,10 +374,7 @@ class _ProductDetailCardState extends State<ProductDetailCard> {
         widget.onDeleteReport != null &&
         _effectiveUserReportId != null &&
         _effectiveUserReportId!.isNotEmpty;
-    final bool showActionsSkeleton =
-        widget.isInHistoryNotifier != null &&
-        !widget.isInHistoryNotifier!.value &&
-        _effectiveUserReportId == null;
+    final bool showActionsSkeleton = showSkeleton;
 
     final colors = colorScheme.statusColorsFor(effectiveStatus);
     final heroBgColor = colors.alpha;
@@ -407,7 +409,18 @@ class _ProductDetailCardState extends State<ProductDetailCard> {
             barcode: currentProduct.barcode,
             effectiveUserReportId: _effectiveUserReportId,
             onDeleteHistoryByBarcode: widget.onDeleteHistoryByBarcode,
-            onDeleteReport: widget.onDeleteReport,
+            onDeleteReport: widget.onDeleteReport == null
+                ? null
+                : (reportId) async {
+                    if (mounted) {
+                      setState(() {
+                        _hasDeletedReport = true;
+                        _hasJustReported = false;
+                        _remoteActiveReport = null;
+                      });
+                    }
+                    await widget.onDeleteReport!(reportId);
+                  },
             onBack: widget.onBack,
             cardBg: cardBg,
             colorScheme: colorScheme,

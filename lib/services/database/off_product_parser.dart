@@ -181,33 +181,14 @@ class OffProductParser {
       }
     }
 
-    // Integrazione dicitura gluten-free negli ingredienti se certificato da bollino o claim
+    // Preserva eventuali claim "senza glutine" estratti impropriamente dagli allergeni OFF
+    // spostandoli in labelsTags invece di inquinare il testo degli ingredienti.
     final safeClaims = (rawAllergens ?? [])
         .where(AllergenCanonicalizer.isSafeGlutenClaim)
         .toList();
-    final bool hasSafeLabelClaim = labelsTags.any((t) {
-      final lt = t.toLowerCase();
-      return lt.contains('gluten-free') ||
-          lt.contains('gluten_free') ||
-          lt.contains('glutenfree') ||
-          lt.contains('sans-gluten') ||
-          lt.contains('sin-gluten') ||
-          lt.contains('senza-glutine') ||
-          lt.contains('no-gluten') ||
-          AllergenCanonicalizer.isSafeGlutenClaim(t);
-    }) ||
-    (pData['labels'] != null &&
-        GlutenRules.safeTextKeywords.any((k) =>
-            pData['labels'].toString().toLowerCase().contains(k)));
-
-    if (safeClaims.isNotEmpty || hasSafeLabelClaim) {
-      for (final lang in supportedLangs) {
-        final currentIng = ingredientsMap[lang] ?? '';
-        if (!AllergenCanonicalizer.isSafeGlutenClaim(currentIng)) {
-          ingredientsMap[lang] = currentIng.isEmpty
-              ? 'Senza glutine'
-              : '$currentIng (Senza glutine)';
-        }
+    for (final claim in safeClaims) {
+      if (!labelsTags.contains(claim)) {
+        labelsTags.add(claim);
       }
     }
 

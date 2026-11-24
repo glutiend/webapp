@@ -240,7 +240,7 @@ void main() {
       expect(product.allergensMap['en'], isEmpty);
     });
 
-    test('appends (Senza glutine) when safe claim tag is present', () {
+    test('preserves safe claim tag from allergens_tags in labelsTags without polluting ingredients', () {
       final payload = {
         'product_name': 'Biscotti Certificati',
         'ingredients_text_it': 'Farina di riso',
@@ -248,7 +248,22 @@ void main() {
       };
 
       final product = OffProductParser.parseProduct('7777', payload, testSettings);
-      expect(product.ingredientsMap['it'], contains('Senza glutine'));
+      expect(product.ingredientsMap['it'], 'Farina di riso');
+      expect(product.labelsTags, contains('en:gluten-free'));
+    });
+
+    test('does not inject Senza glutine into missing language ingredients when label tag is present', () {
+      final payload = {
+        'product_name': 'HARVEST SNAPS ORIGINAL BAKED VEGGIE SNACKS',
+        'ingredients_text_en': 'Green peas, Vegetable oil, Rice, Salt',
+        'labels_tags': ['en:no-gluten', 'en:gfco-gluten-free'],
+        'traces_tags': ['en:milk', 'en:mustard'],
+      };
+
+      final product = OffProductParser.parseProduct('0071146012455', payload, testSettings);
+      expect(product.ingredientsMap.containsKey('it'), isFalse);
+      expect(product.getIngredients('it'), 'Green peas, Vegetable oil, Rice, Salt');
+      expect(product.labelsTags, containsAll(['en:no-gluten', 'en:gfco-gluten-free']));
     });
 
     test('extracts labelsTags, categoriesTags, and tracesTags from OFF payload', () {

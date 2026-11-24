@@ -662,7 +662,45 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('product.actions.alreadyReported'), findsOneWidget);
+
+      // Rimuove il report id (simula eliminazione segnalazione)
+      reportIdNotifier.value = null;
+      await tester.pumpAndSettle();
+
+      expect(find.text('product.actions.reportError'), findsOneWidget);
+      expect(find.text('product.actions.alreadyReported'), findsNothing);
     });
+
+    testWidgets(
+      'AppBar delete_report: updates ProductDetailCard live without exiting screen',
+      (WidgetTester tester) async {
+        final reportedProduct = createSampleProduct(pendingReportsCount: 1);
+
+        await pumpProductDetailCard(
+          tester,
+          product: reportedProduct,
+          userReportId: 'rep_to_delete',
+        );
+
+        expect(find.text('product.actions.alreadyReported'), findsOneWidget);
+        expect(find.text('product.reportSheet.goToReport'), findsOneWidget);
+
+        // Apri il menu overflow nell'AppBar e seleziona elimina segnalazione
+        await tester.tap(find.byIcon(Icons.more_vert_rounded));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('common.actions.deleteReportConfirmTitle'));
+        await tester.pumpAndSettle();
+
+        // Conferma nel dialog
+        await tester.tap(find.text('common.actions.delete'));
+        await tester.pumpAndSettle();
+
+        verify(() => mockCallbacks.onDeleteReport('rep_to_delete')).called(1);
+        expect(find.text('product.actions.reportError'), findsOneWidget);
+        expect(find.text('product.actions.alreadyReported'), findsNothing);
+        expect(find.text('product.reportSheet.goToReport'), findsNothing);
+      },
+    );
 
     // ==========================================
     // 8. VIEW REPORT LINK NAVIGATION

@@ -304,4 +304,40 @@ class Product {
       'traces_tags': tracesTags,
     };
   }
+
+  Product copyWith({
+    String? barcode,
+    Map<String, String>? nameMap,
+    Map<String, String>? brandMap,
+    Map<String, String>? ingredientsMap,
+    Map<String, List<String>>? allergensMap,
+    String? imageUrl,
+    int? pendingReportsCount,
+    String? lastUpdated,
+    String? fetchedFromOffAt,
+    bool? isFromOfflineDb,
+    bool? isOfflineNotFound,
+    bool? needsVerification,
+    List<String>? labelsTags,
+    List<String>? categoriesTags,
+    List<String>? tracesTags,
+  }) {
+    return Product(
+      barcode: barcode ?? this.barcode,
+      nameMap: nameMap ?? this.nameMap,
+      brandMap: brandMap ?? this.brandMap,
+      ingredientsMap: ingredientsMap ?? this.ingredientsMap,
+      allergensMap: allergensMap ?? this.allergensMap,
+      imageUrl: imageUrl ?? this.imageUrl,
+      pendingReportsCount: pendingReportsCount ?? this.pendingReportsCount,
+      lastUpdated: lastUpdated ?? this.lastUpdated,
+      fetchedFromOffAt: fetchedFromOffAt ?? this.fetchedFromOffAt,
+      isFromOfflineDb: isFromOfflineDb ?? this.isFromOfflineDb,
+      isOfflineNotFound: isOfflineNotFound ?? this.isOfflineNotFound,
+      needsVerification: needsVerification ?? this.needsVerification,
+      labelsTags: labelsTags ?? this.labelsTags,
+      categoriesTags: categoriesTags ?? this.categoriesTags,
+      tracesTags: tracesTags ?? this.tracesTags,
+    );
+  }
 }

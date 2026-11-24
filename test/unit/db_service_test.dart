@@ -458,7 +458,7 @@ void main() {
     );
 
     test(
-      'OFF product with "Senza Glutine" in allergens uploads sanitized product to Firestore and marks ingredients with safe claim',
+      'OFF product with "Senza Glutine" in allergens uploads sanitized product to Firestore and preserves claim in labelsTags',
       () async {
         when(() => mockProductsCol.doc('off_safe_1')).thenReturn(mockDocRef);
         when(() => mockDocRef.get()).thenAnswer((_) async => mockDocSnap);
@@ -507,8 +507,13 @@ void main() {
           isFalse,
         );
 
-        // La claim è stata inclusa negli ingredienti per garantire la valutazione sicura
-        expect(result.product.ingredientsMap['it'], contains('Senza glutine'));
+        // Gli ingredienti restano puliti senza iniezione di "Senza glutine",
+        // mentre la claim sicura viene preservata nei labelsTags
+        expect(
+          result.product.ingredientsMap['it'],
+          'Farina di mais, zucchero, sale',
+        );
+        expect(result.product.labelsTags, contains('it:senza-glutine'));
 
         // Valutazione tramite analyzer service risulta Adatto (Verde)
         final analysis = AnalyzerService.analyzeGlutenSafety(
@@ -518,6 +523,7 @@ void main() {
           allergensList: result.product.allergensMap['it']!,
           reportCount: 0,
           categoriesTags: [],
+          offTags: result.product.toOffTags(),
         );
         expect(analysis.status, GlutenSafetyStatus.adatto);
       },

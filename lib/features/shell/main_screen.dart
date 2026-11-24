@@ -1415,25 +1415,23 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           final pIdx = products.indexWhere((p) => p.barcode == barcode);
           if (pIdx != -1) {
             final p = products[pIdx];
-            final updatedProd = Product(
-              barcode: p.barcode,
-              nameMap: p.nameMap,
-              brandMap: p.brandMap,
-              ingredientsMap: p.ingredientsMap,
-              allergensMap: p.allergensMap,
-              imageUrl: p.imageUrl,
-              lastUpdated: p.lastUpdated,
+            final updatedProd = p.copyWith(
               pendingReportsCount: (p.pendingReportsCount - 1).clamp(0, 9999),
-              fetchedFromOffAt: p.fetchedFromOffAt,
             );
             products[pIdx] = updatedProd;
             DbService.upsertLocalProduct(updatedProd);
             if (_openProductNotifiers.containsKey(barcode)) {
               _openProductNotifiers[barcode]!.value = updatedProd;
             }
-            if (_openReportIdNotifiers.containsKey(barcode)) {
-              _openReportIdNotifiers[barcode]!.value = null;
-            }
+          } else if (_openProductNotifiers[barcode]?.value != null) {
+            final p = _openProductNotifiers[barcode]!.value!;
+            _openProductNotifiers[barcode]!.value = p.copyWith(
+              pendingReportsCount: (p.pendingReportsCount - 1).clamp(0, 9999),
+            );
+          }
+
+          if (_openReportIdNotifiers.containsKey(barcode)) {
+            _openReportIdNotifiers[barcode]!.value = null;
           }
 
           final updatedBarcodes = List<String>.from(
