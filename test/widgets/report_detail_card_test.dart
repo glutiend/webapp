@@ -10,9 +10,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:glutiend/core/network/connectivity_helper.dart';
 
 import 'package:glutiend/models/models.dart';
+import 'package:glutiend/core/core.dart';
 import 'package:glutiend/features/reports/report_detail_card.dart';
 import 'package:glutiend/features/product_detail/product_detail_card.dart';
 import '../mocks/shared_mocks.dart';
@@ -198,7 +198,9 @@ void main() {
   // GROUP 1: AppBar & Header
   // ═══════════════════════════════════════════════════════════════════════════
   group('AppBar & Header', () {
-    testWidgets('renders AppBar title (report.detail.title key)', (tester) async {
+    testWidgets('renders AppBar title (report.detail.title key)', (
+      tester,
+    ) async {
       _stubFirestoreEmptyQuery(mockFirestore);
       await _pumpReportDetailCard(
         tester,
@@ -255,7 +257,7 @@ void main() {
   // GROUP 2: Previous Status Card
   // ═══════════════════════════════════════════════════════════════════════════
   group('Previous Status Card', () {
-    testWidgets('shows uppercase safe status for adatto', (tester) async {
+    testWidgets('shows safe status pill for adatto', (tester) async {
       _stubFirestoreEmptyQuery(mockFirestore);
       await _pumpReportDetailCard(
         tester,
@@ -263,10 +265,11 @@ void main() {
         mockFirestore: mockFirestore,
         originalStatus: GlutenSafetyStatus.adatto,
       );
-      expect(find.text('PRODUCT.STATUS.SAFE'), findsOneWidget);
+      expect(find.byType(AppStatusPill), findsOneWidget);
+      expect(find.byIcon(Icons.check_circle_outline), findsOneWidget);
     });
 
-    testWidgets('shows uppercase unsafe status for nonAdatto', (tester) async {
+    testWidgets('shows unsafe status pill for nonAdatto', (tester) async {
       _stubFirestoreEmptyQuery(mockFirestore);
       await _pumpReportDetailCard(
         tester,
@@ -274,10 +277,11 @@ void main() {
         mockFirestore: mockFirestore,
         originalStatus: GlutenSafetyStatus.nonAdatto,
       );
-      expect(find.text('PRODUCT.STATUS.UNSAFE'), findsOneWidget);
+      expect(find.byType(AppStatusPill), findsOneWidget);
+      expect(find.byIcon(Icons.cancel_outlined), findsOneWidget);
     });
 
-    testWidgets('shows uppercase uncertain status for incerto', (tester) async {
+    testWidgets('shows uncertain status pill for incerto', (tester) async {
       _stubFirestoreEmptyQuery(mockFirestore);
       await _pumpReportDetailCard(
         tester,
@@ -285,12 +289,11 @@ void main() {
         mockFirestore: mockFirestore,
         originalStatus: GlutenSafetyStatus.incerto,
       );
-      expect(find.text('PRODUCT.STATUS.UNCERTAIN'), findsOneWidget);
+      expect(find.byType(AppStatusPill), findsOneWidget);
+      expect(find.byIcon(Icons.warning_amber), findsOneWidget);
     });
 
-    testWidgets('shows uppercase unknown status for sconosciuto', (
-      tester,
-    ) async {
+    testWidgets('shows unknown status pill for sconosciuto', (tester) async {
       _stubFirestoreEmptyQuery(mockFirestore);
       await _pumpReportDetailCard(
         tester,
@@ -298,7 +301,8 @@ void main() {
         mockFirestore: mockFirestore,
         originalStatus: GlutenSafetyStatus.sconosciuto,
       );
-      expect(find.text('PRODUCT.STATUS.UNKNOWN'), findsOneWidget);
+      expect(find.byType(AppStatusPill), findsOneWidget);
+      expect(find.byIcon(Icons.help_outline), findsOneWidget);
     });
   });
 
@@ -386,9 +390,7 @@ void main() {
       );
     });
 
-    testWidgets('shows user comment in blockquote when non-empty', (
-      tester,
-    ) async {
+    testWidgets('shows user comment when non-empty', (tester) async {
       _stubFirestoreEmptyQuery(mockFirestore);
       await _pumpReportDetailCard(
         tester,
@@ -396,25 +398,24 @@ void main() {
         mockFirestore: mockFirestore,
         reportComment: 'Il prodotto non è certificato.',
       );
-      expect(find.text('"Il prodotto non è certificato."'), findsOneWidget);
+      expect(find.text('Il prodotto non è certificato.'), findsOneWidget);
+    });
+
+    testWidgets('hides comment section when reportComment is empty', (
+      tester,
+    ) async {
+      _stubFirestoreEmptyQuery(mockFirestore);
+      await _pumpReportDetailCard(
+        tester,
+        callbacks: mockCallbacks,
+        mockFirestore: mockFirestore,
+        reportComment: '',
+      );
+      expect(find.text('report.detail.userComment'), findsNothing);
     });
 
     testWidgets(
-      'shows "report.detail.noAdditionalComment" when reportComment is empty',
-      (tester) async {
-        _stubFirestoreEmptyQuery(mockFirestore);
-        await _pumpReportDetailCard(
-          tester,
-          callbacks: mockCallbacks,
-          mockFirestore: mockFirestore,
-          reportComment: '',
-        );
-        expect(find.text('report.detail.noAdditionalComment'), findsOneWidget);
-      },
-    );
-
-    testWidgets(
-      'shows "report.detail.noAdditionalComment" when reportComment is "Nessun commento"',
+      'hides comment section when reportComment is "Nessun commento"',
       (tester) async {
         _stubFirestoreEmptyQuery(mockFirestore);
         await _pumpReportDetailCard(
@@ -423,23 +424,22 @@ void main() {
           mockFirestore: mockFirestore,
           reportComment: 'Nessun commento',
         );
-        expect(find.text('report.detail.noAdditionalComment'), findsOneWidget);
+        expect(find.text('report.detail.userComment'), findsNothing);
       },
     );
 
-    testWidgets(
-      'shows "report.detail.noAdditionalComment" when reportComment is whitespace',
-      (tester) async {
-        _stubFirestoreEmptyQuery(mockFirestore);
-        await _pumpReportDetailCard(
-          tester,
-          callbacks: mockCallbacks,
-          mockFirestore: mockFirestore,
-          reportComment: '   ',
-        );
-        expect(find.text('report.detail.noAdditionalComment'), findsOneWidget);
-      },
-    );
+    testWidgets('hides comment section when reportComment is whitespace', (
+      tester,
+    ) async {
+      _stubFirestoreEmptyQuery(mockFirestore);
+      await _pumpReportDetailCard(
+        tester,
+        callbacks: mockCallbacks,
+        mockFirestore: mockFirestore,
+        reportComment: '   ',
+      );
+      expect(find.text('report.detail.userComment'), findsNothing);
+    });
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -495,10 +495,7 @@ void main() {
         mockFirestore: mockFirestore,
         reportDate: '2024-01-15T14:30:00Z',
       );
-      expect(
-        find.textContaining('report.detail.date.default'),
-        findsOneWidget,
-      );
+      expect(find.textContaining('report.detail.date.default'), findsOneWidget);
     });
 
     testWidgets('falls back to raw string if date is malformed', (
@@ -553,9 +550,9 @@ void main() {
       tester,
     ) async {
       _stubFirestoreEmptyQuery(mockFirestore);
-      when(
-        () => mockCallbacks.onInitVote(),
-      ).thenAnswer((_) async => {'upvotes': 99, 'downvotes': 10, 'userVote': 0});
+      when(() => mockCallbacks.onInitVote()).thenAnswer(
+        (_) async => {'upvotes': 99, 'downvotes': 10, 'userVote': 0},
+      );
       await _pumpReportDetailCard(
         tester,
         callbacks: mockCallbacks,
@@ -591,36 +588,37 @@ void main() {
       verify(() => mockCallbacks.onVote(1)).called(1);
     });
 
-    testWidgets('tapping upvote twice retracts vote (upvotes back to initial)', (
-      tester,
-    ) async {
-      _stubFirestoreEmptyQuery(mockFirestore);
-      when(
-        () => mockCallbacks.onInitVote(),
-      ).thenAnswer((_) async => {'upvotes': 10, 'downvotes': 2, 'userVote': 0});
-      await _pumpReportDetailCard(
-        tester,
-        callbacks: mockCallbacks,
-        mockFirestore: mockFirestore,
-        upvotes: 10,
-        downvotes: 2,
-      );
-      await tester.pump(const Duration(milliseconds: 200));
+    testWidgets(
+      'tapping upvote twice retracts vote (upvotes back to initial)',
+      (tester) async {
+        _stubFirestoreEmptyQuery(mockFirestore);
+        when(() => mockCallbacks.onInitVote()).thenAnswer(
+          (_) async => {'upvotes': 10, 'downvotes': 2, 'userVote': 0},
+        );
+        await _pumpReportDetailCard(
+          tester,
+          callbacks: mockCallbacks,
+          mockFirestore: mockFirestore,
+          upvotes: 10,
+          downvotes: 2,
+        );
+        await tester.pump(const Duration(milliseconds: 200));
 
-      await tester.tap(find.byIcon(Icons.thumb_up_outlined));
-      await tester.pump();
-      expect(find.text('11'), findsOneWidget);
+        await tester.tap(find.byIcon(Icons.thumb_up_outlined));
+        await tester.pump();
+        expect(find.text('11'), findsOneWidget);
 
-      await tester.tap(find.byIcon(Icons.thumb_up));
-      await tester.pump();
-      expect(find.text('10'), findsOneWidget);
-      expect(find.byIcon(Icons.thumb_up_outlined), findsOneWidget);
+        await tester.tap(find.byIcon(Icons.thumb_up));
+        await tester.pump();
+        expect(find.text('10'), findsOneWidget);
+        expect(find.byIcon(Icons.thumb_up_outlined), findsOneWidget);
 
-      verifyInOrder([
-        () => mockCallbacks.onVote(1),
-        () => mockCallbacks.onVote(0),
-      ]);
-    });
+        verifyInOrder([
+          () => mockCallbacks.onVote(1),
+          () => mockCallbacks.onVote(0),
+        ]);
+      },
+    );
 
     testWidgets('downvote increases downvotes by 1 and calls onVote(-1)', (
       tester,
@@ -650,9 +648,9 @@ void main() {
       'tapping downvote twice retracts vote (downvotes back to initial)',
       (tester) async {
         _stubFirestoreEmptyQuery(mockFirestore);
-        when(
-          () => mockCallbacks.onInitVote(),
-        ).thenAnswer((_) async => {'upvotes': 10, 'downvotes': 2, 'userVote': 0});
+        when(() => mockCallbacks.onInitVote()).thenAnswer(
+          (_) async => {'upvotes': 10, 'downvotes': 2, 'userVote': 0},
+        );
         await _pumpReportDetailCard(
           tester,
           callbacks: mockCallbacks,
@@ -827,40 +825,41 @@ void main() {
       expect(find.text('3'), findsOneWidget);
     });
 
-    testWidgets('offline vote keeps optimistic UI and shows voteOfflineSuccess snackbar', (
-      tester,
-    ) async {
-      ConnectivityHelper.mockIsConnected = false;
-      addTearDown(() => ConnectivityHelper.mockIsConnected = null);
+    testWidgets(
+      'offline vote keeps optimistic UI and shows voteOfflineSuccess snackbar',
+      (tester) async {
+        ConnectivityHelper.mockIsConnected = false;
+        addTearDown(() => ConnectivityHelper.mockIsConnected = null);
 
-      _stubFirestoreEmptyQuery(mockFirestore);
-      when(
-        () => mockCallbacks.onInitVote(),
-      ).thenAnswer((_) async => {'upvotes': 10, 'downvotes': 2, 'userVote': 0});
-      await _pumpReportDetailCard(
-        tester,
-        callbacks: mockCallbacks,
-        mockFirestore: mockFirestore,
-        upvotes: 10,
-        downvotes: 2,
-      );
-      await tester.pump(const Duration(milliseconds: 200));
+        _stubFirestoreEmptyQuery(mockFirestore);
+        when(() => mockCallbacks.onInitVote()).thenAnswer(
+          (_) async => {'upvotes': 10, 'downvotes': 2, 'userVote': 0},
+        );
+        await _pumpReportDetailCard(
+          tester,
+          callbacks: mockCallbacks,
+          mockFirestore: mockFirestore,
+          upvotes: 10,
+          downvotes: 2,
+        );
+        await tester.pump(const Duration(milliseconds: 200));
 
-      await tester.tap(find.byIcon(Icons.thumb_up_outlined));
-      await tester.pump();
+        await tester.tap(find.byIcon(Icons.thumb_up_outlined));
+        await tester.pump();
 
-      // UI updates optimistically without rollback
-      expect(find.text('11'), findsOneWidget);
-      expect(find.byIcon(Icons.thumb_up), findsOneWidget);
-      verify(() => mockCallbacks.onVote(1)).called(1);
+        // UI updates optimistically without rollback
+        expect(find.text('11'), findsOneWidget);
+        expect(find.byIcon(Icons.thumb_up), findsOneWidget);
+        verify(() => mockCallbacks.onVote(1)).called(1);
 
-      await tester.pump(const Duration(milliseconds: 50));
-      expect(
-        find.text('report.detail.voteOfflineSuccess'.tr()),
-        findsOneWidget,
-      );
-      await tester.pump(const Duration(seconds: 5));
-    });
+        await tester.pump(const Duration(milliseconds: 50));
+        expect(
+          find.text('report.detail.voteOfflineSuccess'.tr()),
+          findsOneWidget,
+        );
+        await tester.pump(const Duration(seconds: 5));
+      },
+    );
 
     testWidgets('online vote keeps optimistic UI without offline snackbar', (
       tester,
@@ -889,10 +888,7 @@ void main() {
       verify(() => mockCallbacks.onVote(1)).called(1);
 
       await tester.pump(const Duration(milliseconds: 50));
-      expect(
-        find.text('report.detail.voteOfflineSuccess'.tr()),
-        findsNothing,
-      );
+      expect(find.text('report.detail.voteOfflineSuccess'.tr()), findsNothing);
     });
   });
 
@@ -1165,7 +1161,7 @@ void main() {
       );
       await tester.pump(const Duration(milliseconds: 200));
 
-      expect(find.text('"Commento dal server Firestore."'), findsOneWidget);
+      expect(find.text('Commento dal server Firestore.'), findsOneWidget);
       expect(find.textContaining('non deve apparire'), findsNothing);
     });
 
@@ -1265,7 +1261,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
 
       // No crash; shows the fallback data from widget params
-      expect(find.text('"Fallback comment"'), findsOneWidget);
+      expect(find.text('Fallback comment'), findsOneWidget);
       expect(find.text('3'), findsOneWidget);
     });
   });
@@ -1286,7 +1282,10 @@ void main() {
       );
 
       expect(find.text('report.detail.showProductCard'), findsOneWidget);
-      expect(find.text('report.detail.ingredientsAllergensNotes'), findsOneWidget);
+      expect(
+        find.text('report.detail.ingredientsAllergensNotes'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('hides product card link when showProductLink=false', (

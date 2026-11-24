@@ -211,8 +211,8 @@ void main() {
           isSynced: true,
         );
 
-        expect(find.byIcon(Icons.warning_rounded), findsOneWidget);
-        expect(find.text('0'), findsNWidgets(3));
+        expect(find.byIcon(Icons.warning), findsOneWidget);
+        expect(find.text('0'), findsNWidgets(4));
       },
     );
 
@@ -227,8 +227,8 @@ void main() {
           isSynced: false,
         );
 
-        expect(find.byIcon(Icons.warning_rounded), findsOneWidget);
-        expect(find.text('0'), findsNWidgets(3));
+        expect(find.byIcon(Icons.warning), findsOneWidget);
+        expect(find.text('0'), findsNWidgets(4));
       },
     );
   });
@@ -358,7 +358,7 @@ void main() {
 
       expect(find.text('Barretta Avena'), findsOneWidget);
       expect(find.text('history.item.status.uncertain'), findsOneWidget);
-      expect(find.byIcon(Icons.help_outline), findsOneWidget);
+      expect(find.byIcon(Icons.warning_amber), findsOneWidget);
     });
 
     testWidgets('renders fallback info when product is not in liveProducts', (
@@ -749,7 +749,7 @@ void main() {
 
       expect(
         find.text('history.filters.unknown'),
-        findsOneWidget,
+        findsNWidgets(2), // 1 nel BentoBox delle statistiche, 1 nel menu a tendina
       );
 
       final safeMenuItem = find.text('history.filters.safe');

@@ -858,10 +858,10 @@ void main() {
         verify(() => mockBatch.delete(mockVoteDocRef)).called(1);
         // 2. Report doc deleted
         verify(() => mockBatch.delete(mockReportDocRef)).called(1);
-        // 3. Product decremented and user reportedBarcodes updated
+        // 3. User reportedBarcodes updated
         verify(
           () => mockBatch.set<Map<String, dynamic>>(any(), any(), any()),
-        ).called(2);
+        ).called(1);
         // 4. Batch committed
         verify(() => mockBatch.commit()).called(1);
       },
@@ -2460,7 +2460,7 @@ void main() {
         verify(() => mockBatch.delete(mockReportDocRef)).called(1);
         verify(
           () => mockBatch.set<Map<String, dynamic>>(any(), any(), any()),
-        ).called(2);
+        ).called(1);
         verify(() => mockBatch.commit()).called(1);
       },
     );

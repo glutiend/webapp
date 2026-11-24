@@ -3,6 +3,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import '../../models/models.dart';
 import '../../core/core.dart';
@@ -14,8 +15,19 @@ import 'off_ingestion_service.dart';
 import 'account_data_service.dart';
 
 class DbService {
-  static FirebaseFirestore db = FirebaseFirestore.instance;
-  static FirebaseAuth auth = FirebaseAuth.instance;
+  static FirebaseFirestore? _customDb;
+  static FirebaseFirestore get db {
+    if (_customDb != null) return _customDb!;
+    return FirebaseFirestore.instance;
+  }
+  static set db(FirebaseFirestore instance) => _customDb = instance;
+
+  static FirebaseAuth? _customAuth;
+  static FirebaseAuth get auth {
+    if (_customAuth != null) return _customAuth!;
+    return FirebaseAuth.instance;
+  }
+  static set auth(FirebaseAuth instance) => _customAuth = instance;
 
   // ─── LOCAL PRODUCT CACHE & DELTA SYNC ──────────────────────────────────────
 
@@ -142,8 +154,12 @@ class DbService {
   static Future<Map<String, int>> getReportVoteDataByBarcode(String barcode) =>
       ReportsDbService.getReportVoteDataByBarcode(db, auth, barcode);
 
-  static Future<ProductReport?> getActiveReportByBarcode(String barcode) =>
-      ReportsDbService.getActiveReportByBarcode(db, barcode);
+  static Future<ProductReport?> getActiveReportByBarcode(String barcode) {
+    if (_customDb == null && Firebase.apps.isEmpty) {
+      return Future.value(null);
+    }
+    return ReportsDbService.getActiveReportByBarcode(db, barcode);
+  }
 
   static Future<void> syncPendingVotesWithFirestore() =>
       ReportsDbService.syncPendingVotesWithFirestore(db, auth);
