@@ -16,17 +16,17 @@ class AuthBrandingHeader extends StatelessWidget {
         Container(
           width: 96,
           height: 96,
-          padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
             color: context.colorScheme.iconCirclePrimaryBg,
             shape: BoxShape.circle,
           ),
           clipBehavior: Clip.antiAlias,
-          child: const Image(
-            image: AssetImage(
-              'assets/logo/app_icon_foreground.png',
+          child: Transform.translate(
+            offset: const Offset(0, 2),
+            child: const Image(
+              image: AssetImage('assets/logo/app_icon_foreground.png'),
+              fit: BoxFit.contain,
             ),
-            fit: BoxFit.contain,
           ),
         ),
         const SizedBox(height: 16),
@@ -43,10 +43,7 @@ class AuthBrandingHeader extends StatelessWidget {
         Text(
           "auth.branding.tagline".tr(),
           textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 14,
-            color: context.textTertiary,
-          ),
+          style: TextStyle(fontSize: 14, color: context.textTertiary),
         ),
       ],
     );

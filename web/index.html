@@ -1,7 +1,4 @@
-<!-- Copyright (c) 2026 Emanuele Ciotola. All Rights Reserved.\nPROJECT: GlutiEnd — See LICENSE file in root for terms. -->
-<!DOCTYPE html>
-<!-- Il default è l'inglese per assecondare Googlebot -->
-<html lang="en"><head>
+<!-- Copyright (c) 2026 Emanuele Ciotola. All Rights Reserved.\nPROJECT: GlutiEnd — See LICENSE file in root for terms. --><!DOCTYPE html><!-- Il default è l'inglese per assecondare Googlebot --><html lang="en"><head>
   <!-- BASE HREF gestito dinamicamente dal comando di build di Flutter -->
   <base href="$FLUTTER_BASE_HREF">
   <meta charset="UTF-8">
@@ -345,7 +342,12 @@
     "privacyPolicy": "https://glutiend.github.io/privacypolicy.html"
   }
   </script>
+  
+  
 
+  
+  
+  
   <style id="splash-screen-style">
     html {
       height: 100%
@@ -354,7 +356,7 @@
     body {
       margin: 0;
       min-height: 100%;
-      background-color: #BFDEB4;
+      background-color: #1E5FA8;
           background-size: 100% 100%;
     }
 
@@ -403,20 +405,7 @@
       bottom: 0;
       right: 0;
     }
-
-    /* Fix per iOS Safari: forza il video a rimanere confinato nel widget Flutter */
-    video {
-      object-fit: cover !important;
-      width: 100% !important;
-      height: 100% !important;
-      max-width: 100% !important;
-      max-height: 100% !important;
-      position: relative !important;
-      -webkit-transform: translateZ(0);
-      transform: translateZ(0);
-    }
   </style>
-
   <script id="splash-screen-script">
     function removeSplashFromWeb() {
       document.getElementById("splash")?.remove();
@@ -431,6 +420,9 @@
       <source srcset="splash/img/dark-1x.png 1x, splash/img/dark-2x.png 2x, splash/img/dark-3x.png 3x, splash/img/dark-4x.png 4x" media="(prefers-color-scheme: dark)">
       <img class="center" aria-hidden="true" src="splash/img/light-1x.png" alt="">
   </picture>
+  
+  
+  
   <!-- CONTENUTO SEO (Verrà tradotto dallo script in JS, altrimenti resta Inglese) -->
   <div id="seo-fallback" style="display:none;">
     <h1>GlutiEnd: The Food Scanner</h1>
