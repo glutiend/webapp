@@ -237,7 +237,7 @@ class AnalyzerService {
 
     // ─── STEP 4: Controlla tracce testuali ──────────────────────────────────
     List<String> foundTraces = [];
-    final textToCheckTraces = "$lowerIng $lowerName";
+    final textToCheckTraces = GlutenRules.normalizeTraceColons("$lowerIng $lowerName");
     for (String t in GlutenRules.traceKeywords) {
       if (textToCheckTraces.contains(t)) foundTraces.add(t);
     }

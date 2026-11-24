@@ -182,6 +182,10 @@ class GlutenRules {
     "peut contenir du blé",
     "peut contenir de l'orge",
     "peut contenir du seigle",
+    "peut contenir gluten",
+    "peut contenir blé",
+    "peut contenir orge",
+    "peut contenir seigle",
     "fabriqué dans un atelier qui utilise du gluten",
     "fabriqué dans un atelier qui utilise du blé",
 
@@ -217,6 +221,10 @@ class GlutenRules {
     "kann weizen enthalten",
     "kann gerste enthalten",
     "kann roggen enthalten",
+    "kann enthalten gluten",
+    "kann enthalten weizen",
+    "kann enthalten gerste",
+    "kann enthalten roggen",
     "in einem betrieb hergestellt, der auch gluten verarbeitet",
     "in einem betrieb hergestellt, der auch weizen verarbeitet",
 
@@ -451,9 +459,21 @@ class GlutenRules {
         .trim();
   }
 
+  static final RegExp _traceColonRegex = RegExp(
+    r'\b(può contenere(?:\s+tracce\s+di)?|tracce\s+di|may contain(?:\s+traces\s+of)?|traces\s+of|peut contenir(?:\s+des\s+traces\s+d[e\x27])?|traces\s+d[e\x27]|puede contener(?:\s+trazas\s+de)?|trazas\s+de|kann(?:\s+spuren\s+von)?\s+enthalten|kann\s+enthalten|spuren\s+von|pode conter(?:\s+(?:vestígios|traços)\s+de)?|kan(?:\s+sporen\s+van)?\s+bevatten)\s*:\s*',
+    caseSensitive: false,
+  );
+
+  /// Normalizza i due punti dopo i prefissi delle diciture di tracce
+  /// (es. "Può contenere: glutine" -> "Può contenere glutine").
+  static String normalizeTraceColons(String input) {
+    if (input.isEmpty) return input;
+    return input.replaceAllMapped(_traceColonRegex, (m) => '${m[1]} ');
+  }
+
   // Nasconde le frasi sicure per non far scattare l'allarme sulla parola "glutine"
   static String sanitizeForGluten(String input) {
-    String text = normalizeOcrText(input).toLowerCase();
+    String text = normalizeTraceColons(normalizeOcrText(input).toLowerCase());
     final safePhrases = [
       "amido di frumento deglutinato",
       "amido di grano deglutinato",

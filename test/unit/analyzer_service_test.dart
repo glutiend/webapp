@@ -1984,5 +1984,48 @@ void main() {
         isFalse,
       );
     });
+
+    test('7610200044488 (colon in trace phrase: Può contenere: glutine / Peut contenir: gluten / Kann enthalten: Gluten) is incerto when strictMode=false and nonAdatto when strictMode=true', () {
+      final variants = [
+        'miglio*.\r\nPuò contenere: glutine.\r\n* Di produzione biologica straniera',
+        'millet*.\r\nPeut contenir: gluten.\r\n* De production biologique étrangère',
+        'Hirse*.\r\nKann enthalten: Gluten.\r\n* Aus ausländischer Bio-Produktion',
+      ];
+      for (final ing in variants) {
+        final resRelaxed = AnalyzerService.analyzeGlutenSafety(
+          name: 'Miglio Bio',
+          brand: 'Migros Bio',
+          ingredients: ing,
+          allergensList: [],
+          reportCount: 0,
+          categoriesTags: ['en:millet'],
+          offTags: OffTags(
+            allergensTags: [],
+            tracesTags: ['en:gluten'],
+            labelsTags: ['en:organic'],
+            ingredientsAnalysisTags: [],
+          ),
+          strictMode: false,
+        );
+        expect(resRelaxed.status, GlutenSafetyStatus.incerto, reason: 'Relaxed failed for: $ing');
+
+        final resStrict = AnalyzerService.analyzeGlutenSafety(
+          name: 'Miglio Bio',
+          brand: 'Migros Bio',
+          ingredients: ing,
+          allergensList: [],
+          reportCount: 0,
+          categoriesTags: ['en:millet'],
+          offTags: OffTags(
+            allergensTags: [],
+            tracesTags: ['en:gluten'],
+            labelsTags: ['en:organic'],
+            ingredientsAnalysisTags: [],
+          ),
+          strictMode: true,
+        );
+        expect(resStrict.status, GlutenSafetyStatus.nonAdatto, reason: 'Strict failed for: $ing');
+      }
+    });
   });
 }
