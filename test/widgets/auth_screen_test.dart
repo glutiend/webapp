@@ -70,6 +70,45 @@ void main() {
   }
 
   group('AuthScreen Pure Widget & Business Logic Tests', () {
+    testWidgets('Uses the login logo matching the device brightness', (
+      WidgetTester tester,
+    ) async {
+      for (final brightness in [Brightness.light, Brightness.dark]) {
+        await tester.pumpWidget(
+          createTestApp(
+            child: Builder(
+              builder: (context) => MediaQuery(
+                data: MediaQuery.of(
+                  context,
+                ).copyWith(platformBrightness: brightness),
+                child: const AuthBrandingHeader(),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final logo = tester.widget<Image>(
+          find.descendant(
+            of: find.byType(AuthBrandingHeader),
+            matching: find.byType(Image),
+          ),
+        );
+        final expectedAsset = brightness == Brightness.dark
+            ? 'assets/splash/splash_icon_dark.png'
+            : 'assets/logo/app_icon_foreground.png';
+
+        expect(
+          logo.image,
+          isA<AssetImage>().having(
+            (image) => image.assetName,
+            'assetName',
+            expectedAsset,
+          ),
+        );
+      }
+    });
+
     testWidgets(
       'Renders all branding, social buttons, and guest entry elements',
       (WidgetTester tester) async {

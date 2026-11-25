@@ -10,6 +10,12 @@ class AuthBrandingHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isSystemDark =
+        MediaQuery.platformBrightnessOf(context) == Brightness.dark;
+    final logoAsset = isSystemDark
+        ? 'assets/splash/splash_icon_dark.png'
+        : 'assets/logo/app_icon_foreground.png';
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -23,10 +29,7 @@ class AuthBrandingHeader extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           child: Transform.translate(
             offset: const Offset(0, 2),
-            child: const Image(
-              image: AssetImage('assets/logo/app_icon_foreground.png'),
-              fit: BoxFit.contain,
-            ),
+            child: Image.asset(logoAsset, fit: BoxFit.contain),
           ),
         ),
         const SizedBox(height: 16),
