@@ -115133,7 +115133,7 @@ $S:0}
 A.SZ.prototype={
 I(a){var s,r,q,p=null,o=A.c6(a,B.jO)
 o=o==null?p:o.e
-s=(o==null?B.aD:o)===B.r?"assets/splash/splash_icon_dark.png":"assets/logo/app_icon_foreground.png"
+s=(o==null?B.aD:o)===B.r?"assets/splash/splash_icon_dark.png":"assets/splash/splash_icon.png"
 o=A.x(a).ax
 r=o.d
 o=r==null?o.b:r
