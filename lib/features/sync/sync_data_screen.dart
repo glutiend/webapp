@@ -233,104 +233,108 @@ class _SyncDataScreenState extends State<SyncDataScreen> {
   }
 
   Widget _buildCategoryCard(ColorScheme colorScheme, AnonymousDataSummary summary) {
+    final tiles = <Widget>[
+      if (summary.hasHistory)
+        _buildTile(
+          icon: Icons.history_rounded,
+          title: "common.navigation.history".tr(),
+          subtitle: summary.history.length == 1
+              ? "sync.localDataFound.historySubtitleOne".tr(
+                  namedArgs: {'count': '${summary.history.length}'},
+                )
+              : "sync.localDataFound.historySubtitleOther".tr(
+                  namedArgs: {'count': '${summary.history.length}'},
+                ),
+          checked: _syncHistory,
+          onChanged: (v) => setState(() => _syncHistory = v),
+          colorScheme: colorScheme,
+        ),
+      if (summary.hasReports)
+        _buildTile(
+          icon: Icons.flag_rounded,
+          title: "common.navigation.reports".tr(),
+          subtitle: summary.reports.length == 1
+              ? "sync.localDataFound.reportsSubtitleOne".tr(
+                  namedArgs: {'count': '${summary.reports.length}'},
+                )
+              : "sync.localDataFound.reportsSubtitleOther".tr(
+                  namedArgs: {'count': '${summary.reports.length}'},
+                ),
+          checked: _syncReports,
+          onChanged: (v) => setState(() => _syncReports = v),
+          colorScheme: colorScheme,
+        ),
+      if (summary.hasSettings)
+        _buildTile(
+          icon: Icons.tune_rounded,
+          title: "common.navigation.settings".tr(),
+          subtitle: "sync.localDataFound.settingsSubtitle".tr(),
+          checked: _syncSettings,
+          onChanged: (v) => setState(() => _syncSettings = v),
+          colorScheme: colorScheme,
+        ),
+    ];
+
     return AppCard.primary(
+      padding: const EdgeInsets.all(24),
       borderRadius: 24,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // ── Header stile SectionCard ──
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 12, 4),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.sync_rounded,
-                  size: 18,
-                  color: colorScheme.onSurfaceVariant,
+          Row(
+            children: [
+              Icon(
+                Icons.sync_rounded,
+                size: 18,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  "sync.localDataFound.toSync".tr(),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.5,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
+              ),
+              if (_totalCount > 1)
+                TextButton(
+                  onPressed: _toggleAll,
+                  style: TextButton.styleFrom(
+                    foregroundColor: colorScheme.primary,
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
                   child: Text(
-                    "sync.localDataFound.toSync".tr(),
-                    style: TextStyle(
+                    _allSelected
+                        ? "sync.localDataFound.deselectAll".tr()
+                        : "sync.localDataFound.selectAll".tr(),
+                    style: const TextStyle(
                       fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.5,
-                      color: colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
-                if (_totalCount > 1)
-                  TextButton(
-                    onPressed: _toggleAll,
-                    style: TextButton.styleFrom(
-                      foregroundColor: colorScheme.primary,
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                    ),
-                    child: Text(
-                      _allSelected
-                          ? "sync.localDataFound.deselectAll".tr()
-                          : "sync.localDataFound.selectAll".tr(),
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+            ],
           ),
+          const SizedBox(height: 16),
 
           // ── Tile list ──
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
-            child: Column(
-              children: [
-                if (summary.hasHistory)
-                  _buildTile(
-                    icon: Icons.history_rounded,
-                    title: "common.navigation.history".tr(),
-                    subtitle: summary.history.length == 1
-                        ? "sync.localDataFound.historySubtitleOne".tr(
-                            namedArgs: {'count': '${summary.history.length}'},
-                          )
-                        : "sync.localDataFound.historySubtitleOther".tr(
-                            namedArgs: {'count': '${summary.history.length}'},
-                          ),
-                    checked: _syncHistory,
-                    onChanged: (v) => setState(() => _syncHistory = v),
-                    colorScheme: colorScheme,
-                  ),
-                if (summary.hasReports)
-                  _buildTile(
-                    icon: Icons.flag_rounded,
-                    title: "common.navigation.reports".tr(),
-                    subtitle: summary.reports.length == 1
-                        ? "sync.localDataFound.reportsSubtitleOne".tr(
-                            namedArgs: {'count': '${summary.reports.length}'},
-                          )
-                        : "sync.localDataFound.reportsSubtitleOther".tr(
-                            namedArgs: {'count': '${summary.reports.length}'},
-                          ),
-                    checked: _syncReports,
-                    onChanged: (v) => setState(() => _syncReports = v),
-                    colorScheme: colorScheme,
-                  ),
-                if (summary.hasSettings)
-                  _buildTile(
-                    icon: Icons.tune_rounded,
-                    title: "common.navigation.settings".tr(),
-                    subtitle: "sync.localDataFound.settingsSubtitle".tr(),
-                    checked: _syncSettings,
-                    onChanged: (v) => setState(() => _syncSettings = v),
-                    colorScheme: colorScheme,
-                  ),
-              ],
-            ),
-          ),
+          for (int i = 0; i < tiles.length; i++) ...[
+            if (i > 0) const SizedBox(height: 8),
+            tiles[i],
+          ],
         ],
       ),
     );
@@ -348,16 +352,15 @@ class _SyncDataScreenState extends State<SyncDataScreen> {
       onTap: () => onChanged(!checked),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        margin: const EdgeInsets.symmetric(vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: checked
-              ? colorScheme.selectedItemBg
-              : colorScheme.unselectedItemBg,
+              ? colorScheme.primaryContainer.withValues(alpha: 0.08)
+              : colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: checked
-                ? colorScheme.selectedItemBorder
+                ? colorScheme.primary.withValues(alpha: 0.25)
                 : Colors.transparent,
           ),
         ),
