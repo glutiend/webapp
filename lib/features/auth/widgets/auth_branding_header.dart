@@ -14,7 +14,7 @@ class AuthBrandingHeader extends StatelessWidget {
         MediaQuery.platformBrightnessOf(context) == Brightness.dark;
     final logoAsset = isSystemDark
         ? 'assets/splash/splash_icon_dark.png'
-        : 'assets/logo/app_icon_foreground.png';
+        : 'assets/splash/splash_icon.png';
 
     return Column(
       mainAxisSize: MainAxisSize.min,

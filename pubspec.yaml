@@ -56,7 +56,7 @@ flutter_launcher_icons:
   image_path: "assets/logo/app_icon_solid.png"
   # --- ANDROID ---
   android: true
-  adaptive_icon_background: "#D3E4FF"
+  adaptive_icon_background: "#1E5FA8"
   adaptive_icon_foreground: "assets/logo/app_icon_foreground.png" # Logo trasparente
   # --- IOS ---
   ios: true
@@ -66,7 +66,7 @@ flutter_launcher_icons:
   web:
     generate: true
     image_path: "assets/logo/app_icon_solid.png"
-    background_color: "#D3E4FF"
+    background_color: "#1E5FA8"
     theme_color: "#1E5FA8" # Il blu primario della tua app (primaryContainer)
   # # --- WINDOWS (Opzionale, se generi la build Desktop) ---
   # windows:
@@ -80,13 +80,17 @@ flutter_launcher_icons:
 
 flutter_native_splash:
   # Colore di sfondo (Light Mode)
-  color: "#D3E4FF"
+  color: "#F4F7FC"
   # Percorso della tua immagine PNG
   image: "assets/splash/splash_icon.png"
+  # Branding
+  branding: "assets/splash/branding_text.png"
+  branding_mode: bottom # Forza l'ancoraggio in basso allo schermo
   
   # (Opzionale) Configurazione per la Dark Mode
   color_dark: "#0D0F13"
   image_dark: "assets/splash/splash_icon_dark.png"
+  branding_dark: "assets/splash/branding_text_dark.png"
 
   # Le piattaforme per cui vuoi generare la splash
   android: true
@@ -95,10 +99,12 @@ flutter_native_splash:
 
   # Configurazione specifica e obbligatoria per i dispositivi Android 12 e superiori
   android_12:
+    color: "#F4F7FC"
     image: "assets/splash/splash_icon.png"
-    color: "#D3E4FF"
-    image_dark: "assets/splash/splash_icon_dark.png"
+    branding: "assets/splash/branding_text.png"
     color_dark: "#0D0F13"
+    image_dark: "assets/splash/splash_icon_dark.png"
+    branding_dark: "assets/splash/branding_text_dark.png"
 
 flutter:
   uses-material-design: true
