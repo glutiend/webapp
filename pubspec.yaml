@@ -58,6 +58,7 @@ flutter_launcher_icons:
   android: true
   adaptive_icon_background: "#1E5FA8"
   adaptive_icon_foreground: "assets/logo/app_icon_foreground.png" # Logo trasparente
+  adaptive_icon_monochrome: "assets/logo/app_icon_monochrome.png" # Logo monocromatico per adattività
   # --- IOS ---
   ios: true
   remove_alpha_ios: true # Sicurezza extra: rimuove la trasparenza se per sbaglio metti un file sbagliato
