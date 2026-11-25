@@ -4,7 +4,7 @@
       "title": "Scansione prodotto"
     },
     "viewport": {
-      "alignBarcodeHint": "Inquadra il codice a barre per per ottenere l'analisi dettagliata.",
+      "alignBarcodeHint": "Inquadra il codice a barre per ottenere l'analisi dettagliata.",
       "torchError": "Errore nella gestione della torcia. Riprova."
     },
     "legend": {

@@ -22,6 +22,8 @@ import 'package:glutiend/features/settings/settings_panel.dart';
 import 'package:glutiend/features/product_detail/product_detail_card.dart';
 import 'package:glutiend/features/sync/sync_data_screen.dart';
 import 'package:glutiend/features/history/history_list.dart';
+import 'package:glutiend/features/reports/reports_list.dart';
+import 'package:glutiend/features/shell/widgets/main_custom_bottom_nav.dart';
 import 'package:glutiend/services/database/app_database.dart';
 import 'package:glutiend/services/database/daos/scan_history_dao.dart';
 import 'package:glutiend/services/database/daos/product_report_dao.dart';
@@ -308,6 +310,163 @@ void main() {
           await tester.pump();
 
           expect(tester.widget<IndexedStack>(_findMainIndexedStack()).index, 0);
+        },
+      );
+
+      testWidgets(
+        'renders Floating Pill navbar with extendBody, SafeArea, and single-line labels at 360dp',
+        (tester) async {
+          await _pumpMainScreen(tester, auth: mockAuth);
+
+          final scaffold = tester.widget<Scaffold>(find.byType(Scaffold).last);
+          expect(scaffold.extendBody, isTrue);
+
+          final bottomNavFinder = find.byType(MainCustomBottomNav);
+          expect(bottomNavFinder, findsOneWidget);
+
+          final safeArea = tester.widget<SafeArea>(
+            find.descendant(
+              of: bottomNavFinder,
+              matching: find.byType(SafeArea),
+            ),
+          );
+          expect(safeArea.top, isFalse);
+
+          final pillContainer = tester.widget<Container>(
+            find
+                .descendant(
+                  of: bottomNavFinder,
+                  matching: find.byType(Container),
+                )
+                .first,
+          );
+          expect(pillContainer.clipBehavior, Clip.antiAlias);
+          final decoration = pillContainer.decoration as BoxDecoration;
+          expect(decoration.borderRadius, BorderRadius.circular(999));
+
+          for (final key in const [
+            'common.navigation.scanner',
+            'common.navigation.history',
+            'common.navigation.reports',
+            'common.navigation.settings',
+          ]) {
+            final label = tester.widget<Text>(find.text(key));
+            expect(label.maxLines, 1);
+            expect(label.softWrap, isFalse);
+            expect(label.overflow, TextOverflow.ellipsis);
+          }
+
+          // Backdrop gradient behind the pill
+          final backdrop = tester.widget<DecoratedBox>(
+            find.descendant(
+              of: bottomNavFinder,
+              matching: find.byType(DecoratedBox),
+            ).first,
+          );
+          final backdropDecoration = backdrop.decoration as BoxDecoration;
+          expect(backdropDecoration.gradient, isA<LinearGradient>());
+
+          // InkWell splash is confined to the icon pill, not wrapping the text label
+          final navInkWells = tester.widgetList<InkWell>(
+            find.descendant(
+              of: bottomNavFinder,
+              matching: find.byType(InkWell),
+            ),
+          );
+          expect(navInkWells.length, 4);
+          for (final inkWell in navInkWells) {
+            expect(inkWell.customBorder, isA<StadiumBorder>());
+          }
+          expect(
+            find.ancestor(
+              of: find.text('common.navigation.scanner'),
+              matching: find.byType(InkWell),
+            ),
+            findsNothing,
+          );
+
+          // Active tab label is w700, inactive tab labels are w500
+          expect(
+            tester
+                .widget<Text>(find.text('common.navigation.scanner'))
+                .style
+                ?.fontWeight,
+            FontWeight.w700,
+          );
+          expect(
+            tester
+                .widget<Text>(find.text('common.navigation.history'))
+                .style
+                ?.fontWeight,
+            FontWeight.w500,
+          );
+
+          // Verify MainCustomBottomNav renders without overflow on a narrow 360dp screen
+          tester.view.physicalSize = const Size(360, 800);
+          await tester.pumpWidget(
+            createTestApp(
+              child: Scaffold(
+                extendBody: true,
+                body: const SizedBox.expand(),
+                bottomNavigationBar: MainCustomBottomNav(
+                  currentIndex: 0,
+                  onTabSelected: (_) {},
+                ),
+              ),
+            ),
+          );
+          await tester.pump();
+          expect(find.byType(MainCustomBottomNav), findsOneWidget);
+        },
+      );
+
+      testWidgets(
+        'all 4 tab scrollables include floating navbar bottom padding',
+        (tester) async {
+          await _pumpMainScreen(tester, auth: mockAuth);
+
+          final navHeight =
+              tester.getSize(find.byType(MainCustomBottomNav)).height;
+          expect(navHeight, greaterThan(0));
+
+          final tabs = <(String, Type)>[
+            ('common.navigation.scanner', CameraModule),
+            ('common.navigation.history', HistoryList),
+            ('common.navigation.reports', ReportsList),
+            ('common.navigation.settings', SettingsPanel),
+          ];
+
+          for (final (navKey, tabType) in tabs) {
+            await tester.tap(find.text(navKey));
+            await tester.pump();
+
+            final scrollView = tester.widget<SingleChildScrollView>(
+              find
+                  .descendant(
+                    of: find.byType(tabType),
+                    matching: find.byType(SingleChildScrollView),
+                  )
+                  .first,
+            );
+            final resolvedPadding = scrollView.padding!.resolve(
+              Directionality.of(tester.element(find.byType(tabType))),
+            );
+            expect(
+              resolvedPadding.left,
+              16.0,
+              reason: '$tabType should align horizontally with 16dp padding',
+            );
+            expect(
+              resolvedPadding.right,
+              16.0,
+              reason: '$tabType should align horizontally with 16dp padding',
+            );
+            expect(
+              resolvedPadding.bottom,
+              greaterThanOrEqualTo(navHeight + 24.0),
+              reason: '$tabType should reserve space above floating pill navbar',
+            );
+          }
         },
       );
     },

@@ -293,11 +293,11 @@ class _CameraModuleState extends State<CameraModule>
     return Container(
       color: Theme.of(context).scaffoldBackgroundColor,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.only(
-          left: 20.0,
-          right: 20.0,
+        padding: EdgeInsets.only(
+          left: 16.0,
+          right: 16.0,
           top: 16.0,
-          bottom: 40.0,
+          bottom: 24.0 + MediaQuery.paddingOf(context).bottom,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

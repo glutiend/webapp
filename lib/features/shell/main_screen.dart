@@ -1882,6 +1882,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     }
 
     final scaffold = Scaffold(
+      extendBody: true,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(

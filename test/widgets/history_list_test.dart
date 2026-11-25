@@ -803,18 +803,18 @@ void main() {
     ) async {
       final prod1 = _createProduct(
         barcode: '111',
-        nameIt: 'Pasta Senza Glutine',
-        ingredientsIt: 'Riso',
+        nameIt: 'Riso Integrale',
+        ingredientsIt: 'Riso 100%',
       );
       final prod2 = _createProduct(
         barcode: '222',
-        nameIt: 'Pasta Normale',
+        nameIt: 'Riso al Frumento',
         ingredientsIt: 'Frumento',
       );
       final prod3 = _createProduct(
         barcode: '333',
-        nameIt: 'Riso Basmati',
-        ingredientsIt: 'Riso',
+        nameIt: 'Mais Croccante',
+        ingredientsIt: 'Mais 100%',
       );
 
       final history = [
@@ -830,12 +830,12 @@ void main() {
         liveProducts: [prod1, prod2, prod3],
       );
 
-      await tester.enterText(find.byType(TextField), 'Pasta');
+      await tester.enterText(find.byType(TextField), 'Riso');
       await tester.pump();
 
-      expect(find.text('Pasta Senza Glutine'), findsOneWidget);
-      expect(find.text('Pasta Normale'), findsOneWidget);
-      expect(find.text('Riso Basmati'), findsNothing);
+      expect(find.text('Riso Integrale'), findsOneWidget);
+      expect(find.text('Riso al Frumento'), findsOneWidget);
+      expect(find.text('Mais Croccante'), findsNothing);
 
       await tester.tap(
         find.byType(PopupMenuButton<GlutenSafetyStatus?>),
@@ -846,9 +846,9 @@ void main() {
       await tester.tap(safeMenuItem.last);
       await tester.pumpAndSettle();
 
-      expect(find.text('Pasta Senza Glutine'), findsOneWidget);
-      expect(find.text('Pasta Normale'), findsNothing);
-      expect(find.text('Riso Basmati'), findsNothing);
+      expect(find.text('Riso Integrale'), findsOneWidget);
+      expect(find.text('Riso al Frumento'), findsNothing);
+      expect(find.text('Mais Croccante'), findsNothing);
     });
   });
 

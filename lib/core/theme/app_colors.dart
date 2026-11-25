@@ -22,6 +22,16 @@ const Color lightSurfaceVariant = Color(
 const Color lightBottomNavBg = Color(
   0xFFECF1F9,
 ); // Bottom Navigation Bar sfondo
+const Color lightFloatingNavBg = lightCardBackground; // Navbar pillola flottante
+const Color lightFloatingNavBorder = Color(
+  0x246C798E,
+); // Bordo sottile ma leggibile su card bianche
+const Color lightFloatingNavShadowAmbient = Color(
+  0x140A1E3C,
+); // Ombra morbida strato 1 Navbar Flottante
+const Color lightFloatingNavShadowElevation = Color(
+  0x1E0A1E3C,
+); // Ombra morbida strato 2 Navbar Flottante
 const Color lightBottomSheetBg = Color(
   0xFFF5F8FD,
 ); // Bottom Sheet modalBackgroundColor
@@ -150,6 +160,15 @@ const Color darkSurfaceVariant = Color(
   0xFF21252E,
 ); // Input / Pillole ricerca / Campi form / Chip barcode
 const Color darkBottomNavBg = Color(0xFF12151A); // Bottom Navigation Bar sfondo
+const Color darkFloatingNavBg = Color(
+  0xFF202530,
+); // Navbar pillola flottante sollevata rispetto alle card
+const Color darkFloatingNavBorder = Color(
+  0x2E8694A8,
+); // Bordo sottile leggibile in Dark Mode
+const Color darkFloatingNavShadow = Color(
+  0x52000000,
+); // Ombra discreta Navbar Flottante Dark Mode
 const Color darkBottomSheetBg = Color(
   0xFF15181E,
 ); // Bottom Sheet modalBackgroundColor

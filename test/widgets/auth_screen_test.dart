@@ -96,7 +96,7 @@ void main() {
         );
         final expectedAsset = brightness == Brightness.dark
             ? 'assets/splash/splash_icon_dark.png'
-            : 'assets/logo/app_icon_foreground.png';
+            : 'assets/splash/splash_icon.png';
 
         expect(
           logo.image,

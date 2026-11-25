@@ -197,22 +197,22 @@ String themeModeToString(ThemeMode mode) {
 extension AppColorTokens on ColorScheme {
   // ── Helper di Miscelazione Tonale Semantica ─────────────────────────────
   Color _blendHeroBadge(Color solid, Color alpha) => Color.alphaBlend(
-        solid.withValues(
-          alpha: brightness == Brightness.dark
-              ? statusHeroBadgeBlendDark
-              : statusHeroBadgeBlendLight,
-        ),
-        alpha,
-      );
+    solid.withValues(
+      alpha: brightness == Brightness.dark
+          ? statusHeroBadgeBlendDark
+          : statusHeroBadgeBlendLight,
+    ),
+    alpha,
+  );
 
   Color _blendBarcodeChip(Color solid) => Color.alphaBlend(
-        solid.withValues(
-          alpha: brightness == Brightness.dark
-              ? statusBarcodeChipBlendDark
-              : statusBarcodeChipBlendLight,
-        ),
-        surface,
-      );
+    solid.withValues(
+      alpha: brightness == Brightness.dark
+          ? statusBarcodeChipBlendDark
+          : statusBarcodeChipBlendLight,
+    ),
+    surface,
+  );
 
   // ── 1. STATI DEL CIBO (4 STATI GLUTINE + LATTOSIO) ────────────────────────
   // Ciascuno stato possiede i token:
@@ -229,17 +229,13 @@ extension AppColorTokens on ColorScheme {
   Color get statusSafeHeroBadgeBg =>
       _blendHeroBadge(statusSafeSolid, statusSafeAlpha);
   Color get statusSafeBarcodeChipBg => _blendBarcodeChip(statusSafeSolid);
-  ({
-    Color solid,
-    Color alpha,
-    Color heroBadgeBg,
-    Color barcodeChipBg,
-  }) get statusSafeColors => (
-        solid: statusSafeSolid,
-        alpha: statusSafeAlpha,
-        heroBadgeBg: statusSafeHeroBadgeBg,
-        barcodeChipBg: statusSafeBarcodeChipBg,
-      );
+  ({Color solid, Color alpha, Color heroBadgeBg, Color barcodeChipBg})
+  get statusSafeColors => (
+    solid: statusSafeSolid,
+    alpha: statusSafeAlpha,
+    heroBadgeBg: statusSafeHeroBadgeBg,
+    barcodeChipBg: statusSafeBarcodeChipBg,
+  );
 
   // STATO VIETATO (Unsafe / Non adatto)
   Color get statusUnsafeSolid => brightness == Brightness.dark
@@ -250,17 +246,13 @@ extension AppColorTokens on ColorScheme {
   Color get statusUnsafeHeroBadgeBg =>
       _blendHeroBadge(statusUnsafeSolid, statusUnsafeAlpha);
   Color get statusUnsafeBarcodeChipBg => _blendBarcodeChip(statusUnsafeSolid);
-  ({
-    Color solid,
-    Color alpha,
-    Color heroBadgeBg,
-    Color barcodeChipBg,
-  }) get statusUnsafeColors => (
-        solid: statusUnsafeSolid,
-        alpha: statusUnsafeAlpha,
-        heroBadgeBg: statusUnsafeHeroBadgeBg,
-        barcodeChipBg: statusUnsafeBarcodeChipBg,
-      );
+  ({Color solid, Color alpha, Color heroBadgeBg, Color barcodeChipBg})
+  get statusUnsafeColors => (
+    solid: statusUnsafeSolid,
+    alpha: statusUnsafeAlpha,
+    heroBadgeBg: statusUnsafeHeroBadgeBg,
+    barcodeChipBg: statusUnsafeBarcodeChipBg,
+  );
 
   // STATO INCERTO (Uncertain / Warning / Segnalazione)
   Color get statusUncertainSolid => brightness == Brightness.dark
@@ -273,17 +265,13 @@ extension AppColorTokens on ColorScheme {
       _blendHeroBadge(statusUncertainSolid, statusUncertainAlpha);
   Color get statusUncertainBarcodeChipBg =>
       _blendBarcodeChip(statusUncertainSolid);
-  ({
-    Color solid,
-    Color alpha,
-    Color heroBadgeBg,
-    Color barcodeChipBg,
-  }) get statusUncertainColors => (
-        solid: statusUncertainSolid,
-        alpha: statusUncertainAlpha,
-        heroBadgeBg: statusUncertainHeroBadgeBg,
-        barcodeChipBg: statusUncertainBarcodeChipBg,
-      );
+  ({Color solid, Color alpha, Color heroBadgeBg, Color barcodeChipBg})
+  get statusUncertainColors => (
+    solid: statusUncertainSolid,
+    alpha: statusUncertainAlpha,
+    heroBadgeBg: statusUncertainHeroBadgeBg,
+    barcodeChipBg: statusUncertainBarcodeChipBg,
+  );
 
   // STATO IGNOTO (Unknown / Sconosciuto / Neutro)
   Color get statusUnknownSolid => brightness == Brightness.dark
@@ -295,17 +283,13 @@ extension AppColorTokens on ColorScheme {
   Color get statusUnknownHeroBadgeBg =>
       _blendHeroBadge(statusUnknownSolid, statusUnknownAlpha);
   Color get statusUnknownBarcodeChipBg => _blendBarcodeChip(statusUnknownSolid);
-  ({
-    Color solid,
-    Color alpha,
-    Color heroBadgeBg,
-    Color barcodeChipBg,
-  }) get statusUnknownColors => (
-        solid: statusUnknownSolid,
-        alpha: statusUnknownAlpha,
-        heroBadgeBg: statusUnknownHeroBadgeBg,
-        barcodeChipBg: statusUnknownBarcodeChipBg,
-      );
+  ({Color solid, Color alpha, Color heroBadgeBg, Color barcodeChipBg})
+  get statusUnknownColors => (
+    solid: statusUnknownSolid,
+    alpha: statusUnknownAlpha,
+    heroBadgeBg: statusUnknownHeroBadgeBg,
+    barcodeChipBg: statusUnknownBarcodeChipBg,
+  );
 
   // STATO LATTOSIO (Lactose Alert / Intolleranza) - Scollegato da secondaryContainer / navSelected
   Color get statusLactoseSolid =>
@@ -315,26 +299,18 @@ extension AppColorTokens on ColorScheme {
   Color get statusLactoseHeroBadgeBg =>
       _blendHeroBadge(statusLactoseSolid, statusLactoseAlpha);
   Color get statusLactoseBarcodeChipBg => _blendBarcodeChip(statusLactoseSolid);
-  ({
-    Color solid,
-    Color alpha,
-    Color heroBadgeBg,
-    Color barcodeChipBg,
-  }) get statusLactoseColors => (
-        solid: statusLactoseSolid,
-        alpha: statusLactoseAlpha,
-        heroBadgeBg: statusLactoseHeroBadgeBg,
-        barcodeChipBg: statusLactoseBarcodeChipBg,
-      );
+  ({Color solid, Color alpha, Color heroBadgeBg, Color barcodeChipBg})
+  get statusLactoseColors => (
+    solid: statusLactoseSolid,
+    alpha: statusLactoseAlpha,
+    heroBadgeBg: statusLactoseHeroBadgeBg,
+    barcodeChipBg: statusLactoseBarcodeChipBg,
+  );
 
   /// Helper unificato per ottenere il set semantico ({solid, alpha, heroBadgeBg, barcodeChipBg})
   /// per qualsiasi [GlutenSafetyStatus].
-  ({
-    Color solid,
-    Color alpha,
-    Color heroBadgeBg,
-    Color barcodeChipBg,
-  }) statusColorsFor(GlutenSafetyStatus status) {
+  ({Color solid, Color alpha, Color heroBadgeBg, Color barcodeChipBg})
+  statusColorsFor(GlutenSafetyStatus status) {
     switch (status) {
       case GlutenSafetyStatus.adatto:
         return statusSafeColors;
@@ -413,8 +389,7 @@ extension AppColorTokens on ColorScheme {
 
   // Pulsante Terziario Distruttivo (cancellazione, outline rosso senza sfondo)
   Color get buttonTertiaryDestructiveBg => colorTransparent;
-  Color get buttonTertiaryDestructiveBorder =>
-      error.withValues(alpha: 0.38);
+  Color get buttonTertiaryDestructiveBorder => error.withValues(alpha: 0.38);
   Color get buttonTertiaryDestructiveFg => error;
   Color get buttonTertiaryDestructiveDisabledBg => colorTransparent;
   Color get buttonTertiaryDestructiveDisabledBorder =>
@@ -450,9 +425,8 @@ extension AppColorTokens on ColorScheme {
             offset: Offset(0, 4),
           ),
         ];
-  Color get cardPrimaryShadow => brightness == Brightness.dark
-      ? colorTransparent
-      : lightCardShadowAmbient;
+  Color get cardPrimaryShadow =>
+      brightness == Brightness.dark ? colorTransparent : lightCardShadowAmbient;
   Color get cardPrimaryHover => surfaceContainerHighest;
   Color get cardPrimaryHighlight => brightness == Brightness.dark
       ? darkSurfaceContainerLow
@@ -508,6 +482,36 @@ extension AppColorTokens on ColorScheme {
   // ── 9. NAVIGAZIONE E MODAL ───────────────────────────────────────────────
   Color get bottomNavBg =>
       brightness == Brightness.dark ? darkBottomNavBg : lightBottomNavBg;
+  Color get floatingNavBg =>
+      brightness == Brightness.dark ? darkFloatingNavBg : lightFloatingNavBg;
+  Color get floatingNavBorder => brightness == Brightness.dark
+      ? darkFloatingNavBorder
+      : lightFloatingNavBorder;
+  List<BoxShadow> get floatingNavShadows => brightness == Brightness.dark
+      ? const [
+          BoxShadow(
+            color: darkFloatingNavShadow,
+            blurRadius: 18,
+            offset: Offset(0, 6),
+          ),
+        ]
+      : const [
+          BoxShadow(
+            color: lightFloatingNavShadowAmbient,
+            blurRadius: 6,
+            offset: Offset(0, 2),
+          ),
+          BoxShadow(
+            color: lightFloatingNavShadowElevation,
+            blurRadius: 22,
+            offset: Offset(0, 8),
+          ),
+        ];
+  List<Color> get floatingNavBackdropColors => [
+    surface.withValues(alpha: 0.0),
+    surface.withValues(alpha: 0.75),
+    surface.withValues(alpha: 0.92),
+  ];
   Color get modalBackgroundColor =>
       brightness == Brightness.dark ? darkBottomSheetBg : lightBottomSheetBg;
   Color get navSelectedBg => secondaryContainer;
