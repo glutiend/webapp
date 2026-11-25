@@ -201,18 +201,26 @@ class SettingsDbService {
           userId: user.uid,
           reportedBarcodes: mergedBarcodes,
         );
-        // Se la sincronizzazione cloud del DB offline è disattivata (localmente o su Firestore),
-        // è la scelta locale a importare: preserviamo le impostazioni offline DB di questo dispositivo,
-        // mentre il toggle cloudSync stesso viene sincronizzato da Firestore.
-        if (!isDifferentUser &&
-            (!localSettings.offlineDbCloudSync ||
-                !firestoreSettings.offlineDbCloudSync)) {
+        // Se la sincronizzazione cloud del DB offline è disattivata su Firestore
+        // (oppure sullo stesso utente in locale), è la scelta locale del dispositivo a importare:
+        // preserviamo le impostazioni offline DB di questo dispositivo, mentre il toggle
+        // cloudSync stesso viene sincronizzato da Firestore.
+        if (!firestoreSettings.offlineDbCloudSync ||
+            (!isDifferentUser && !localSettings.offlineDbCloudSync)) {
           resolved = resolved.copyWith(
             offlineDbTier: localSettings.offlineDbTier,
             offlineDbLastSyncedAt: localSettings.offlineDbLastSyncedAt,
             offlineDbAutoSync: localSettings.offlineDbAutoSync,
             offlineDbWifiOnly: localSettings.offlineDbWifiOnly,
             offlineDbCloudSync: firestoreSettings.offlineDbCloudSync,
+          );
+        } else if (resolved.offlineDbTier == localSettings.offlineDbTier &&
+            resolved.offlineDbLastSyncedAt == null &&
+            localSettings.offlineDbLastSyncedAt != null) {
+          // Stesso tier già presente sul dispositivo: riutilizziamo il timestamp locale
+          // per evitare un riscaricamento completo superfluo.
+          resolved = resolved.copyWith(
+            offlineDbLastSyncedAt: localSettings.offlineDbLastSyncedAt,
           );
         }
         resolvedSettings = resolved;

@@ -2239,6 +2239,104 @@ void main() {
     );
 
     test(
+      'wipeCurrentUserLocalData preserves device offline DB settings and file on logout',
+      () async {
+        OfflineDbService.mockIsDatabaseInstalled = true;
+        await OfflineDbService.setInstalledTier(OfflineDbTier.glutenFree);
+
+        when(() => mockAuth.currentUser).thenReturn(mockUser);
+        when(() => mockUser.isAnonymous).thenReturn(false);
+        when(() => mockUser.uid).thenReturn('user_with_offline_db');
+
+        await DbService.saveLocalSettings(
+          UserSettings(
+            userId: 'user_with_offline_db',
+            strictMode: true,
+            alertLactose: true,
+            warnAdditives: false,
+            autoSaveHistory: false,
+            reportedBarcodes: const ['123456'],
+            preferredTheme: 'dark',
+            preferredLanguage: 'en',
+            offlineDbTier: OfflineDbTier.glutenFree,
+            offlineDbLastSyncedAt: 1770000000,
+            offlineDbAutoSync: false,
+            offlineDbWifiOnly: true,
+            offlineDbCloudSync: true,
+          ),
+        );
+
+        await DbService.wipeCurrentUserLocalData();
+
+        final preserved = await DbService.getLocalSettings();
+        expect(preserved.userId, isNull);
+        expect(preserved.reportedBarcodes, isEmpty);
+        expect(preserved.offlineDbCloudSync, isFalse);
+        expect(preserved.offlineDbTier, OfflineDbTier.glutenFree);
+        expect(preserved.offlineDbLastSyncedAt, 1770000000);
+        expect(preserved.offlineDbAutoSync, isFalse);
+        expect(preserved.offlineDbWifiOnly, isTrue);
+        expect(await OfflineDbService.isDatabaseInstalled(), isTrue);
+      },
+    );
+
+    test(
+      'syncSettingsWithFirestore preserves device offline DB when different user has offlineDbCloudSync false',
+      () async {
+        OfflineDbService.mockIsDatabaseInstalled = true;
+        await OfflineDbService.setInstalledTier(OfflineDbTier.euroCore);
+
+        when(() => mockAuth.currentUser).thenReturn(mockUser);
+        when(() => mockUser.isAnonymous).thenReturn(false);
+        when(() => mockUser.uid).thenReturn('user_b');
+
+        when(() => mockUsersCol.doc('user_b')).thenReturn(mockDocRef);
+        when(() => mockDocRef.get()).thenAnswer((_) async => mockDocSnap);
+        when(() => mockDocSnap.exists).thenReturn(true);
+
+        final remoteUserB = UserSettings(
+          userId: 'user_b',
+          strictMode: false,
+          alertLactose: true,
+          warnAdditives: true,
+          autoSaveHistory: true,
+          preferredLanguage: 'it',
+          offlineDbTier: OfflineDbTier.none,
+          offlineDbCloudSync: false,
+          updatedAt: 500,
+        );
+        when(() => mockDocSnap.data()).thenReturn(remoteUserB.toJson());
+
+        final deviceSettingsFromUserA = UserSettings(
+          userId: 'user_a',
+          strictMode: true,
+          alertLactose: false,
+          warnAdditives: true,
+          autoSaveHistory: true,
+          preferredLanguage: 'it',
+          offlineDbTier: OfflineDbTier.euroCore,
+          offlineDbLastSyncedAt: 1770000000,
+          offlineDbAutoSync: true,
+          offlineDbWifiOnly: false,
+          offlineDbCloudSync: false,
+          updatedAt: 1000,
+        );
+
+        final merged = await DbService.syncSettingsWithFirestore(
+          deviceSettingsFromUserA,
+        );
+
+        expect(merged.userId, 'user_b');
+        expect(merged.strictMode, isFalse);
+        expect(merged.alertLactose, isTrue);
+        expect(merged.offlineDbCloudSync, isFalse);
+        expect(merged.offlineDbTier, OfflineDbTier.euroCore);
+        expect(merged.offlineDbLastSyncedAt, 1770000000);
+        expect(await OfflineDbService.isDatabaseInstalled(), isTrue);
+      },
+    );
+
+    test(
       'handles Firestore exceptions in deltaSync, getProductByBarcode, and sync methods without crashing',
       () async {
         when(() => mockAuth.currentUser).thenReturn(mockUser);

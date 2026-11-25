@@ -423,7 +423,24 @@ class AccountDataService {
         await _reportDao.wipeReports(targetUid);
         await prefs.remove('celiac_history_$targetUid');
         await prefs.remove('celiac_reports_$targetUid');
-        await prefs.remove(SettingsDbService.settingsKey);
+
+        // Preserva sul dispositivo la configurazione del database offline locale
+        // (catalogo pubblico, non dato personale), azzerando solo le impostazioni personali/account.
+        final currentSettings = await SettingsDbService.getLocalSettings();
+        if (currentSettings.offlineDbTier != OfflineDbTier.none) {
+          await SettingsDbService.saveLocalSettings(
+            UserSettings.fromJson({}).copyWith(
+              offlineDbTier: currentSettings.offlineDbTier,
+              offlineDbLastSyncedAt: currentSettings.offlineDbLastSyncedAt,
+              offlineDbAutoSync: currentSettings.offlineDbAutoSync,
+              offlineDbWifiOnly: currentSettings.offlineDbWifiOnly,
+              offlineDbCloudSync: false,
+            ),
+          );
+        } else {
+          await prefs.remove(SettingsDbService.settingsKey);
+        }
+
         await prefs.remove(HistoryDbService.getPendingHistoryKey(targetUid));
         await prefs.remove(ReportsDbService.getPendingReportsKey(targetUid));
         await prefs.remove(ReportsDbService.getPendingVotesKey(targetUid));
