@@ -31,6 +31,7 @@ class ProductDetailCard extends StatefulWidget {
   final bool useResponsiveWrapper;
   final bool showReportLink;
   final bool showScanDate;
+  final bool showReportAction;
   final String? scannedAt;
   final void Function(Product product)? onViewReport;
   final bool isStaleData;
@@ -56,6 +57,7 @@ class ProductDetailCard extends StatefulWidget {
     this.useResponsiveWrapper = true,
     this.showReportLink = true,
     this.showScanDate = true,
+    this.showReportAction = true,
     this.scannedAt,
     this.onViewReport,
     this.isStaleData = false,
@@ -85,7 +87,8 @@ class _ProductDetailCardState extends State<ProductDetailCard> {
 
   String? get _effectiveUserReportId {
     if (_hasDeletedReport) return null;
-    if (widget.reportIdNotifier != null && widget.reportIdNotifier!.value != null) {
+    if (widget.reportIdNotifier != null &&
+        widget.reportIdNotifier!.value != null) {
       return widget.reportIdNotifier!.value;
     }
     return widget.userReportId ?? _remoteActiveReport?.id;
@@ -440,10 +443,7 @@ class _ProductDetailCardState extends State<ProductDetailCard> {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [
-                      heroBgColor,
-                      scaffoldBgColor,
-                    ],
+                    colors: [heroBgColor, scaffoldBgColor],
                   ),
                 ),
                 padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 16.0),
@@ -462,132 +462,141 @@ class _ProductDetailCardState extends State<ProductDetailCard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // ── Avviso Copia Offline / Prodotto Non Trovato Offline ─────
+                    // Viene mostrato come prima cosa in assoluto subito sotto l'header stato globale.
+                    if (currentProduct.isOfflineNotFound && !showSkeleton) ...[
+                      OfflineNotFoundWarningCard(
+                        tier: widget.userSettings.offlineDbTier,
+                      ),
+                      const SizedBox(height: 24),
+                    ] else if (_isEffectiveOfflineDb && !showSkeleton) ...[
+                      OfflineDatabaseWarningCard(
+                        isDbStale: widget.userSettings.isOfflineDbStale,
+                      ),
+                      const SizedBox(height: 24),
+                    ],
 
-              // ── Avviso Copia Offline / Prodotto Non Trovato Offline ─────
-              // Viene mostrato come prima cosa in assoluto subito sotto l'header stato globale.
-              if (currentProduct.isOfflineNotFound && !showSkeleton) ...[
-                OfflineNotFoundWarningCard(
-                  tier: widget.userSettings.offlineDbTier,
-                ),
-                const SizedBox(height: 24),
-              ] else if (_isEffectiveOfflineDb && !showSkeleton) ...[
-                OfflineDatabaseWarningCard(
-                  isDbStale: widget.userSettings.isOfflineDbStale,
-                ),
-                const SizedBox(height: 24),
-              ],
+                    // ── Avviso Dati Cache Stale / Non Verificati Online ───────────
+                    // Si mostra SOLO per prodotti della cache online (SharedPreferences) che sono scaduti (>30gg).
+                    // Non deve mai sovrapporsi alla OfflineDatabaseWarningCard.
+                    if (_isEffectiveStaleData &&
+                        !_isEffectiveOfflineDb &&
+                        !showSkeleton) ...[
+                      const StaleDataWarningCard(),
+                      const SizedBox(height: 24),
+                    ],
 
-              // ── Avviso Dati Cache Stale / Non Verificati Online ───────────
-              // Si mostra SOLO per prodotti della cache online (SharedPreferences) che sono scaduti (>30gg).
-              // Non deve mai sovrapporsi alla OfflineDatabaseWarningCard.
-              if (_isEffectiveStaleData && !_isEffectiveOfflineDb && !showSkeleton) ...[
-                const StaleDataWarningCard(),
-                const SizedBox(height: 24),
-              ],
+                    // ── Valutazione Glutine ───────────────────────────────────
+                    Builder(
+                      builder: (context) {
+                        final bool hasActiveReport =
+                            widget.showReportLink &&
+                            widget.onViewReport != null &&
+                            isReported;
 
-              // ── Valutazione Glutine ───────────────────────────────────
-              Builder(
-                builder: (context) {
-                  final bool hasActiveReport =
-                      widget.showReportLink &&
-                      widget.onViewReport != null &&
-                      isReported;
+                        // On-the-fly: calcola lo stato originale ignorando report
+                        String displayedReasonWithOldStatus = displayedReason;
+                        if (hasActiveReport) {
+                          final origAnalysisCopy =
+                              AnalyzerService.analyzeGlutenSafety(
+                                name: productName,
+                                brand: productBrand,
+                                ingredients: displayedIngredients,
+                                allergensList: displayedAllergens,
+                                reportCount: 0,
+                                categoriesTags: currentProduct.categoriesTags,
+                                offTags: currentProduct.toOffTags(),
+                                strictMode: widget.userSettings.strictMode,
+                                warnAdditives:
+                                    widget.userSettings.warnAdditives,
+                                alertLactose: widget.userSettings.alertLactose,
+                                preferredLanguage: currentLang,
+                                ignoreReports: true,
+                              );
+                          final String oldStatusTranslated =
+                              _translateGlutenStatus(origAnalysisCopy.status);
+                          String cleanReason = displayedReason.trim();
+                          if (cleanReason.endsWith('.')) {
+                            cleanReason = cleanReason.substring(
+                              0,
+                              cleanReason.length - 1,
+                            );
+                          }
+                          if (origAnalysisCopy.status != effectiveStatus) {
+                            final String prevStatusText =
+                                "product.glutenEvaluation.previousStatus".tr(
+                                  namedArgs: {"status": oldStatusTranslated},
+                                );
+                            displayedReasonWithOldStatus =
+                                "$cleanReason. $prevStatusText";
+                          } else if (origAnalysisCopy.status ==
+                              GlutenSafetyStatus.incerto) {
+                            final String prevStatusText =
+                                "product.glutenEvaluation.previousStatusAlready"
+                                    .tr(
+                                      namedArgs: {
+                                        "status": oldStatusTranslated,
+                                      },
+                                    );
+                            displayedReasonWithOldStatus =
+                                "$cleanReason. $prevStatusText";
+                          }
+                        }
 
-                  // On-the-fly: calcola lo stato originale ignorando report
-                  String displayedReasonWithOldStatus = displayedReason;
-                  if (hasActiveReport) {
-                    final origAnalysisCopy =
-                        AnalyzerService.analyzeGlutenSafety(
-                          name: productName,
-                          brand: productBrand,
-                          ingredients: displayedIngredients,
-                          allergensList: displayedAllergens,
-                          reportCount: 0,
-                          categoriesTags: currentProduct.categoriesTags,
-                          offTags: currentProduct.toOffTags(),
-                          strictMode: widget.userSettings.strictMode,
-                          warnAdditives: widget.userSettings.warnAdditives,
-                          alertLactose: widget.userSettings.alertLactose,
-                          preferredLanguage: currentLang,
-                          ignoreReports: true,
+                        return GlutenEvaluationCard(
+                          displayedReason: displayedReasonWithOldStatus,
+                          hasActiveReport: hasActiveReport,
+                          onViewReport: () =>
+                              widget.onViewReport!(currentProduct),
                         );
-                    final String oldStatusTranslated = _translateGlutenStatus(
-                      origAnalysisCopy.status,
-                    );
-                    String cleanReason = displayedReason.trim();
-                    if (cleanReason.endsWith('.')) {
-                      cleanReason = cleanReason.substring(
-                        0,
-                        cleanReason.length - 1,
-                      );
-                    }
-                    if (origAnalysisCopy.status != effectiveStatus) {
-                      final String prevStatusText =
-                          "product.glutenEvaluation.previousStatus".tr(
-                            namedArgs: {"status": oldStatusTranslated},
-                          );
-                      displayedReasonWithOldStatus =
-                          "$cleanReason. $prevStatusText";
-                    } else if (origAnalysisCopy.status ==
-                        GlutenSafetyStatus.incerto) {
-                      final String prevStatusText =
-                          "product.glutenEvaluation.previousStatusAlready".tr(
-                            namedArgs: {"status": oldStatusTranslated},
-                          );
-                      displayedReasonWithOldStatus =
-                          "$cleanReason. $prevStatusText";
-                    }
-                  }
+                      },
+                    ),
+                    const SizedBox(height: 24),
 
-                  return GlutenEvaluationCard(
-                    displayedReason: displayedReasonWithOldStatus,
-                    hasActiveReport: hasActiveReport,
-                    onViewReport: () => widget.onViewReport!(currentProduct),
-                  );
-                },
+                    // ── Avviso Lattosio (se presente) ─────────────────────────
+                    if (showLactoseWarning) ...[
+                      const LactoseAlertSection(),
+                      const SizedBox(height: 24),
+                    ],
+
+                    // ── Allergeni Dichiarati ──────────────────────────────────
+                    AllergenTagsSection(
+                      hasAllergenData: hasAllergenData,
+                      displayedAllergens: displayedAllergens,
+                    ),
+                    const SizedBox(height: 24),
+
+                    // ── Analisi Ingredienti ───────────────────────────────────
+                    IngredientsAnalysisView(
+                      displayedIngredients: displayedIngredients,
+                      displayedIngredientsAnalyzed:
+                          displayedIngredientsAnalyzed,
+                    ),
+                    const SizedBox(height: 24),
+
+                    // ── Blocco Info / Avvertenze Generali ─────────────────────
+                    const ProductWarningCard(),
+
+                    if (widget.showReportAction) ...[
+                      const SizedBox(height: 24),
+
+                      // ── Pulsante Segnalazione ──────────────────────────
+                      ReportActionButton(
+                        hasUserReported: isReported,
+                        pendingReportsCount: isReported ? 1 : 0,
+                        onReportPressed: () => _showReportBottomSheet(context),
+                      ),
+                    ],
+
+                    const SizedBox(height: 40),
+                  ],
+                ),
               ),
-              const SizedBox(height: 24),
-
-              // ── Avviso Lattosio (se presente) ─────────────────────────
-              if (showLactoseWarning) ...[
-                const LactoseAlertSection(),
-                const SizedBox(height: 24),
-              ],
-
-              // ── Allergeni Dichiarati ──────────────────────────────────
-              AllergenTagsSection(
-                hasAllergenData: hasAllergenData,
-                displayedAllergens: displayedAllergens,
-              ),
-              const SizedBox(height: 24),
-
-              // ── Analisi Ingredienti ───────────────────────────────────
-              IngredientsAnalysisView(
-                displayedIngredients: displayedIngredients,
-                displayedIngredientsAnalyzed: displayedIngredientsAnalyzed,
-              ),
-              const SizedBox(height: 24),
-
-              // ── Blocco Info / Avvertenze Generali ─────────────────────
-              const ProductWarningCard(),
-              const SizedBox(height: 24),
-
-              // ── Pulsante Segnalazione ──────────────────────────
-              ReportActionButton(
-                hasUserReported: isReported,
-                pendingReportsCount: isReported ? 1 : 0,
-                onReportPressed: () => _showReportBottomSheet(context),
-              ),
-
-              const SizedBox(height: 40),
             ],
           ),
         ),
-      ],
-    ),
-  ),
-),
-);
+      ),
+    );
 
     if (widget.useResponsiveWrapper) {
       return ResponsiveMaxCardWidth(child: scaffold);

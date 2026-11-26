@@ -1300,7 +1300,7 @@ void main() {
       );
 
       expect(find.text('report.detail.viewProductCard'), findsOneWidget);
-      expect(find.byIcon(Icons.storefront_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.shopping_cart_outlined), findsOneWidget);
     });
 
     testWidgets('hides product card link when showProductLink=false', (

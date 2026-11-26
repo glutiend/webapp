@@ -380,6 +380,7 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
                                     ),
                                 showReportLink: false,
                                 showScanDate: false,
+                                showReportAction: false,
                                 hasReportedThisSession: widget.isOwnReport,
                                 userReportId: widget.reportId,
                                 onDeleteReport: widget.onDeleteReport,
@@ -548,14 +549,9 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
                             height: 1.45,
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        Divider(
-                          height: 1,
-                          thickness: 1,
-                          color: colorScheme.onSurface.withValues(alpha: 0.08),
-                        ),
-                        const SizedBox(height: 14),
+                        const SizedBox(height: 18),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               "report.detail.statusChangeLabel".tr(),
@@ -565,28 +561,35 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
                                 color: colorScheme.onSurfaceVariant,
                               ),
                             ),
-                            const Spacer(),
+                            const SizedBox(width: 8),
                             Flexible(
-                              child: Wrap(
-                                crossAxisAlignment: WrapCrossAlignment.center,
-                                spacing: 8,
-                                runSpacing: 6,
-                                children: [
-                                  AppStatusPill.fromStatus(
-                                    widget.originalStatus,
-                                    isCompact: true,
-                                    textOnly: true,
-                                  ),
-                                  Icon(
-                                    Icons.arrow_forward,
-                                    size: 14,
-                                    color: colorScheme.onSurfaceVariant,
-                                  ),
-                                  AppStatusPill.fromStatus(
-                                    GlutenSafetyStatus.incerto,
-                                    isCompact: true,
-                                  ),
-                                ],
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerRight,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    AppStatusPill.fromStatus(
+                                      widget.originalStatus,
+                                      isCompact: true,
+                                      textOnly: true,
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                      ),
+                                      child: Icon(
+                                        Icons.arrow_forward,
+                                        size: 14,
+                                        color: colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                    AppStatusPill.fromStatus(
+                                      GlutenSafetyStatus.incerto,
+                                      isCompact: true,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ],
@@ -594,7 +597,7 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 40),
 
                   // ── Sistema di Voto (YouTube Style) ────────────────────────
                   ReportVotingSection(
