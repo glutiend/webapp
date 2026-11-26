@@ -426,6 +426,15 @@ class AllergenCanonicalizer {
     });
   }
 
+  static const Set<String> _emptyAllergenPlaceholders = {
+    'none',
+    'nessuno',
+    'aucun',
+    'ninguno',
+    'keine',
+    'geen',
+  };
+
   static List<String> translateAllergens(
     List<String> allergensList,
     String preferredLanguage,
@@ -446,7 +455,10 @@ class AllergenCanonicalizer {
           String clean = a.trim().toLowerCase();
           // Rimuove prefissi lingua OFF (es. "en:milk" -> "milk")
           if (clean.contains(':')) {
-            clean = clean.split(':').last;
+            clean = clean.split(':').last.trim();
+          }
+          if (_emptyAllergenPlaceholders.contains(clean)) {
+            return '';
           }
           final canonical = allergenCanonical[clean];
           if (canonical != null) {

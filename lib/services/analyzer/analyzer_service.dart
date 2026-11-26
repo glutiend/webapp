@@ -644,13 +644,11 @@ class AnalyzerService {
       });
     }
 
-    if ((status == GlutenSafetyStatus.nonAdatto ||
-            (!hasGlutenFreeBollino && hasGlutenFreeTextClaim && hasDanger)) &&
+    if (hasDanger &&
         !finalAllergens.any((a) {
           final lower = a.toLowerCase();
           return lower == 'glutine' || lower == 'gluten';
-        }) &&
-        !strictMode) {
+        })) {
       final glutenLabel =
           AllergenCanonicalizer.allergenDisplayNames['gluten']?[targetLang] ??
           AllergenCanonicalizer.allergenDisplayNames['gluten']?['it'] ??

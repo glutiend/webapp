@@ -1953,6 +1953,26 @@ void main() {
       );
     });
 
+    test('injects Glutine in finalAllergens when hasDanger=true even if strictMode=true and OFF allergens_tags is empty', () {
+      final res = AnalyzerService.analyzeGlutenSafety(
+        name: 'Biscotti al frumento',
+        brand: 'Brand',
+        ingredients: 'Farina di frumento, zucchero, olio di girasole',
+        allergensList: [],
+        reportCount: 0,
+        categoriesTags: [],
+        strictMode: true,
+      );
+
+      expect(res.status, GlutenSafetyStatus.nonAdatto);
+      expect(res.allergens, contains('Glutine'));
+    });
+
+    test('filters out en:none placeholder from translated allergens', () {
+      final res = AnalyzerService.translateAllergens(['en:none', 'en:milk'], 'it');
+      expect(res, ['Latte']);
+    });
+
     test('discrepancy with real traces and strictMode=true uses contaminationBlocked, never traceWarningReason', () {
       final res = AnalyzerService.analyzeGlutenSafety(
         name: 'Biscotti',
