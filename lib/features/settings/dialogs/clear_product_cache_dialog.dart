@@ -21,12 +21,12 @@ Future<bool?> showClearProductCacheDialog(BuildContext context) {
           width: 56,
           height: 56,
           decoration: BoxDecoration(
-            color: colorScheme.iconCircleErrorBg,
+            color: colorScheme.iconCirclePrimaryBg,
             shape: BoxShape.circle,
           ),
           child: Icon(
             Icons.inventory_2_outlined,
-            color: colorScheme.error,
+            color: colorScheme.primary,
             size: 28,
           ),
         ),
@@ -54,15 +54,15 @@ Future<bool?> showClearProductCacheDialog(BuildContext context) {
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Azione Distruttiva: Cancella cache prodotti
-            AppPrimaryDestructiveButton(
+            // Azione Primaria: Svuota cache prodotti (non distruttiva per la cronologia)
+            AppPrimaryButton(
               onPressed: () => Navigator.pop(ctx, true),
               label: "settings.dataAndHistory.clearProductsAction".tr(),
             ),
             const SizedBox(height: 10),
 
-            // Azione Secondaria Annulla (Outlined Rosso per dialog distruttivo)
-            AppTertiaryDestructiveButton(
+            // Azione Secondaria: Annulla
+            AppTertiaryButton(
               onPressed: () => Navigator.pop(ctx, false),
               label: "common.actions.cancel".tr(),
             ),

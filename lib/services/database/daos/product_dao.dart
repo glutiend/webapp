@@ -104,6 +104,15 @@ class ProductDao {
     return await db.delete(tableName);
   }
 
+  /// Elimina solo i prodotti in cache non referenziati dalla cronologia scansioni.
+  Future<int> deleteNonHistoryProducts() async {
+    final db = await _db;
+    return await db.delete(
+      tableName,
+      where: 'barcode NOT IN (SELECT DISTINCT barcode FROM scan_history)',
+    );
+  }
+
   /// Restituisce il conteggio totale dei prodotti in cache.
   Future<int> getProductsCount() async {
     final db = await _db;
@@ -113,11 +122,42 @@ class ProductDao {
     return count ?? 0;
   }
 
+  /// Restituisce il conteggio dei prodotti in cache non presenti in cronologia.
+  Future<int> getNonHistoryProductsCount() async {
+    final db = await _db;
+    final count = Sqflite.firstIntValue(
+      await db.rawQuery(
+        'SELECT COUNT(*) FROM $tableName WHERE barcode NOT IN (SELECT DISTINCT barcode FROM scan_history)',
+      ),
+    );
+    return count ?? 0;
+  }
+
   /// Restituisce la stima dei byte occupati dai prodotti in cache locale.
   Future<int> getProductsSizeBytes() async {
     final db = await _db;
     final result = await db.rawQuery(
       'SELECT CAST(TOTAL(LENGTH(data_json) + LENGTH(barcode)) AS INT) as total_size FROM $tableName',
+    );
+    if (result.isEmpty) return 0;
+    return (result.first['total_size'] as num?)?.toInt() ?? 0;
+  }
+
+  /// Restituisce i byte occupati dai prodotti in cache non presenti in cronologia.
+  Future<int> getNonHistoryProductsSizeBytes() async {
+    final db = await _db;
+    final result = await db.rawQuery(
+      'SELECT CAST(TOTAL(LENGTH(data_json) + LENGTH(barcode)) AS INT) as total_size FROM $tableName WHERE barcode NOT IN (SELECT DISTINCT barcode FROM scan_history)',
+    );
+    if (result.isEmpty) return 0;
+    return (result.first['total_size'] as num?)?.toInt() ?? 0;
+  }
+
+  /// Restituisce i byte occupati dai prodotti collegati alla cronologia.
+  Future<int> getHistoryProductsSizeBytes() async {
+    final db = await _db;
+    final result = await db.rawQuery(
+      'SELECT CAST(TOTAL(LENGTH(data_json) + LENGTH(barcode)) AS INT) as total_size FROM $tableName WHERE barcode IN (SELECT DISTINCT barcode FROM scan_history)',
     );
     if (result.isEmpty) return 0;
     return (result.first['total_size'] as num?)?.toInt() ?? 0;

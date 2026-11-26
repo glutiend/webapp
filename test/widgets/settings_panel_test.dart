@@ -13,6 +13,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:glutiend/models/models.dart';
 import 'package:glutiend/services/db_service.dart';
+import 'package:glutiend/core/widgets/app_buttons.dart';
 import 'package:glutiend/features/settings/settings_panel.dart';
 import 'package:glutiend/features/licenses/licenses_screen.dart';
 import '../mocks/shared_mocks.dart';
@@ -1002,6 +1003,41 @@ void main() {
       expect(find.text('settings.account.signOutConfirmBody'), findsOneWidget);
       expect(find.text('common.actions.cancel'), findsOneWidget);
       expect(find.text('common.actions.signOut'), findsOneWidget);
+
+      final dialog = find.byType(AlertDialog);
+      final colorScheme = Theme.of(tester.element(dialog)).colorScheme;
+      expect(
+        tester.widget<Icon>(find.byIcon(Icons.logout_rounded)).color,
+        colorScheme.primary,
+      );
+      expect(
+        find.descendant(
+          of: dialog,
+          matching: find.byType(AppPrimaryButton),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: dialog,
+          matching: find.byType(AppTertiaryButton),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: dialog,
+          matching: find.byType(AppPrimaryDestructiveButton),
+        ),
+        findsNothing,
+      );
+      expect(
+        find.descendant(
+          of: dialog,
+          matching: find.byType(AppTertiaryDestructiveButton),
+        ),
+        findsNothing,
+      );
     });
 
     testWidgets('cancelling logout dialog does NOT call auth.signOut', (

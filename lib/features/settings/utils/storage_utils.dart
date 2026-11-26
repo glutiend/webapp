@@ -25,10 +25,14 @@ class StorageMetrics {
 /// Recupera in modo leggero e asincrono le metriche di storage attuali da SQLite.
 Future<StorageMetrics> fetchStorageMetrics(String? userId) async {
   try {
-    final cCount = await LocalCacheService.getProductsCount();
-    final cSize = await LocalCacheService.getProductsSizeBytes();
+    final cCount = await LocalCacheService.getNonHistoryProductsCount();
+    final cSize = await LocalCacheService.getNonHistoryProductsSizeBytes();
+    final hProductsSize =
+        await LocalCacheService.getHistoryProductsSizeBytes();
     final hCount = await const ScanHistoryDao().getHistoryCount(userId);
-    final hSize = await const ScanHistoryDao().getHistorySizeBytes(userId);
+    final hSize =
+        await const ScanHistoryDao().getHistorySizeBytes(userId) +
+        hProductsSize;
     return StorageMetrics(
       historyCount: hCount,
       historySizeBytes: hSize,

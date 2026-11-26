@@ -172,6 +172,31 @@ void main() {
       expect(await DbService.getLocalProducts(), isEmpty);
       expect(await DbService.getLastSyncTime(), isNotNull);
     });
+
+    test('clearProductCache preserves products referenced in scan_history', () async {
+      final p1 = createSampleProduct(barcode: '111', name: 'In Cronologia');
+      final p2 = createSampleProduct(barcode: '222', name: 'Solo Cache');
+      await DbService.saveLocalProducts([p1, p2]);
+      await DbService.scanBarcodeClientSide(
+        '111',
+        UserSettings(
+          strictMode: true,
+          alertLactose: false,
+          warnAdditives: true,
+          autoSaveHistory: true,
+          preferredLanguage: 'it',
+          preferredTheme: 'system',
+        ),
+      );
+
+      expect(await LocalCacheService.getNonHistoryProductsCount(), 1);
+      await DbService.clearProductCache();
+
+      final remaining = await DbService.getLocalProducts();
+      expect(remaining.length, 1);
+      expect(remaining.first.barcode, '111');
+      expect(await LocalCacheService.getNonHistoryProductsCount(), 0);
+    });
   });
 
   // ═══════════════════════════════════════════════════════════════════════════

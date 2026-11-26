@@ -73,11 +73,11 @@ class LocalCacheService {
     }
   }
 
-  /// Svuota completamente la cache locale dei prodotti e imposta il timestamp di sync ad adesso
+  /// Svuota la cache locale dei prodotti non presenti in cronologia e imposta il timestamp di sync ad adesso
   /// per evitare che il delta sync riscarichi forzatamente lo snapshot iniziale di 100 prodotti.
   static Future<void> clearProductCache() async {
     try {
-      await _productDao.deleteAllProducts();
+      await _productDao.deleteNonHistoryProducts();
       await _syncMetadataDao.clearAll();
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(productsKey);
@@ -97,12 +97,42 @@ class LocalCacheService {
     }
   }
 
+  /// Restituisce il numero di prodotti in cache non presenti in cronologia.
+  static Future<int> getNonHistoryProductsCount() async {
+    try {
+      return await _productDao.getNonHistoryProductsCount();
+    } catch (e) {
+      debugPrint("Error getting non-history products count: $e");
+      return 0;
+    }
+  }
+
   /// Restituisce la stima dei byte occupati dai prodotti in cache locale.
   static Future<int> getProductsSizeBytes() async {
     try {
       return await _productDao.getProductsSizeBytes();
     } catch (e) {
       debugPrint("Error getting products size bytes: $e");
+      return 0;
+    }
+  }
+
+  /// Restituisce i byte occupati dai prodotti in cache non presenti in cronologia.
+  static Future<int> getNonHistoryProductsSizeBytes() async {
+    try {
+      return await _productDao.getNonHistoryProductsSizeBytes();
+    } catch (e) {
+      debugPrint("Error getting non-history products size bytes: $e");
+      return 0;
+    }
+  }
+
+  /// Restituisce i byte occupati dai prodotti collegati alla cronologia.
+  static Future<int> getHistoryProductsSizeBytes() async {
+    try {
+      return await _productDao.getHistoryProductsSizeBytes();
+    } catch (e) {
+      debugPrint("Error getting history products size bytes: $e");
       return 0;
     }
   }

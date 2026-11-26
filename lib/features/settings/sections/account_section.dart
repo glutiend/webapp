@@ -224,12 +224,12 @@ class AccountSection extends StatelessWidget {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: colorScheme.iconCircleErrorBg,
+              color: colorScheme.iconCirclePrimaryBg,
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.logout_rounded,
-              color: colorScheme.error,
+              color: colorScheme.primary,
               size: 28,
             ),
           ),
@@ -258,14 +258,14 @@ class AccountSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Azione 1: Esci dall'account
-              AppPrimaryDestructiveButton(
+              AppPrimaryButton(
                 onPressed: () => Navigator.pop(ctx, true),
                 label: "common.actions.signOut".tr(),
               ),
               const SizedBox(height: 10),
 
-              // Azione 2: Annulla (Outlined Rosso per dialog distruttivo)
-              AppTertiaryDestructiveButton(
+              // Azione 2: Annulla
+              AppTertiaryButton(
                 onPressed: () => Navigator.pop(ctx, false),
                 label: "common.actions.cancel".tr(),
               ),

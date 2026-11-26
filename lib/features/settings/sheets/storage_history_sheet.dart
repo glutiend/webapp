@@ -200,7 +200,9 @@ void showStorageHistorySheet({
                                 ),
                                 const SizedBox(height: 18),
                                 AppTertiaryButton(
-                                  onPressed: onClearProductCache == null
+                                  onPressed:
+                                      (onClearProductCache == null ||
+                                          currentCacheCount == 0)
                                       ? null
                                       : () async {
                                           final confirm =
@@ -209,10 +211,27 @@ void showStorageHistorySheet({
                                               );
                                           if (confirm == true) {
                                             await onClearProductCache();
-                                            setModalState(() {
-                                              currentCacheCount = 0;
-                                              currentCacheBytes = 0;
-                                            });
+                                            if (onLoadMetrics != null) {
+                                              final metrics =
+                                                  await onLoadMetrics();
+                                              if (sheetContext.mounted) {
+                                                setModalState(() {
+                                                  currentHistoryCount =
+                                                      metrics.historyCount;
+                                                  currentCacheCount =
+                                                      metrics.cacheCount;
+                                                  currentHistoryBytes =
+                                                      metrics.historySizeBytes;
+                                                  currentCacheBytes =
+                                                      metrics.cacheSizeBytes;
+                                                });
+                                              }
+                                            } else if (sheetContext.mounted) {
+                                              setModalState(() {
+                                                currentCacheCount = 0;
+                                                currentCacheBytes = 0;
+                                              });
+                                            }
                                             onStorageUpdated?.call();
                                           }
                                         },
@@ -299,10 +318,26 @@ void showStorageHistorySheet({
                                         );
                                     if (confirm == true) {
                                       await onClearHistory();
-                                      setModalState(() {
-                                        currentHistoryCount = 0;
-                                        currentHistoryBytes = 0;
-                                      });
+                                      if (onLoadMetrics != null) {
+                                        final metrics = await onLoadMetrics();
+                                        if (sheetContext.mounted) {
+                                          setModalState(() {
+                                            currentHistoryCount =
+                                                metrics.historyCount;
+                                            currentCacheCount =
+                                                metrics.cacheCount;
+                                            currentHistoryBytes =
+                                                metrics.historySizeBytes;
+                                            currentCacheBytes =
+                                                metrics.cacheSizeBytes;
+                                          });
+                                        }
+                                      } else if (sheetContext.mounted) {
+                                        setModalState(() {
+                                          currentHistoryCount = 0;
+                                          currentHistoryBytes = 0;
+                                        });
+                                      }
                                       onStorageUpdated?.call();
                                     }
                                   },
