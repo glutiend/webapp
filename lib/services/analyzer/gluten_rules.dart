@@ -412,19 +412,23 @@ class GlutenRules {
     'hafer',
   };
 
-  /// Verifica se [text] contiene [keyword] rispettando i confini di parola Unicode,
+  /// Costruisce la regex per [keyword] rispettando i confini di parola Unicode,
   /// fatta eccezione per le radici di lingue agglutinanti (tedesco/olandese).
-  static bool containsKeyword(String text, String keyword) {
+  static RegExp keywordRegex(String keyword) {
     final isAgglutinative = agglutinativeRoots.contains(keyword.toLowerCase());
-    final regex = isAgglutinative
+    return isAgglutinative
         ? RegExp(RegExp.escape(keyword), caseSensitive: false)
         : RegExp(
             r'(?<!\p{L})' + RegExp.escape(keyword) + r'(?!\p{L})',
             caseSensitive: false,
             unicode: true,
           );
-    return regex.hasMatch(text);
   }
+
+  /// Verifica se [text] contiene [keyword] rispettando i confini di parola Unicode,
+  /// fatta eccezione per le radici di lingue agglutinanti (tedesco/olandese).
+  static bool containsKeyword(String text, String keyword) =>
+      keywordRegex(keyword).hasMatch(text);
 
   static const List<String> naturallySafeCategories = [
     'en:waters',
@@ -471,42 +475,76 @@ class GlutenRules {
     return input.replaceAllMapped(_traceColonRegex, (m) => '${m[1]} ');
   }
 
+  static const List<String> safePhrases = [
+    "amido di frumento deglutinato",
+    "amido di grano deglutinato",
+    "deglutinated wheat starch",
+    "wheat starch deglutinated",
+    "amidon de blé déglutiné",
+    "almidón de trigo deglutenizado",
+    "glutenfreie weizenstärke",
+    "grano saraceno",
+    "grano-saraceno",
+    "blé noir",
+    "ble noir",
+    "blé-noir",
+    "senza glutine",
+    "senza-glutine",
+    "privo di glutine",
+    "gluten free",
+    "gluten-free",
+    "sans gluten",
+    "sin gluten",
+    "libre de gluten",
+    "spiga barrata",
+    "spiga sbarrata",
+    "adatto ai celiaci",
+    "zero glutine",
+    "deglutinato",
+    "deglutinata",
+    "deglutinati",
+    "deglutinate",
+    "degliutinato",
+    "deglutenized",
+    "deglutenised",
+  ];
+
+  static const List<String> lactoseSafePhrases = [
+    "senza lattosio",
+    "privo di lattosio",
+    "lactose free",
+    "lactose-free",
+    "sans lactose",
+    "sin lactosa",
+    "delattosato",
+    "senza latte",
+  ];
+
+  /// Restituisce gli intervalli `[start, end)` in [rawText] appartenenti a frasi
+  /// sicure multilingua (es. "senza glutine", "gluten-free", "amido di frumento deglutinato",
+  /// "grano saraceno", "blé noir") per evitare falsi highlight in UI.
+  static List<({int start, int end})> findProtectedHighlightRanges(
+    String rawText, {
+    bool isLactose = false,
+  }) {
+    final ranges = <({int start, int end})>[];
+    final phrases = isLactose
+        ? lactoseSafePhrases
+        : <String>{...safePhrases, ...safeTextKeywords}.toList();
+
+    for (final phrase in phrases) {
+      if (phrase.isEmpty) continue;
+      final regex = RegExp(RegExp.escape(phrase), caseSensitive: false);
+      for (final match in regex.allMatches(rawText)) {
+        ranges.add((start: match.start, end: match.end));
+      }
+    }
+    return ranges;
+  }
+
   // Nasconde le frasi sicure per non far scattare l'allarme sulla parola "glutine"
   static String sanitizeForGluten(String input) {
     String text = normalizeTraceColons(normalizeOcrText(input).toLowerCase());
-    final safePhrases = [
-      "amido di frumento deglutinato",
-      "amido di grano deglutinato",
-      "deglutinated wheat starch",
-      "wheat starch deglutinated",
-      "amidon de blé déglutiné",
-      "almidón de trigo deglutenizado",
-      "glutenfreie weizenstärke",
-      "grano saraceno",
-      "grano-saraceno",
-      "blé noir",
-      "ble noir",
-      "blé-noir",
-      "senza glutine",
-      "senza-glutine",
-      "privo di glutine",
-      "gluten free",
-      "gluten-free",
-      "sans gluten",
-      "sin gluten",
-      "libre de gluten",
-      "spiga barrata",
-      "spiga sbarrata",
-      "adatto ai celiaci",
-      "zero glutine",
-      "deglutinato",
-      "deglutinata",
-      "deglutinati",
-      "deglutinate",
-      "degliutinato",
-      "deglutenized",
-      "deglutenised",
-    ];
     for (var phrase in safePhrases) {
       text = text.replaceAll(phrase, " ");
     }
@@ -524,17 +562,7 @@ class GlutenRules {
   // Nasconde le frasi sicure per non far scattare l'allarme sulla parola "lattosio"
   static String sanitizeForLactose(String input) {
     String text = input.toLowerCase();
-    final safePhrases = [
-      "senza lattosio",
-      "privo di lattosio",
-      "lactose free",
-      "lactose-free",
-      "sans lactose",
-      "sin lactosa",
-      "delattosato",
-      "senza latte",
-    ];
-    for (var phrase in safePhrases) {
+    for (var phrase in lactoseSafePhrases) {
       text = text.replaceAll(phrase, " ");
     }
     return text;

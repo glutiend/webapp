@@ -1023,5 +1023,74 @@ void main() {
         expect(lattePos < traccePos, isTrue);
       },
     );
+
+    testWidgets(
+      'Ingredients analysis: does NOT highlight gluten/wheat inside multilingual safe phrases (senza glutine, gluten-free, sans gluten, deglutinato)',
+      (WidgetTester tester) async {
+        // 1. Italian: "senza glutine (amido di FRUMENTO deglutinato)"
+        await tester.pumpWidget(
+          createTestApp(
+            child: IngredientsAnalysisView(
+              displayedIngredients:
+                  'Semilavorato per prodotti da forno senza glutine (amido di FRUMENTO deglutinato, farina di riso)',
+              displayedIngredientsAnalyzed: [
+                IngredientAnalyzed(
+                  ingredient: 'Glutine',
+                  dangerLevel: 'danger',
+                  reason: 'Fonte diretta di glutine.',
+                ),
+                IngredientAnalyzed(
+                  ingredient: 'frumento',
+                  dangerLevel: 'danger',
+                  reason: 'Fonte diretta di glutine.',
+                ),
+              ],
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Nessuna pillola inline per "glutine" né per "FRUMENTO" (sono dentro frasi sicure)
+        expect(find.text('glutine'), findsNothing);
+        expect(find.text('FRUMENTO'), findsNothing);
+
+        // 2. English: "gluten-free"
+        await tester.pumpWidget(
+          createTestApp(
+            child: IngredientsAnalysisView(
+              displayedIngredients: 'Gluten-free bread mix (rice flour)',
+              displayedIngredientsAnalyzed: [
+                IngredientAnalyzed(
+                  ingredient: 'Gluten',
+                  dangerLevel: 'danger',
+                  reason: 'Gluten source.',
+                ),
+              ],
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Gluten'), findsOneWidget); // Solo la card in basso, non una pillola inline
+
+        // 3. Real danger ingredient OUTSIDE safe phrases IS highlighted inline
+        await tester.pumpWidget(
+          createTestApp(
+            child: IngredientsAnalysisView(
+              displayedIngredients: 'Farina di frumento, acqua, sale',
+              displayedIngredientsAnalyzed: [
+                IngredientAnalyzed(
+                  ingredient: 'frumento',
+                  dangerLevel: 'danger',
+                  reason: 'Fonte diretta di glutine.',
+                ),
+              ],
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        // 1 nella pillola inline + 1 nella card in basso = 2
+        expect(find.text('frumento'), findsNWidgets(2));
+      },
+    );
   });
 }

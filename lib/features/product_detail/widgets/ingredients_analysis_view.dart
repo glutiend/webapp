@@ -6,6 +6,7 @@ import 'package:easy_localization/easy_localization.dart';
 import '../../../core/theme/theme.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../../models/models.dart';
+import '../../../services/analyzer/analyzer.dart';
 import 'section_card.dart';
 
 class IngredientsAnalysisView extends StatelessWidget {
@@ -18,6 +19,34 @@ class IngredientsAnalysisView extends StatelessWidget {
     required this.displayedIngredientsAnalyzed,
   });
 
+  static bool _overlapsProtectedRange(
+    int start,
+    int end,
+    List<({int start, int end})> protectedRanges,
+  ) {
+    for (final range in protectedRanges) {
+      if (start < range.end && end > range.start) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static int _findFirstHighlightPos(
+    String rawText,
+    String keyword,
+    List<({int start, int end})> protectedRanges,
+  ) {
+    if (keyword.isEmpty) return -1;
+    final regex = GlutenRules.keywordRegex(keyword);
+    for (final match in regex.allMatches(rawText)) {
+      if (!_overlapsProtectedRange(match.start, match.end, protectedRanges)) {
+        return match.start;
+      }
+    }
+    return -1;
+  }
+
   /// Builds a RichText with inline highlights for each analyzed ingredient
   /// found in the raw ingredient string.
   Widget _buildHighlightedIngredients(
@@ -27,30 +56,35 @@ class IngredientsAnalysisView extends StatelessWidget {
     final String rawText = displayedIngredients;
     if (rawText.trim().isEmpty) return const SizedBox.shrink();
 
-    // Build a map of lowercase keyword → dangerLevel from the analyzed items.
-    // Only include items whose ingredient name actually appears in the raw text
-    // (skip synthetic labels like "Certificazione Senza Glutine").
-    final String lowerRaw = rawText.toLowerCase();
+    final protectedGlutenRanges = GlutenRules.findProtectedHighlightRanges(
+      rawText,
+    );
+    final protectedLactoseRanges = GlutenRules.findProtectedHighlightRanges(
+      rawText,
+      isLactose: true,
+    );
     final List<_HighlightEntry> entries = [];
 
     for (final item in displayedIngredientsAnalyzed) {
-      final String keyword = item.ingredient.toLowerCase();
+      final String keyword = item.ingredient.trim();
       if (keyword.isEmpty) continue;
 
-      // Try to find all occurrences of this keyword in the raw text
-      int searchFrom = 0;
-      while (true) {
-        final int pos = lowerRaw.indexOf(keyword, searchFrom);
-        if (pos == -1) break;
+      final protectedRanges = item.dangerLevel == 'lactose'
+          ? protectedLactoseRanges
+          : protectedGlutenRanges;
+      final regex = GlutenRules.keywordRegex(keyword);
 
+      for (final match in regex.allMatches(rawText)) {
+        if (_overlapsProtectedRange(match.start, match.end, protectedRanges)) {
+          continue;
+        }
         entries.add(
           _HighlightEntry(
-            start: pos,
-            end: pos + keyword.length,
+            start: match.start,
+            end: match.end,
             dangerLevel: item.dangerLevel,
           ),
         );
-        searchFrom = pos + keyword.length;
       }
     }
 
@@ -159,18 +193,32 @@ class IngredientsAnalysisView extends StatelessWidget {
       return displayedIngredientsAnalyzed;
     }
 
-    final String lowerText = displayedIngredients.toLowerCase();
+    final protectedGlutenRanges = GlutenRules.findProtectedHighlightRanges(
+      displayedIngredients,
+    );
+    final protectedLactoseRanges = GlutenRules.findProtectedHighlightRanges(
+      displayedIngredients,
+      isLactose: true,
+    );
     final indexedItems = displayedIngredientsAnalyzed.asMap().entries.toList();
 
     indexedItems.sort((entryA, entryB) {
       final a = entryA.value;
       final b = entryB.value;
-      final posA = a.ingredient.isNotEmpty
-          ? lowerText.indexOf(a.ingredient.toLowerCase())
-          : -1;
-      final posB = b.ingredient.isNotEmpty
-          ? lowerText.indexOf(b.ingredient.toLowerCase())
-          : -1;
+      final posA = _findFirstHighlightPos(
+        displayedIngredients,
+        a.ingredient.trim(),
+        a.dangerLevel == 'lactose'
+            ? protectedLactoseRanges
+            : protectedGlutenRanges,
+      );
+      final posB = _findFirstHighlightPos(
+        displayedIngredients,
+        b.ingredient.trim(),
+        b.dangerLevel == 'lactose'
+            ? protectedLactoseRanges
+            : protectedGlutenRanges,
+      );
 
       if (posA != -1 && posB != -1) {
         final cmp = posA.compareTo(posB);
