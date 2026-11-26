@@ -1,20 +1,19 @@
 {
   "report": {
     "detail": {
-      "showProductCard": "Mostra scheda prodotto",
-      "ingredientsAllergensNotes": "Dettagli su ingredienti e allergeni",
-      "previousStatus": "STATO PRECEDENTE",
-      "resultFromOnOff": "Secondo i dati di Open Food Facts.",
-      "reportDetails": "ALTRE INFORMAZIONI",
-      "reasonLabel": "Motivo della segnalazione",
-      "userComment": "Informazioni aggiuntive",
+      "viewProductCard": "Vedi scheda prodotto",
+      "previousStatusHeader": "STATO PRIMA DELLA SEGNALAZIONE",
+      "previousStatusExplanation": "La presenza di una segnalazione attiva rende temporaneamente il prodotto Incerto, modificando per sicurezza la valutazione originale.",
+      "statusChangeLabel": "Variazione stato",
+      "reasonHeader": "MOTIVO SEGNALAZIONE",
       "noAdditionalComment": "Non sono state fornite informazioni aggiuntive.",
       "agreeQuestion": "Sei d'accordo con questa segnalazione?",
       "generic": "Segnalazione generica",
       "date": {
         "today": "Segnalato oggi, {time}",
         "yesterday": "Segnalato ieri, {time}",
-        "default": "Segnalato il {date}, {time}"
+        "default": "Segnalato il {date}, {time}",
+        "inReview": "In revisione"
       },
       "title": "Dettaglio segnalazione",
       "voteError": "Errore durante la registrazione del voto. Riprova più tardi.",
