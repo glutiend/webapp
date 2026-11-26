@@ -555,6 +555,7 @@ void main() {
 
         // Now preview shows Europa Core
         expect(find.text('Passa a Europa Core'), findsOneWidget);
+        expect(find.byIcon(Icons.download_rounded), findsOneWidget);
       },
     );
 

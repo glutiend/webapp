@@ -137,182 +137,191 @@ void showStorageHistorySheet({
                       ),
                       const SizedBox(height: 16),
 
-                // 4. Card Cache Prodotti
-                Builder(
-                  builder: (context) {
-                    final cacheUnit = currentCacheCount == 1
-                        ? "settings.dataHistory.cacheItemSingle".tr()
-                        : "settings.dataHistory.cacheItemPlural".tr();
-                    final cacheDataText = "settings.dataHistory.statsFormat".tr(
-                      namedArgs: {
-                        'size': formatBytes(currentCacheBytes),
-                        'count': currentCacheCount.toString(),
-                        'unit': cacheUnit,
-                      },
-                    );
+                      // 4. Card Cache Prodotti
+                      Builder(
+                        builder: (context) {
+                          final cacheUnit = currentCacheCount == 1
+                              ? "settings.dataHistory.cacheItemSingle".tr()
+                              : "settings.dataHistory.cacheItemPlural".tr();
+                          final cacheDataText =
+                              "settings.dataHistory.statsFormat".tr(
+                                namedArgs: {
+                                  'size': formatBytes(currentCacheBytes),
+                                  'count': currentCacheCount.toString(),
+                                  'unit': cacheUnit,
+                                },
+                              );
 
-                    return AppCard.primary(
-                      padding: const EdgeInsets.all(20),
-                      borderRadius: 24,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  "settings.dataHistory.cacheTitle".tr(),
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: colorScheme.onSurface,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
+                          return AppCard.primary(
+                            padding: const EdgeInsets.all(20),
+                            borderRadius: 24,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        "settings.dataHistory.cacheTitle".tr(),
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: colorScheme.onSurface,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Flexible(
+                                      child: Text(
+                                        cacheDataText,
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                          color: colorScheme.onSurfaceVariant,
+                                        ),
+                                        textAlign: TextAlign.end,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              Flexible(
-                                child: Text(
-                                  cacheDataText,
+                                const SizedBox(height: 10),
+                                Text(
+                                  "settings.dataHistory.cacheDesc".tr(),
                                   style: TextStyle(
                                     fontSize: 13,
-                                    fontWeight: FontWeight.bold,
                                     color: colorScheme.onSurfaceVariant,
+                                    height: 1.45,
                                   ),
-                                  textAlign: TextAlign.end,
-                                  overflow: TextOverflow.ellipsis,
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            "settings.dataHistory.cacheDesc".tr(),
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: colorScheme.onSurfaceVariant,
-                              height: 1.45,
+                                const SizedBox(height: 18),
+                                AppTertiaryButton(
+                                  onPressed: onClearProductCache == null
+                                      ? null
+                                      : () async {
+                                          final confirm =
+                                              await showClearProductCacheDialog(
+                                                sheetContext,
+                                              );
+                                          if (confirm == true) {
+                                            await onClearProductCache();
+                                            setModalState(() {
+                                              currentCacheCount = 0;
+                                              currentCacheBytes = 0;
+                                            });
+                                            onStorageUpdated?.call();
+                                          }
+                                        },
+                                  icon: Icons.clear_all,
+                                  label: "settings.dataHistory.clearCacheAction"
+                                      .tr(),
+                                  fullWidth: true,
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(height: 18),
-                          AppTertiaryButton(
-                            onPressed: onClearProductCache == null
-                                ? null
-                                : () async {
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // 5. Card Cronologia Scansioni
+                      Builder(
+                        builder: (context) {
+                          final historyUnit = currentHistoryCount == 1
+                              ? "settings.dataHistory.historyItemSingle".tr()
+                              : "settings.dataHistory.historyItemPlural".tr();
+                          final historyDataText =
+                              "settings.dataHistory.statsFormat".tr(
+                                namedArgs: {
+                                  'size': formatBytes(currentHistoryBytes),
+                                  'count': currentHistoryCount.toString(),
+                                  'unit': historyUnit,
+                                },
+                              );
+
+                          return AppCard.primary(
+                            padding: const EdgeInsets.all(20),
+                            borderRadius: 24,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        "settings.dataHistory.historyTitle"
+                                            .tr(),
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: colorScheme.onSurface,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Flexible(
+                                      child: Text(
+                                        historyDataText,
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                          color: colorScheme.onSurfaceVariant,
+                                        ),
+                                        textAlign: TextAlign.end,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  "settings.dataHistory.historyDesc".tr(),
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: colorScheme.onSurfaceVariant,
+                                    height: 1.45,
+                                  ),
+                                ),
+                                const SizedBox(height: 18),
+                                AppDestructiveActionButton(
+                                  onPressed: () async {
                                     final confirm =
-                                        await showClearProductCacheDialog(
-                                      sheetContext,
-                                    );
+                                        await showClearHistoryDialog(
+                                          sheetContext,
+                                        );
                                     if (confirm == true) {
-                                      await onClearProductCache();
+                                      await onClearHistory();
                                       setModalState(() {
-                                        currentCacheCount = 0;
-                                        currentCacheBytes = 0;
+                                        currentHistoryCount = 0;
+                                        currentHistoryBytes = 0;
                                       });
                                       onStorageUpdated?.call();
                                     }
                                   },
-                            icon: Icons.cached_rounded,
-                            label: "settings.dataHistory.clearCacheAction".tr(),
-                            fullWidth: true,
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // 5. Card Cronologia Scansioni
-                Builder(
-                  builder: (context) {
-                    final historyUnit = currentHistoryCount == 1
-                        ? "settings.dataHistory.historyItemSingle".tr()
-                        : "settings.dataHistory.historyItemPlural".tr();
-                    final historyDataText =
-                        "settings.dataHistory.statsFormat".tr(
-                      namedArgs: {
-                        'size': formatBytes(currentHistoryBytes),
-                        'count': currentHistoryCount.toString(),
-                        'unit': historyUnit,
-                      },
-                    );
-
-                    return AppCard.primary(
-                      padding: const EdgeInsets.all(20),
-                      borderRadius: 24,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  "settings.dataHistory.historyTitle".tr(),
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: colorScheme.onSurface,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
+                                  icon: Icons.delete_outline_rounded,
+                                  label:
+                                      "settings.dataHistory.clearHistoryAction"
+                                          .tr(),
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              Flexible(
-                                child: Text(
-                                  historyDataText,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                    color: colorScheme.onSurfaceVariant,
-                                  ),
-                                  textAlign: TextAlign.end,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            "settings.dataHistory.historyDesc".tr(),
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: colorScheme.onSurfaceVariant,
-                              height: 1.45,
+                              ],
                             ),
-                          ),
-                          const SizedBox(height: 18),
-                          AppDestructiveActionButton(
-                            onPressed: () async {
-                              final confirm =
-                                  await showClearHistoryDialog(sheetContext);
-                              if (confirm == true) {
-                                await onClearHistory();
-                                setModalState(() {
-                                  currentHistoryCount = 0;
-                                  currentHistoryBytes = 0;
-                                });
-                                onStorageUpdated?.call();
-                              }
-                            },
-                            icon: Icons.delete_outline_rounded,
-                            label: "settings.dataHistory.clearHistoryAction".tr(),
-                          ),
-                        ],
+                          );
+                        },
                       ),
-                    );
-                  },
+                    ],
+                  ),
                 ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
+              ),
+            ],
+          );
         },
       );
     },

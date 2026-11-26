@@ -99,7 +99,9 @@ class _OfflineDatabaseSheetContentState
     super.initState();
     _initStateInternal();
 
-    _settingsSubscription = SettingsDbService.settingsStream.listen((newSettings) {
+    _settingsSubscription = SettingsDbService.settingsStream.listen((
+      newSettings,
+    ) {
       if (!mounted) return;
       setState(() {
         _currentSettings = newSettings;
@@ -113,7 +115,9 @@ class _OfflineDatabaseSheetContentState
       widget.onDatabaseUpdated?.call();
     });
 
-    OfflineDbSyncService.syncProgressNotifier.addListener(_onGlobalSyncProgress);
+    OfflineDbSyncService.syncProgressNotifier.addListener(
+      _onGlobalSyncProgress,
+    );
     final currentProgress = OfflineDbSyncService.syncProgressNotifier.value;
     if (currentProgress.isInProgress && _syncSubscription == null) {
       _syncProgress = currentProgress;
@@ -123,7 +127,9 @@ class _OfflineDatabaseSheetContentState
 
   @override
   void dispose() {
-    OfflineDbSyncService.syncProgressNotifier.removeListener(_onGlobalSyncProgress);
+    OfflineDbSyncService.syncProgressNotifier.removeListener(
+      _onGlobalSyncProgress,
+    );
     _settingsSubscription?.cancel();
     _syncSubscription?.cancel();
     super.dispose();
@@ -151,7 +157,8 @@ class _OfflineDatabaseSheetContentState
   Future<void> _reloadStateFromStorage() async {
     await Future.delayed(const Duration(milliseconds: 150));
     final latest = await SettingsDbService.getLocalSettings();
-    final installed = await OfflineDbService.getInstalledTier() ?? OfflineDbTier.none;
+    final installed =
+        await OfflineDbService.getInstalledTier() ?? OfflineDbTier.none;
     if (!mounted) return;
     setState(() {
       _currentSettings = latest;
@@ -248,7 +255,9 @@ class _OfflineDatabaseSheetContentState
                   _triggerSnackbar("settings.offlineDb.syncSuccess".tr());
                 }
               } catch (e, stack) {
-                debugPrint("OfflineDatabaseSheet: Error finalizing database sync: $e\n$stack");
+                debugPrint(
+                  "OfflineDatabaseSheet: Error finalizing database sync: $e\n$stack",
+                );
                 if (mounted) {
                   await _performRollback();
                   _triggerSnackbar(
@@ -271,7 +280,9 @@ class _OfflineDatabaseSheetContentState
             }
           },
           onError: (err, stack) async {
-            debugPrint("OfflineDatabaseSheet: Sync stream onError: $err\n$stack");
+            debugPrint(
+              "OfflineDatabaseSheet: Sync stream onError: $err\n$stack",
+            );
             if (!mounted) return;
             await _performRollback();
             _triggerSnackbar(
@@ -289,47 +300,47 @@ class _OfflineDatabaseSheetContentState
 
     try {
       if (_rollbackTier == OfflineDbTier.none) {
-      await OfflineDbService.deleteDatabaseFile();
-      await OfflineDbService.setInstalledTier(OfflineDbTier.none);
-      if (_currentSettings.offlineDbTier != OfflineDbTier.none ||
-          _currentSettings.offlineDbLastSyncedAt != null) {
-        final updated = _currentSettings.copyWith(
-          offlineDbTier: OfflineDbTier.none,
-          offlineDbLastSyncedAt: null,
-        );
-        _currentSettings = updated;
-        await widget.onSettingsChange(updated, isOfflineDbChange: true);
-      }
+        await OfflineDbService.deleteDatabaseFile();
+        await OfflineDbService.setInstalledTier(OfflineDbTier.none);
+        if (_currentSettings.offlineDbTier != OfflineDbTier.none ||
+            _currentSettings.offlineDbLastSyncedAt != null) {
+          final updated = _currentSettings.copyWith(
+            offlineDbTier: OfflineDbTier.none,
+            offlineDbLastSyncedAt: null,
+          );
+          _currentSettings = updated;
+          await widget.onSettingsChange(updated, isOfflineDbChange: true);
+        }
 
-      if (mounted) {
-        setState(() {
-          _installedTier = OfflineDbTier.none;
-          _downloadingTier = null;
-          _syncProgress = const OfflineSyncProgress.idle();
-        });
-        widget.onDatabaseUpdated?.call();
-      }
-    } else {
-      await OfflineDbService.setInstalledTier(_rollbackTier);
-      if (_currentSettings.offlineDbTier != _rollbackTier ||
-          _currentSettings.offlineDbLastSyncedAt != _rollbackLastSyncedAt) {
-        final updated = _currentSettings.copyWith(
-          offlineDbTier: _rollbackTier,
-          offlineDbLastSyncedAt: _rollbackLastSyncedAt,
-        );
-        _currentSettings = updated;
-        await widget.onSettingsChange(updated, isOfflineDbChange: true);
-      }
+        if (mounted) {
+          setState(() {
+            _installedTier = OfflineDbTier.none;
+            _downloadingTier = null;
+            _syncProgress = const OfflineSyncProgress.idle();
+          });
+          widget.onDatabaseUpdated?.call();
+        }
+      } else {
+        await OfflineDbService.setInstalledTier(_rollbackTier);
+        if (_currentSettings.offlineDbTier != _rollbackTier ||
+            _currentSettings.offlineDbLastSyncedAt != _rollbackLastSyncedAt) {
+          final updated = _currentSettings.copyWith(
+            offlineDbTier: _rollbackTier,
+            offlineDbLastSyncedAt: _rollbackLastSyncedAt,
+          );
+          _currentSettings = updated;
+          await widget.onSettingsChange(updated, isOfflineDbChange: true);
+        }
 
-      if (mounted) {
-        setState(() {
-          _installedTier = _rollbackTier;
-          _downloadingTier = null;
-          _syncProgress = const OfflineSyncProgress.idle();
-        });
-        widget.onDatabaseUpdated?.call();
+        if (mounted) {
+          setState(() {
+            _installedTier = _rollbackTier;
+            _downloadingTier = null;
+            _syncProgress = const OfflineSyncProgress.idle();
+          });
+          widget.onDatabaseUpdated?.call();
+        }
       }
-    }
     } catch (e) {
       debugPrint("Error during _performRollback: $e");
     }
@@ -811,7 +822,9 @@ class _OfflineDatabaseSheetContentState
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                    color: isSelected ? colorScheme.primary : colorScheme.onSurface,
+                    color: isSelected
+                        ? colorScheme.primary
+                        : colorScheme.onSurface,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -1145,7 +1158,7 @@ class _OfflineDatabaseSheetContentState
                       if (_previewPack == _installedTier.key)
                         AppDestructiveActionButton(
                           onPressed: isSyncing ? null : _handleUninstallPackage,
-                          icon: Icons.delete_outline_rounded,
+                          icon: Icons.remove_from_queue,
                           label: "settings.offlineDb.uninstallPackage".tr(),
                         )
                       else if (_installedTier == OfflineDbTier.none)
@@ -1172,6 +1185,7 @@ class _OfflineDatabaseSheetContentState
                                   _previewPack,
                                   isInitialInstall: false,
                                 ),
+                          icon: Icons.add_to_queue,
                           fullWidth: true,
                           label: "settings.offlineDb.switchConfirmTitle".tr(
                             namedArgs: {
