@@ -27,9 +27,7 @@ Future<void> showAppConfirmDialog({
       return AlertDialog(
         backgroundColor: cardBg,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(28),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
         icon: Center(
           child: Container(
             width: 56,
@@ -42,9 +40,7 @@ Future<void> showAppConfirmDialog({
             ),
             child: Icon(
               icon,
-              color: isDestructive
-                  ? colorScheme.error
-                  : colorScheme.primary,
+              color: isDestructive ? colorScheme.error : colorScheme.primary,
               size: 28,
             ),
           ),
@@ -114,7 +110,7 @@ Future<void> showDeleteHistoryConfirmDialog({
 }) {
   return showAppConfirmDialog(
     context: context,
-    icon: Icons.delete_outline_rounded,
+    icon: Icons.remove_shopping_cart_outlined,
     title: "common.actions.deleteHistoryConfirmTitle".tr(),
     message: "common.actions.deleteHistoryConfirmBody".tr(),
     confirmLabel: "common.actions.delete".tr(),
@@ -129,11 +125,10 @@ Future<void> showDeleteReportConfirmDialog({
 }) {
   return showAppConfirmDialog(
     context: context,
-    icon: Icons.report_gmailerrorred_rounded,
+    icon: Icons.report_off_outlined,
     title: "common.actions.deleteReportConfirmTitle".tr(),
     message: "common.actions.deleteReportConfirmBody".tr(),
     confirmLabel: "common.actions.delete".tr(),
     onConfirm: onConfirm,
   );
 }
-

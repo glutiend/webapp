@@ -254,7 +254,7 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
                 AppDestructivePopupMenuItem<String>(
                   value: 'delete_report',
                   title: "common.actions.deleteReportConfirmTitle".tr(),
-                  icon: Icons.report_gmailerrorred_rounded,
+                  icon: Icons.report_off_outlined,
                   colorScheme: colorScheme,
                 ),
               ],
@@ -355,7 +355,7 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
                     Padding(
                       padding: const EdgeInsets.only(top: 6.0),
                       child: AppTextButton(
-                        icon: Icons.storefront_outlined,
+                        icon: Icons.shopping_cart_outlined,
                         label: "report.detail.viewProductCard".tr(),
                         onPressed: () {
                           final productToShow = widget.product;

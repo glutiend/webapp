@@ -70,7 +70,7 @@ class ProductDetailAppBarActions extends StatelessWidget {
               AppDestructivePopupMenuItem<String>(
                 value: 'delete_history',
                 title: "common.actions.deleteHistoryConfirmTitle".tr(),
-                icon: Icons.delete_outline_rounded,
+                icon: Icons.remove_shopping_cart_outlined,
                 colorScheme: colorScheme,
               ),
             );
@@ -101,7 +101,7 @@ class ProductDetailAppBarActions extends StatelessWidget {
               AppDestructivePopupMenuItem<String>(
                 value: 'delete_report',
                 title: "common.actions.deleteReportConfirmTitle".tr(),
-                icon: Icons.report_gmailerrorred_rounded,
+                icon: Icons.report_off_outlined,
                 colorScheme: colorScheme,
               ),
             );

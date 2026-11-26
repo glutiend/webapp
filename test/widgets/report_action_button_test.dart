@@ -36,9 +36,9 @@ void main() {
         ),
       );
 
-      // Verify button exists and uses flag_outlined icon
+      // Verify button exists and uses report_outlined icon
       expect(find.byType(OutlinedButton), findsOneWidget);
-      expect(find.byIcon(Icons.flag_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.report_outlined), findsOneWidget);
       expect(find.text('product.actions.reportError'), findsOneWidget);
 
       // Verify no checkmark or red styling

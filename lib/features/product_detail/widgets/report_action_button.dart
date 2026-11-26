@@ -35,11 +35,7 @@ class ReportActionButton extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.flag_rounded,
-                color: mutedColor,
-                size: 18,
-              ),
+              Icon(Icons.report, color: mutedColor, size: 18),
               const SizedBox(width: 8),
               Flexible(
                 child: Text(
@@ -65,7 +61,7 @@ class ReportActionButton extends StatelessWidget {
       width: double.infinity,
       child: AppTertiaryButton(
         onPressed: onReportPressed,
-        icon: Icons.flag_outlined,
+        icon: Icons.report_outlined,
         label: "product.actions.reportError".tr(),
         fullWidth: true,
       ),

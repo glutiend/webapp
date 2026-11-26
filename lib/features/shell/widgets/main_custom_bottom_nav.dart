@@ -70,8 +70,8 @@ class MainCustomBottomNav extends StatelessWidget {
                     _buildNavItem(
                       context,
                       2,
-                      Icons.report_problem,
-                      Icons.report_problem_outlined,
+                      Icons.report,
+                      Icons.report_outlined,
                       "common.navigation.reports".tr(),
                     ),
                     _buildNavItem(

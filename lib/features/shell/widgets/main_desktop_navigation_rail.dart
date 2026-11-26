@@ -126,9 +126,9 @@ class MainDesktopNavigationRail extends StatelessWidget {
                                   vertical: 16.0,
                                 ),
                                 icon: const Icon(
-                                  Icons.report_problem_outlined,
+                                  Icons.report_outlined,
                                 ),
-                                selectedIcon: const Icon(Icons.report_problem),
+                                selectedIcon: const Icon(Icons.report),
                                 label: Text(
                                   "common.navigation.reports".tr(),
                                 ),
