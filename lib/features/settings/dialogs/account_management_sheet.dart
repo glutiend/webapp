@@ -320,39 +320,48 @@ class _AccountManagementSheetContentState
         const SizedBox(height: 12),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Flexible(
-                child: AppTertiaryButton(
-                  onPressed: _cancelEditing,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  label: "common.actions.cancel".tr(),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Flexible(
-                child: ValueListenableBuilder<TextEditingValue>(
-                  valueListenable: _nameController,
-                  builder: (context, value, child) {
-                    final bool isValid = value.text.trim().isNotEmpty;
-                    return AppPrimaryButton(
-                      onPressed: isValid
-                          ? () => _handleSaveName(value.text.trim())
-                          : null,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
+          child: Center(
+            child: IntrinsicWidth(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(minWidth: 100),
+                      child: AppTertiaryButton(
+                        onPressed: _cancelEditing,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        label: "common.actions.cancel".tr(),
                       ),
-                      label: "common.actions.save".tr(),
-                    );
-                  },
-                ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(minWidth: 100),
+                      child: ValueListenableBuilder<TextEditingValue>(
+                        valueListenable: _nameController,
+                        builder: (context, value, child) {
+                          final bool isValid = value.text.trim().isNotEmpty;
+                          return AppPrimaryButton(
+                            onPressed: isValid
+                                ? () => _handleSaveName(value.text.trim())
+                                : null,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            label: "common.actions.save".tr(),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ],

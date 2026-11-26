@@ -340,93 +340,121 @@ class _SubmitReportSheetContentState extends State<_SubmitReportSheetContent> {
                     const SizedBox(height: 32),
 
                     // --- Azioni Centrate e Compatte ---
-                    Row(
-                      children: [
-                        Expanded(
-                          child: SizedBox(
-                            height: 44,
-                            child: AppTertiaryButton(
-                              onPressed: () => Navigator.pop(context),
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              label: "common.actions.cancel".tr(),
+                    Center(
+                      child: IntrinsicWidth(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  minWidth: 100,
+                                ),
+                                child: SizedBox(
+                                  height: 44,
+                                  child: AppTertiaryButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    label: "common.actions.cancel".tr(),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: SizedBox(
-                            height: 44,
-                            child: AppPrimaryButton(
-                              onPressed: isBlocked
-                                  ? null
-                                  : () {
-                                      // 1. Registra sottomissione per il rate limiting
-                                      ReportRateLimiter.recordSubmission();
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  minWidth: 100,
+                                ),
+                                child: SizedBox(
+                                  height: 44,
+                                  child: AppPrimaryButton(
+                                    onPressed: isBlocked
+                                        ? null
+                                        : () {
+                                            // 1. Registra sottomissione per il rate limiting
+                                            ReportRateLimiter.recordSubmission();
 
-                                      final currentLang =
-                                          widget.userSettings.preferredLanguage;
-                                      final origAnalysis =
-                                          AnalyzerService.analyzeGlutenSafety(
-                                            name: widget.currentProduct.getName(
-                                              currentLang,
-                                            ),
-                                            brand: widget.currentProduct.getBrand(
-                                              currentLang,
-                                            ),
-                                            ingredients: widget.currentProduct
-                                                .getIngredients(currentLang),
-                                            allergensList: widget.currentProduct
-                                                .getAllergens(currentLang),
-                                            reportCount: 0,
-                                            categoriesTags: widget
-                                                .currentProduct
-                                                .categoriesTags,
-                                            offTags: widget.currentProduct
-                                                .toOffTags(),
-                                            strictMode:
-                                                widget.userSettings.strictMode,
-                                            warnAdditives:
-                                                widget.userSettings.warnAdditives,
-                                            alertLactose:
-                                                widget.userSettings.alertLactose,
-                                            preferredLanguage: currentLang,
-                                            ignoreReports: true,
-                                          );
+                                            final currentLang = widget
+                                                .userSettings
+                                                .preferredLanguage;
+                                            final origAnalysis =
+                                                AnalyzerService.analyzeGlutenSafety(
+                                                  name: widget.currentProduct
+                                                      .getName(currentLang),
+                                                  brand: widget.currentProduct
+                                                      .getBrand(currentLang),
+                                                  ingredients: widget
+                                                      .currentProduct
+                                                      .getIngredients(
+                                                        currentLang,
+                                                      ),
+                                                  allergensList: widget
+                                                      .currentProduct
+                                                      .getAllergens(
+                                                        currentLang,
+                                                      ),
+                                                  reportCount: 0,
+                                                  categoriesTags: widget
+                                                      .currentProduct
+                                                      .categoriesTags,
+                                                  offTags: widget.currentProduct
+                                                      .toOffTags(),
+                                                  strictMode: widget
+                                                      .userSettings
+                                                      .strictMode,
+                                                  warnAdditives: widget
+                                                      .userSettings
+                                                      .warnAdditives,
+                                                  alertLactose: widget
+                                                      .userSettings
+                                                      .alertLactose,
+                                                  preferredLanguage:
+                                                      currentLang,
+                                                  ignoreReports: true,
+                                                );
 
-                                      final reportData = {
-                                        "type": _reportType,
-                                        "comments": _commentsController.text,
-                                        "originalStatus":
-                                            origAnalysis.status.name,
-                                      };
+                                            final reportData = {
+                                              "type": _reportType,
+                                              "comments":
+                                                  _commentsController.text,
+                                              "originalStatus":
+                                                  origAnalysis.status.name,
+                                            };
 
-                                      // 2. Chiudi immediatamente il bottom sheet (0 ms)
-                                      Navigator.pop(context);
+                                            // 2. Chiudi immediatamente il bottom sheet (0 ms)
+                                            Navigator.pop(context);
 
-                                      // 3. Notifica ottimistica alla vista sottostante
-                                      widget.onSubmitted();
+                                            // 3. Notifica ottimistica alla vista sottostante
+                                            widget.onSubmitted();
 
-                                      // 4. Lancia persistenza e sync in background
-                                      widget.onReportSubmit(
-                                        widget.currentProduct.barcode,
-                                        reportData,
-                                      );
-                                    },
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              label: isBlocked
-                                  ? "product.reportSheet.waitCountdown".tr(
-                                      namedArgs: {
-                                        'time':
-                                            ReportRateLimiter.formatRemainingTime(
-                                              _remainingSeconds,
-                                            ),
-                                      },
-                                    )
-                                  : "product.reportSheet.submit".tr(),
+                                            // 4. Lancia persistenza e sync in background
+                                            widget.onReportSubmit(
+                                              widget.currentProduct.barcode,
+                                              reportData,
+                                            );
+                                          },
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    label: isBlocked
+                                        ? "product.reportSheet.waitCountdown".tr(
+                                            namedArgs: {
+                                              'time':
+                                                  ReportRateLimiter.formatRemainingTime(
+                                                    _remainingSeconds,
+                                                  ),
+                                            },
+                                          )
+                                        : "product.reportSheet.submit".tr(),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ],
                 ),

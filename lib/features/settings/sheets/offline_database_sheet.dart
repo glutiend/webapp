@@ -1079,7 +1079,7 @@ class _OfflineDatabaseSheetContentState
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
-                                  color: colorScheme.primary,
+                                  color: colorScheme.statusPrimaryText,
                                   letterSpacing: 0.2,
                                 ),
                               ),

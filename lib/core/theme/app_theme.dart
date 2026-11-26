@@ -54,7 +54,7 @@ final ThemeData lightTheme = ThemeData(
   ),
   navigationBarTheme: NavigationBarThemeData(
     backgroundColor: lightBottomNavBg,
-    indicatorColor: lightSecondaryContainer,
+    indicatorColor: lightPrimaryContainer,
   ),
   dialogTheme: const DialogThemeData(
     backgroundColor: lightCardBackground,
@@ -123,7 +123,7 @@ final ThemeData darkTheme = ThemeData(
   ),
   navigationBarTheme: NavigationBarThemeData(
     backgroundColor: darkBottomNavBg,
-    indicatorColor: darkSecondaryContainer,
+    indicatorColor: darkPrimaryContainer,
   ),
   dialogTheme: const DialogThemeData(
     backgroundColor: darkCardBackground,
@@ -514,7 +514,7 @@ extension AppColorTokens on ColorScheme {
   ];
   Color get modalBackgroundColor =>
       brightness == Brightness.dark ? darkBottomSheetBg : lightBottomSheetBg;
-  Color get navSelectedBg => secondaryContainer;
+  Color get navSelectedBg => iconCirclePrimaryBg;
   Color get navSelectedFg => onSecondaryContainer;
 
   // ── 10. ACCESSO ANONIMO ───────────────────────────────────────────────────

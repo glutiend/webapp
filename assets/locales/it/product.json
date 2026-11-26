@@ -98,7 +98,7 @@
       "reasonLabel": "Motivo della segnalazione",
       "detailsLabel": "Dettagli (Opzionale)",
       "detailsHint": "Es: La confezione dice \"Senza Glutine\", ma l'app segnala il prodotto come Vietato.",
-      "submit": "Invia segnalazione",
+      "submit": "Segnala",
       "rateLimitTitle": "AVVISO SEGNALAZIONI",
       "rateLimitBanner": "Hai inviato troppe segnalazioni di recente. Potrai inviare la nuova segnalazione tra poco.",
       "waitCountdown": "Attendi {time}",
