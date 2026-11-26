@@ -265,8 +265,9 @@ void main() {
         mockFirestore: mockFirestore,
         originalStatus: GlutenSafetyStatus.adatto,
       );
-      expect(find.byType(AppStatusPill), findsOneWidget);
+      expect(find.byType(AppStatusPill), findsNWidgets(2));
       expect(find.byIcon(Icons.check_circle_outline), findsOneWidget);
+      expect(find.byIcon(Icons.warning_amber), findsOneWidget);
     });
 
     testWidgets('shows unsafe status pill for nonAdatto', (tester) async {
@@ -277,8 +278,9 @@ void main() {
         mockFirestore: mockFirestore,
         originalStatus: GlutenSafetyStatus.nonAdatto,
       );
-      expect(find.byType(AppStatusPill), findsOneWidget);
+      expect(find.byType(AppStatusPill), findsNWidgets(2));
       expect(find.byIcon(Icons.cancel_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.warning_amber), findsOneWidget);
     });
 
     testWidgets('shows uncertain status pill for incerto', (tester) async {
@@ -289,8 +291,8 @@ void main() {
         mockFirestore: mockFirestore,
         originalStatus: GlutenSafetyStatus.incerto,
       );
-      expect(find.byType(AppStatusPill), findsOneWidget);
-      expect(find.byIcon(Icons.warning_amber), findsOneWidget);
+      expect(find.byType(AppStatusPill), findsNWidgets(2));
+      expect(find.byIcon(Icons.warning_amber), findsNWidgets(2));
     });
 
     testWidgets('shows unknown status pill for sconosciuto', (tester) async {
@@ -301,8 +303,9 @@ void main() {
         mockFirestore: mockFirestore,
         originalStatus: GlutenSafetyStatus.sconosciuto,
       );
-      expect(find.byType(AppStatusPill), findsOneWidget);
+      expect(find.byType(AppStatusPill), findsNWidgets(2));
       expect(find.byIcon(Icons.help_outline), findsOneWidget);
+      expect(find.byIcon(Icons.warning_amber), findsOneWidget);
     });
   });
 
@@ -483,6 +486,21 @@ void main() {
         find.textContaining('report.detail.date.yesterday'),
         findsOneWidget,
       );
+    });
+
+    testWidgets('shows "report.detail.date.inReview" in the reason header', (
+      tester,
+    ) async {
+      _stubFirestoreEmptyQuery(mockFirestore);
+      final now = DateTime.now();
+      final threeDaysAgo = DateTime(now.year, now.month, now.day - 3, 12);
+      await _pumpReportDetailCard(
+        tester,
+        callbacks: mockCallbacks,
+        mockFirestore: mockFirestore,
+        reportDate: threeDaysAgo.toUtc().toIso8601String(),
+      );
+      expect(find.text('report.detail.date.inReview'), findsOneWidget);
     });
 
     testWidgets('shows "report.detail.date.default" for older dates', (
@@ -1270,7 +1288,7 @@ void main() {
   // GROUP 9: Product Link Navigation
   // ═══════════════════════════════════════════════════════════════════════════
   group('Product Link Navigation', () {
-    testWidgets('shows showProductCard card when showProductLink=true', (
+    testWidgets('shows viewProductCard button when showProductLink=true', (
       tester,
     ) async {
       _stubFirestoreEmptyQuery(mockFirestore);
@@ -1281,11 +1299,8 @@ void main() {
         showProductLink: true,
       );
 
-      expect(find.text('report.detail.showProductCard'), findsOneWidget);
-      expect(
-        find.text('report.detail.ingredientsAllergensNotes'),
-        findsOneWidget,
-      );
+      expect(find.text('report.detail.viewProductCard'), findsOneWidget);
+      expect(find.byIcon(Icons.storefront_outlined), findsOneWidget);
     });
 
     testWidgets('hides product card link when showProductLink=false', (
@@ -1299,7 +1314,7 @@ void main() {
         showProductLink: false,
       );
 
-      expect(find.text('report.detail.showProductCard'), findsNothing);
+      expect(find.text('report.detail.viewProductCard'), findsNothing);
     });
 
     testWidgets('tapping product link navigates to ProductDetailCard', (
@@ -1313,7 +1328,7 @@ void main() {
         showProductLink: true,
       );
 
-      await tester.tap(find.text('report.detail.showProductCard'));
+      await tester.tap(find.text('report.detail.viewProductCard'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 

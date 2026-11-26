@@ -159,10 +159,7 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
         await widget.onVote!(_currentVote);
         final isOnline = await ConnectivityHelper.hasInternetConnection();
         if (!isOnline && mounted) {
-          showAppSnackBar(
-            context,
-            "report.detail.voteOfflineSuccess".tr(),
-          );
+          showAppSnackBar(context, "report.detail.voteOfflineSuccess".tr());
         }
       } catch (e) {
         if (mounted) {
@@ -205,15 +202,21 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
 
   Widget _buildContent(BuildContext context) {
     final colorScheme = context.colorScheme;
-    final scaffoldBgColor = Theme.of(context).scaffoldBackgroundColor;
+    final scaffoldBgColor = colorScheme.surface;
     final statusColors = colorScheme.statusUncertainColors;
-    final heroBgColor = statusColors.alpha;
+    final String rawReportDate =
+        (_activeReport?.submittedAt != null &&
+            _activeReport!.submittedAt.isNotEmpty)
+        ? _activeReport!.submittedAt
+        : (widget.reportDate.isNotEmpty
+              ? widget.reportDate
+              : widget.product.lastUpdated);
 
     return Scaffold(
       backgroundColor: scaffoldBgColor,
       extendBodyBehindAppBar: false,
       appBar: AppBar(
-        backgroundColor: heroBgColor,
+        backgroundColor: scaffoldBgColor,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
@@ -262,19 +265,9 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ── Header con sfumatura dedicata (dall'AppBar solida verso scaffoldBg) ──
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    heroBgColor,
-                    scaffoldBgColor,
-                  ],
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+            // ── Header Prodotto Centrato (su sfondo pulito) ───────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
               child: Column(
                 children: [
                   Container(
@@ -285,18 +278,18 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      Icons.warning,
+                      Icons.report,
                       color: statusColors.solid,
                       size: 48,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
                   Text(
                     widget.product.name,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w500,
+                      fontSize: 26,
+                      fontWeight: FontWeight.w600,
                       color: colorScheme.onSurface,
                       height: 1.2,
                     ),
@@ -304,12 +297,13 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
                   const SizedBox(height: 4),
                   Text(
                     widget.product.brand,
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 16,
                       color: colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
 
                   // Pillola Barcode
                   Container(
@@ -342,243 +336,281 @@ class _ReportDetailCardState extends State<ReportDetailCard> {
                     ),
                   ),
 
-                  // Data Scansione / Report
-                  Builder(
-                    builder: (context) {
-                      final String rawReportDate =
-                          (_activeReport?.submittedAt != null &&
-                              _activeReport!.submittedAt.isNotEmpty)
-                          ? _activeReport!.submittedAt
-                          : (widget.reportDate.isNotEmpty
-                                ? widget.reportDate
-                                : widget.product.lastUpdated);
+                  // Data della segnalazione
+                  if (rawReportDate.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10.0),
+                      child: Text(
+                        formatReportDate(rawReportDate),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
 
-                      if (rawReportDate.isNotEmpty) {
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 4.0),
-                          child: Text(
-                            formatReportDate(rawReportDate),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: colorScheme.onSurfaceVariant.withValues(
-                                alpha: 0.8,
+                  // Accesso diretto alla scheda prodotto (TextButton puro)
+                  if (widget.showProductLink)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6.0),
+                      child: AppTextButton(
+                        icon: Icons.storefront_outlined,
+                        label: "report.detail.viewProductCard".tr(),
+                        onPressed: () {
+                          final productToShow = widget.product;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProductDetailCard(
+                                product: productToShow,
+                                onBack: () => Navigator.pop(context),
+                                // Sola lettura: la segnalazione è già stata inviata,
+                                // questi callback non verranno mai chiamati da qui.
+                                onReportSubmit: (_, _) {},
+                                onProductUpdate: (_) async {},
+                                userSettings:
+                                    widget.userSettings ??
+                                    UserSettings(
+                                      strictMode: true,
+                                      alertLactose: false,
+                                      warnAdditives: true,
+                                      autoSaveHistory: true,
+                                      preferredLanguage: 'it',
+                                    ),
+                                showReportLink: false,
+                                showScanDate: false,
+                                hasReportedThisSession: widget.isOwnReport,
+                                userReportId: widget.reportId,
+                                onDeleteReport: widget.onDeleteReport,
+                                useResponsiveWrapper:
+                                    widget.useResponsiveWrapper,
                               ),
                             ),
-                          ),
-                        );
-                      }
-
-                      return const SizedBox.shrink();
-                    },
-                  ),
+                          );
+                        },
+                      ),
+                    ),
                 ],
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 24.0),
+              padding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 24.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-            const SizedBox(height: 24),
+                  // ── Card 1: Motivo Segnalazione (Testata Stitch) ───────────
+                  Builder(
+                    builder: (context) {
+                      final String effectiveComment =
+                          (_activeReport != null
+                                  ? _activeReport!.comments
+                                  : widget.reportComment)
+                              .trim();
+                      final bool hasComment =
+                          effectiveComment.isNotEmpty &&
+                          effectiveComment != "Nessun commento";
 
-            // ── BOTTONE NEUTRO: Scheda Prodotto (anti-loop) ────────────
-            if (widget.showProductLink)
-              AppCard.primary(
-                borderRadius: 16,
-                padding: const EdgeInsets.all(16),
-                onTap: () {
-                  final productToShow = widget.product;
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ProductDetailCard(
-                        product: productToShow,
-                        onBack: () => Navigator.pop(context),
-                        // Sola lettura: la segnalazione è già stata inviata,
-                        // questi callback non verranno mai chiamati da qui.
-                        onReportSubmit: (_, _) {},
-                        onProductUpdate: (_) async {},
-                        userSettings:
-                            widget.userSettings ??
-                            UserSettings(
-                              strictMode: true,
-                              alertLactose: false,
-                              warnAdditives: true,
-                              autoSaveHistory: true,
-                              preferredLanguage: 'it',
+                      return AppCard.primary(
+                        padding: EdgeInsets.zero,
+                        borderRadius: 24,
+                        clipBehavior: Clip.antiAlias,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // Fascia superiore piena
+                            Container(
+                              color: colorScheme.statusUncertainAlpha,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 12,
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.flag,
+                                    size: 16,
+                                    color: colorScheme.statusUncertainSolid,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      "report.detail.reasonHeader"
+                                          .tr()
+                                          .toUpperCase(),
+                                      style: TextStyle(
+                                        fontSize: 11.5,
+                                        fontWeight: FontWeight.w700,
+                                        color: colorScheme.statusUncertainSolid,
+                                        letterSpacing: 0.7,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Icon(
+                                    Icons.schedule,
+                                    size: 14,
+                                    color: colorScheme.statusUncertainSolid,
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    "report.detail.date.inReview".tr(),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: colorScheme.statusUncertainSolid,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                        showReportLink: false,
-                        showScanDate: false,
-                        hasReportedThisSession: widget.isOwnReport,
-                        userReportId: widget.reportId,
-                        onDeleteReport: widget.onDeleteReport,
-                        useResponsiveWrapper: widget.useResponsiveWrapper,
-                      ),
-                    ),
-                  );
-                },
-                child: Row(
-                  children: [
-                    // Icona neutra a sinistra
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: colorScheme.surfaceContainerHighest,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.inventory_2_outlined,
-                        size: 20,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    // Testo
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "report.detail.showProductCard".tr(),
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: colorScheme.onSurface,
+                            // Corpo inferiore
+                            Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _translateReason(
+                                      _activeReport?.type ??
+                                          widget.reportReasonKey,
+                                    ),
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: colorScheme.onSurface,
+                                      height: 1.35,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    hasComment
+                                        ? effectiveComment
+                                        : "report.detail.noAdditionalComment"
+                                              .tr(),
+                                    style: TextStyle(
+                                      fontSize: 13.5,
+                                      fontStyle: hasComment
+                                          ? FontStyle.normal
+                                          : FontStyle.italic,
+                                      color: hasComment
+                                          ? colorScheme.onSurface
+                                          : colorScheme.onSurfaceVariant,
+                                      height: 1.45,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            "report.detail.ingredientsAllergensNotes".tr(),
-                            style: TextStyle(
-                              fontSize: 13,
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // ── Card 2: Stato Prima della Segnalazione (Opzione 5) ─────
+                  AppCard.primary(
+                    padding: const EdgeInsets.all(20),
+                    borderRadius: 24,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.public_outlined,
+                              size: 16,
                               color: colorScheme.onSurfaceVariant,
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Freccia a destra per indicare la navigazione
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      size: 24,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ],
-                ),
-              ),
-            if (widget.showProductLink) const SizedBox(height: 24),
-
-            // ── Card 1: Stato Precedente ──────────────────────────
-            SectionCard(
-              title: "report.detail.previousStatus".tr().toUpperCase(),
-              icon: Icons.history,
-              child: Row(
-                children: [
-                  AppStatusPill.fromStatus(
-                    widget.originalStatus,
-                    isCompact: true,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      "report.detail.resultFromOnOff".tr(),
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: colorScheme.onSurfaceVariant,
-                        height: 1.3,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // ── Card 2: Dettagli Segnalazione ─────────────────────
-            Builder(
-              builder: (context) {
-                final String effectiveComment = (_activeReport != null
-                        ? _activeReport!.comments
-                        : widget.reportComment)
-                    .trim();
-                final bool hasComment = effectiveComment.isNotEmpty &&
-                    effectiveComment != "Nessun commento";
-
-                return SectionCard(
-                  title: "report.detail.reportDetails".tr().toUpperCase(),
-                  icon: Icons.chat_bubble_outline,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Blocco 1 — Motivo della segnalazione
-                      Text(
-                        "report.detail.reasonLabel".tr(),
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.onSurfaceVariant,
-                          letterSpacing: 0.2,
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                "report.detail.previousStatusHeader"
+                                    .tr()
+                                    .toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: colorScheme.onSurfaceVariant,
+                                  letterSpacing: 0.7,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        _translateReason(
-                          _activeReport?.type ?? widget.reportReasonKey,
-                        ),
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.onSurface,
-                          height: 1.35,
-                        ),
-                      ),
-                      if (hasComment) ...[
-                        // 3. Separazione tra i due blocchi (niente Divider)
-                        const SizedBox(height: 20),
-
-                        // 4. Blocco 2 — Informazioni aggiuntive
+                        const SizedBox(height: 12),
                         Text(
-                          "report.detail.userComment".tr(),
-                          style: TextStyle(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w600,
-                            color: colorScheme.onSurfaceVariant,
-                            letterSpacing: 0.2,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          effectiveComment,
+                          "report.detail.previousStatusExplanation".tr(),
                           style: TextStyle(
                             fontSize: 13.5,
-                            fontWeight: FontWeight.normal,
-                            color: colorScheme.onSurface,
+                            color: colorScheme.onSurfaceVariant,
                             height: 1.45,
                           ),
                         ),
+                        const SizedBox(height: 16),
+                        Divider(
+                          height: 1,
+                          thickness: 1,
+                          color: colorScheme.onSurface.withValues(alpha: 0.08),
+                        ),
+                        const SizedBox(height: 14),
+                        Row(
+                          children: [
+                            Text(
+                              "report.detail.statusChangeLabel".tr(),
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            const Spacer(),
+                            Flexible(
+                              child: Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing: 8,
+                                runSpacing: 6,
+                                children: [
+                                  AppStatusPill.fromStatus(
+                                    widget.originalStatus,
+                                    isCompact: true,
+                                    textOnly: true,
+                                  ),
+                                  Icon(
+                                    Icons.arrow_forward,
+                                    size: 14,
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
+                                  AppStatusPill.fromStatus(
+                                    GlutenSafetyStatus.incerto,
+                                    isCompact: true,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
-                    ],
+                    ),
                   ),
-                );
-              },
-            ),
-            const SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
-            // ── Sistema di Voto (YouTube Style) ───────────────────────
-            ReportVotingSection(
-              isVoteLoading: _isVoteLoading,
-              currentVote: _currentVote,
-              upvotes: _upvotes,
-              downvotes: _downvotes,
-              onVote: _handleVote,
+                  // ── Sistema di Voto (YouTube Style) ────────────────────────
+                  ReportVotingSection(
+                    isVoteLoading: _isVoteLoading,
+                    currentVote: _currentVote,
+                    upvotes: _upvotes,
+                    downvotes: _downvotes,
+                    onVote: _handleVote,
+                  ),
+                  const SizedBox(height: 40),
+                ],
+              ),
             ),
-            const SizedBox(height: 40),
           ],
         ),
       ),
-    ],
-  ),
-),
-);
+    );
   }
 }

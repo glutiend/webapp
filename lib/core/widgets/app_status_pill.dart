@@ -58,6 +58,7 @@ class AppStatusPill extends StatelessWidget {
   final IconData? icon;
   final Color bgColor;
   final Color textColor;
+  final bool textOnly;
 
   /// Costruttore con colori personalizzati.
   const AppStatusPill({
@@ -66,6 +67,7 @@ class AppStatusPill extends StatelessWidget {
     required this.bgColor,
     required this.textColor,
     this.icon,
+    this.textOnly = false,
   });
 
   // ---------------------------------------------------------------------------
@@ -153,6 +155,7 @@ class AppStatusPill extends StatelessWidget {
     GlutenSafetyStatus status, {
     Key? key,
     bool isCompact = false,
+    bool textOnly = false,
   }) {
     final variant = variantForStatus(status);
     String label;
@@ -192,6 +195,7 @@ class AppStatusPill extends StatelessWidget {
       variant: variant,
       label: label,
       icon: icon,
+      textOnly: textOnly,
     );
   }
 
@@ -201,17 +205,20 @@ class AppStatusPill extends StatelessWidget {
     required AppStatusPillVariant variant,
     required String label,
     IconData? icon,
+    bool textOnly = false,
   }) {
     return Builder(
       key: key,
       builder: (context) {
-        final colors = colorsForVariant(variant, Theme.of(context).colorScheme);
+        final colorScheme = Theme.of(context).colorScheme;
+        final colors = colorsForVariant(variant, colorScheme);
         return AppStatusPill(
           key: key,
           label: label,
-          bgColor: colors.bg,
-          textColor: colors.text,
+          bgColor: textOnly ? colorTransparent : colors.bg,
+          textColor: textOnly ? colorScheme.onSurfaceVariant : colors.text,
           icon: icon,
+          textOnly: textOnly,
         );
       },
     );
@@ -223,34 +230,40 @@ class AppStatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final content = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (icon != null) ...[
+          Icon(icon, size: 14, color: textColor),
+          const SizedBox(width: 4),
+        ],
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: textOnly ? 12 : 11,
+              fontWeight: textOnly ? FontWeight.w500 : FontWeight.w600,
+              color: textColor,
+              letterSpacing: 0.2,
+            ),
+          ),
+        ),
+      ],
+    );
+
+    if (textOnly) {
+      return content;
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(999),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) ...[
-            Icon(icon, size: 14, color: textColor),
-            const SizedBox(width: 4),
-          ],
-          Flexible(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: textColor,
-                letterSpacing: 0.2,
-              ),
-            ),
-          ),
-        ],
-      ),
+      child: content,
     );
   }
 }
