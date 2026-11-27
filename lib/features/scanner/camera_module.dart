@@ -53,6 +53,18 @@ class _CameraModuleState extends State<CameraModule>
   String? _lastScannedBarcode;
   DateTime? _lastScannedTime;
 
+  static const List<BarcodeFormat> _allowedBarcodeFormats = [
+    BarcodeFormat.ean13,
+    BarcodeFormat.ean8,
+    BarcodeFormat.upcA,
+    BarcodeFormat.upcE,
+    BarcodeFormat.code128,
+    BarcodeFormat.code39,
+    BarcodeFormat.itf14,
+  ];
+
+  static final RegExp _numericBarcodeRegex = RegExp(r'^\d{8,14}$');
+
   @override
   void initState() {
     super.initState();
@@ -67,16 +79,7 @@ class _CameraModuleState extends State<CameraModule>
               ? DetectionSpeed.normal
               : DetectionSpeed.noDuplicates,
           detectionTimeoutMs: 250,
-          formats: const [
-            BarcodeFormat.ean13,
-            BarcodeFormat.ean8,
-            BarcodeFormat.qrCode,
-            BarcodeFormat.upcA,
-            BarcodeFormat.upcE,
-            BarcodeFormat.code128,
-            BarcodeFormat.code39,
-            BarcodeFormat.dataMatrix,
-          ],
+          formats: _allowedBarcodeFormats,
           cameraResolution: kIsWeb ? null : const Size(480, 640),
         );
 
@@ -266,9 +269,18 @@ class _CameraModuleState extends State<CameraModule>
   void _onDetect(BarcodeCapture capture) async {
     if (!widget.isActive) return;
     if (_isProcessing || widget.scanningProgress) return;
-    final List<Barcode> barcodes = capture.barcodes;
-    final String? raw = barcodes.firstOrNull?.rawValue?.trim();
-    if (raw != null && raw.isNotEmpty) {
+
+    String? raw;
+    for (final barcode in capture.barcodes) {
+      if (!_allowedBarcodeFormats.contains(barcode.format)) continue;
+      final candidate = barcode.rawValue?.trim();
+      if (candidate != null && _numericBarcodeRegex.hasMatch(candidate)) {
+        raw = candidate;
+        break;
+      }
+    }
+
+    if (raw != null) {
       final now = CameraModule.nowProvider();
       if (_lastScannedBarcode == raw &&
           _lastScannedTime != null &&

@@ -985,6 +985,73 @@ void main() {
 
       verifyNever(() => cb.onScanSuccess(any()));
     });
+
+    testWidgets(
+        'detecting qrCode or dataMatrix does NOT call onScanSuccess',
+        (tester) async {
+      await _pumpCameraModule(tester, cb: cb, controller: controller);
+
+      final MobileScanner scannerWidget = tester.widget(
+        find.byType(MobileScanner),
+      );
+
+      scannerWidget.onDetect!(
+        BarcodeCapture(
+          barcodes: [
+            Barcode(rawValue: 'https://example.com', format: BarcodeFormat.qrCode),
+            Barcode(rawValue: '8001234567890', format: BarcodeFormat.qrCode),
+            Barcode(rawValue: '8001234567890', format: BarcodeFormat.dataMatrix),
+          ],
+        ),
+      );
+      await tester.pump();
+
+      verifyNever(() => cb.onScanSuccess(any()));
+    });
+
+    testWidgets(
+        'detecting non-numeric 1D barcode does NOT call onScanSuccess',
+        (tester) async {
+      await _pumpCameraModule(tester, cb: cb, controller: controller);
+
+      final MobileScanner scannerWidget = tester.widget(
+        find.byType(MobileScanner),
+      );
+
+      scannerWidget.onDetect!(
+        BarcodeCapture(
+          barcodes: [
+            Barcode(rawValue: 'LOT-ABC-123', format: BarcodeFormat.code128),
+            Barcode(rawValue: '12345', format: BarcodeFormat.code39),
+          ],
+        ),
+      );
+      await tester.pump();
+
+      verifyNever(() => cb.onScanSuccess(any()));
+    });
+
+    testWidgets(
+        'skips qrCode and picks valid 1D barcode in same capture',
+        (tester) async {
+      await _pumpCameraModule(tester, cb: cb, controller: controller);
+
+      final MobileScanner scannerWidget = tester.widget(
+        find.byType(MobileScanner),
+      );
+
+      scannerWidget.onDetect!(
+        BarcodeCapture(
+          barcodes: [
+            Barcode(rawValue: 'https://promo.example', format: BarcodeFormat.qrCode),
+            Barcode(rawValue: '8009876543210', format: BarcodeFormat.ean13),
+          ],
+        ),
+      );
+      await tester.pump();
+
+      verify(() => cb.onScanSuccess('8009876543210')).called(1);
+    });
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
